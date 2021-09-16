@@ -25,6 +25,7 @@ from metax_api.utils import (
     remove_keys_recursively,
 )
 
+from .auth_service import AuthService
 from .common_service import CommonService
 from .datacite_service import DataciteService
 from .file_service import FileService
@@ -85,18 +86,8 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                 "curator": [{"identifier": request.query_params["curator"]}]
             }
 
-        if request.query_params.get("owner_id", False):
-            queryset_search_params["editor__contains"] = {
-                "owner_id": request.query_params["owner_id"]
-            }
-
         if request.query_params.get("user_created", False):
             queryset_search_params["user_created"] = request.query_params["user_created"]
-
-        if request.query_params.get("editor", False):
-            queryset_search_params["editor__contains"] = {
-                "identifier": request.query_params["editor"]
-            }
 
         if request.query_params.get("metadata_provider_user", False):
             queryset_search_params["metadata_provider_user"] = request.query_params[
@@ -117,6 +108,9 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
 
         if request.query_params.get("pas_filter", False):
             cls.set_pas_filter(queryset_search_params, request)
+
+        if request.query_params.get("projects", False):
+            cls.set_projects_filter(queryset_search_params, request)
 
         if CommonService.has_research_agent_query_params(request):
             cls.set_actor_filters(queryset_search_params, request)
@@ -289,6 +283,34 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
             queryset_search_params["q_filters"].append(q_filter)
         else:
             queryset_search_params["q_filters"] = [q_filter]
+
+    @staticmethod
+    def set_projects_filter(queryset_search_params, request):
+        """
+        Filter datasets that belong to any project in comma-separated projects list.
+
+        A dataset belongs to the projects of the files it contains. Because this is a many-to-many
+        relationship that can return duplicate datasets, it's necessary to remove non-distinct values
+        from query results.
+        """
+        projects = request.query_params.get("projects").split(",")
+
+        # non-service users can only query their own projects
+        if not request.user.is_service:
+            user_projects = []
+            if request.user.username != "":
+                user_projects = AuthService.get_user_projects(request)
+            if not set(projects).issubset(user_projects):
+                raise Http403({"detail": ["User is not member of project"]})
+
+        q_filter = Q(files__project_identifier__in=projects)
+        if "deduplicated_q_filters" in queryset_search_params:
+            queryset_search_params["deduplicated_q_filters"].append(q_filter)
+        else:
+            queryset_search_params["deduplicated_q_filters"] = [q_filter]
+
+        return queryset_search_params
+
 
     @staticmethod
     def populate_file_details(cr_json, request):

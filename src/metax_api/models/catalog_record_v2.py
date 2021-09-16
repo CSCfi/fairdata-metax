@@ -10,7 +10,7 @@ from collections import defaultdict
 from copy import deepcopy
 
 from django.conf import settings
-from django.db.models import Q
+from django.db.models import Q, Sum
 from rest_framework.serializers import ValidationError
 
 from metax_api.exceptions import Http400, Http403
@@ -83,6 +83,10 @@ class CatalogRecordV2(CatalogRecord):
             self._post_update_operations()
 
     def delete(self, *args, **kwargs):
+        if kwargs.get("hard"):
+            super().delete(*args, **kwargs)
+            return self.id
+
         if self.next_draft:
             self.next_draft.delete()
             self.next_draft = None
@@ -104,6 +108,9 @@ class CatalogRecordV2(CatalogRecord):
 
         self.research_dataset["metadata_version_identifier"] = generate_uuid_identifier()
         self.identifier = generate_uuid_identifier()
+
+        if not ("files" in self.research_dataset or "directories" in self.research_dataset) and "total_files_byte_size" in self.research_dataset:
+            self.research_dataset.pop("total_files_byte_size")
 
         if not self._save_as_draft():
             self._generate_issued_date()
@@ -573,6 +580,14 @@ class CatalogRecordV2(CatalogRecord):
 
         else:
             self.update_datacite = False
+
+    def _calculate_total_files_byte_size(self):
+        rd = self.research_dataset
+        rd["total_files_byte_size"] = 0
+        if self.files.count() > 0:
+            rd["total_files_byte_size"] = (
+                self.files.aggregate(Sum("byte_size"))["byte_size__sum"] or 0
+            )
 
     def _update_dataset_specific_metadata(self, file_changes, operation_is_create=False):
         """
@@ -1395,20 +1410,6 @@ class CatalogRecordV2(CatalogRecord):
 
         old_version.dataset_version_set.records.add(new_version)
         old_version.next_dataset_version = new_version
-
-        if new_version.editor:
-            # some of the old editor fields cant be true in the new version, so keep
-            # only the ones that make sense. it is up to the editor, to update other fields
-            # they see as relevant. we also dont want null values in there
-            old_editor = deepcopy(new_version.editor)
-            new_version.editor = {}
-            if "owner_id" in old_editor:
-                new_version.editor["owner_id"] = old_editor["owner_id"]
-            if "creator_id" in old_editor:
-                new_version.editor["creator_id"] = old_editor["creator_id"]
-            if "identifier" in old_editor:
-                # todo this probably does not make sense... ?
-                new_version.editor["identifier"] = old_editor["identifier"]
 
         # v2 api successfully invoked, change the api version to prevent further updates on v1 api
         self._set_api_version()

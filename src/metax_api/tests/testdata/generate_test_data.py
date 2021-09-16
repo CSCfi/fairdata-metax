@@ -651,10 +651,6 @@ def generate_catalog_records(
         new["fields"]["data_catalog"] = data_catalog_id
         new["fields"]["date_modified"] = "2017-09-23T10:07:22Z"
         new["fields"]["date_created"] = "2017-05-23T10:07:22Z"
-        new["fields"]["editor"] = {
-            "owner_id": catalog_records_owner_ids[j],
-            "creator_id": catalog_records_owner_ids[owner_idx],
-        }
 
         new["fields"]["research_dataset"]["metadata_version_identifier"] = generate_test_identifier(
             cr_type, len(test_data_list) + 1, urn=False
@@ -772,9 +768,6 @@ def generate_alt_catalog_records(test_data_list):
     #
     # create a couple of alternate records for record with id 10
     #
-    # note, these alt records wont have an editor-field set, since they presumably
-    # originated to metax from somewhere else than qvain (were harvested).
-    #
     print("generating alternate catalog records...")
     alternate_record_set = {
         "fields": {},
@@ -832,13 +825,6 @@ def set_qvain_info_to_records(catalog_record_list):
             continue
         if cr["fields"]["data_catalog"] not in (1, 2):
             continue
-        cr["fields"]["editor"] = {
-            "owner_id": catalog_records_owner_ids[owner_idx],
-            "creator_id": catalog_records_owner_ids[owner_idx],
-            "identifier": "qvain",
-            "record_id": "955e904-e3dd-4d7e-99f1-3fed446f9%03d"
-            % cr["pk"],  # 3 leading zeroes to preserve length
-        }
         owner_idx += 1
         if owner_idx >= total_qvain_users:
             owner_idx = 0

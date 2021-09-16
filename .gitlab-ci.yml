@@ -49,11 +49,12 @@ clean_gitlab_env:
       when: manual
     - when: never
 
-update_proxy:
+update_metax:
   stage: update
   environment: $CI_COMMIT_REF_NAME
   script:
     - ansible-playbook -i $ANSIBLE_INVENTORY $UPDATE_PROXY_PLAYBOOK -e "build_id=$CI_COMMIT_SHORT_SHA"
+    - ansible-playbook -i $ANSIBLE_INVENTORY $MANAGE_PLAYBOOK -e "build_id=$CI_COMMIT_SHORT_SHA"
   rules:
     - if: $CI_COMMIT_BRANCH =~ /^(demo|stable|staging|test)$/
       when: always

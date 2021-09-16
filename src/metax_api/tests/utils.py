@@ -257,8 +257,6 @@ class TestClassUtils:
 
     def _create_cr_for_owner(self, pk_for_template_cr, data):
         self.token = get_test_oidc_token()
-        if "editor" in data:
-            data.pop("editor", None)
         data["user_created"] = self.token["CSCUserName"]
         data["metadata_provider_user"] = self.token["CSCUserName"]
         data["metadata_provider_org"] = self.token["schacHomeOrganization"]

@@ -16,12 +16,13 @@ from rest_framework.response import Response
 from rest_framework.views import set_rollback
 from rest_framework.viewsets import ModelViewSet
 
+from metax_api.api.rest.v2.serializers import ApiErrorSerializerV2
 from metax_api.exceptions import Http400, Http403, Http500
 from metax_api.permissions import EndUserPermissions, ServicePermissions
 from metax_api.services import (
-    ApiErrorService,
     CallableService,
     CommonService as CS,
+    RabbitMQService as rabbitmq,
     RedisCacheService,
 )
 
@@ -137,7 +138,12 @@ class CommonViewSet(ModelViewSet):
             )
 
         if type(exc) not in (Http403, Http404, PermissionDenied, MethodNotAllowed):
-            ApiErrorService.store_error_details(self.request, response, exc)
+            try:
+                error_json = ApiErrorSerializerV2.request_to_json(self.request, response)
+                response.data["error_identifier"] = error_json["identifier"]
+                rabbitmq.publish(error_json, exchange="apierrors")
+            except Exception as e:
+                _logger.error(f"could not send api error to rabbitmq. Error: {e}")
 
         return response
 
@@ -164,6 +170,7 @@ class CommonViewSet(ModelViewSet):
         """
         additional_filters = {}
         q_filters = []
+        deduplicated_q_filters = []
 
         CS.set_if_modified_since_filter(self.request, additional_filters)
 
@@ -173,6 +180,10 @@ class CommonViewSet(ModelViewSet):
         if "q_filters" in additional_filters:
             # Q-filter objects, which can contain more complex filter options such as OR-clauses
             q_filters = additional_filters.pop("q_filters")
+
+        if "deduplicated_q_filters" in additional_filters:
+            # Q-filter objects that may produce duplicate results
+            deduplicated_q_filters = additional_filters.pop("deduplicated_q_filters")
 
         if CS.get_boolean_query_param(self.request, "removed"):
             additional_filters.update({"removed": True})
@@ -194,7 +205,13 @@ class CommonViewSet(ModelViewSet):
             # if no fields is relation, select_related will be made empty.
             self.select_related = [rel for rel in self.select_related if rel in self.fields]
 
-        queryset = super().get_queryset().filter(*q_filters, **additional_filters)
+        queryset = super().get_queryset()
+        if deduplicated_q_filters:
+            # run filters that may produce duplicates and deduplicate the results. deduplicating just the ids
+            # in a subquery is faster than deduplicating the full results when there are a lot of duplicates.
+            id_query = queryset.filter(*deduplicated_q_filters).values("id").distinct()
+            queryset = queryset.filter(id__in=id_query)
+        queryset = queryset.filter(*q_filters, **additional_filters)
 
         if self.request.META["REQUEST_METHOD"] in WRITE_OPERATIONS:
             # for update operations, do not select relations in the original queryset
@@ -355,7 +372,12 @@ class CommonViewSet(ModelViewSet):
         and save data if necessary.
         """
         if "failed" in response.data and len(response.data["failed"]):
-            ApiErrorService.store_error_details(request, response, other={"bulk_request": True})
+            try:
+                error_json = ApiErrorSerializerV2.request_to_json(self.request, response, other={"bulk_request": True})
+                response.data["error_identifier"] = error_json["identifier"]
+                rabbitmq.publish(error_json, exchange="apierrors")
+            except Exception as e:
+                _logger.error(f"could not send api error to rabbitmq. Error: {e}")
 
     def get_api_name(self):
         """

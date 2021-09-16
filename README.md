@@ -16,11 +16,12 @@ The recommended way to run the development setup is to use [Docker-swarm setup](
 
 Install [Poetry](https://python-poetry.org/docs/) for your OS. Navigate to the repository root and run command `poetry install`. this will create and activate new Python virtualenv, installing all necessary Python packages to it.
 
-You can generate traditional requirements.txt file with `poetry export --dev -E "simplexquery docs swagger" --without-hashes -f requirements.txt --output requirements.txt`
+
+You can generate traditional requirements.txt file with `poetry export --dev -E simplexquery -E docs -E swagger --without-hashes -o requirements.txt`
 
 ### Managing dependencies
 
-__NOTICE: Please remember to execute `poetry export --dev -E "simplexquery docs swagger" --without-hashes -f requirements.txt --output requirements.txt` after any additions, updates or removals.__
+__NOTICE: Please remember to generate the requirements.txt file after any additions, updates or removals using the command above.__
 
 Developer dependencies can be added with command `poetry add -D <package>`
 Application dependencies can be added with command `poetry add <package>`
@@ -56,7 +57,11 @@ run the tests with command `DJANGO_ENV=unittests python manage.py test --paralle
 
 ### Running coverage (Docker)
 
-`docker exec -it -e DJANGO_ENV=unittests $(docker ps -q -f name="metax-web*") coverage run manage.py test --parallel`
+Collect data: `docker exec -it -e DJANGO_ENV=unittests $(docker ps -q -f name="metax-web*") coverage run manage.py test --parallel`
+
+Combine it: `docker exec -it $(docker ps -q -f name="metax-web*") coverage combine`
+
+Report: `docker exec -it $(docker ps -q -f name="metax-web*") coverage report`
 
 ### Generating coverage report
 

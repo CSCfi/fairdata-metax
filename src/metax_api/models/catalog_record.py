@@ -345,11 +345,6 @@ class CatalogRecord(Common):
         max_length=200, null=False, help_text="Non-modifiable after creation"
     )
 
-    editor = JSONField(
-        null=True,
-        help_text="Editor specific fields, such as owner_id, modified, record_identifier",
-    )
-
     preservation_dataset_version = models.OneToOneField(
         "self",
         on_delete=models.DO_NOTHING,
@@ -564,9 +559,7 @@ class CatalogRecord(Common):
             _logger.debug("request.user.username = %s", request.user.username)
             raise Http404
 
-        if self.editor and "owner_id" in self.editor:
-            return request.user.username == self.editor["owner_id"]
-        elif self.metadata_provider_user:
+        if self.metadata_provider_user:
             return request.user.username == self.metadata_provider_user
 
         # note: once access control plans evolve, user_created may not be a legit field ever
@@ -1155,6 +1148,10 @@ class CatalogRecord(Common):
         )
 
     def delete(self, *args, **kwargs):
+        if kwargs.get("hard"):
+            super().delete()
+            return self.id
+
         if self.state == self.STATE_DRAFT:
             _logger.info("Deleting draft dataset %s permanently" % self.identifier)
 
@@ -1444,6 +1441,9 @@ class CatalogRecord(Common):
 
         if "remote_resources" in self.research_dataset:
             self._calculate_total_remote_resources_byte_size()
+
+        if not ("files" in self.research_dataset or "directories" in self.research_dataset) and "total_files_byte_size" in self.research_dataset:
+            self.research_dataset.pop("total_files_byte_size")
 
         if self.cumulative_state == self.CUMULATIVE_STATE_CLOSED:
             raise Http400("Cannot create cumulative dataset with state closed")
@@ -2358,20 +2358,6 @@ class CatalogRecord(Common):
         old_version.research_dataset = deepcopy(old_version._initial_data["research_dataset"])
         old_version.next_dataset_version = new_version
 
-        if new_version.editor:
-            # some of the old editor fields cant be true in the new version, so keep
-            # only the ones that make sense. it is up to the editor, to update other fields
-            # they see as relevant. we also dont want null values in there
-            old_editor = deepcopy(new_version.editor)
-            new_version.editor = {}
-            if "owner_id" in old_editor:
-                new_version.editor["owner_id"] = old_editor["owner_id"]
-            if "creator_id" in old_editor:
-                new_version.editor["creator_id"] = old_editor["creator_id"]
-            if "identifier" in old_editor:
-                # todo this probably does not make sense... ?
-                new_version.editor["identifier"] = old_editor["identifier"]
-
         super(Common, new_version).save()
 
         new_version.calculate_directory_byte_sizes_and_file_counts()
@@ -3085,7 +3071,8 @@ class RabbitMQPublishRecord:
 
         try:
             for exchange in settings.RABBITMQ["EXCHANGES"]:
-                rabbitmq.publish(cr_json, routing_key=self.routing_key, exchange=exchange["NAME"])
+                if exchange["EXC_TYPE"] == "dataset":
+                    rabbitmq.publish(cr_json, routing_key=self.routing_key, exchange=exchange["NAME"])
         except:
             # note: if we'd like to let the request be a success even if this operation fails,
             # we could simply not raise an exception here.

@@ -11,7 +11,7 @@ def recount_directory_files(apps, schema_editor):
     logger.info(f"found {dirs_with_no_files.count()} directories without files")
     aff_rows = 0
     for dir in dirs_with_no_files:
-        dir.calculate_byte_size_and_file_count()
+        # dir.calculate_byte_size_and_file_count()
         aff_rows += 1
     logger.info(f"migration 0033 complete with {aff_rows} affected rows")
 

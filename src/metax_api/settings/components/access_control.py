@@ -107,6 +107,8 @@ api_permissions.rest.files.read = [
     Role.FDS,
     Role.TPAS,
     Role.END_USERS,
+    Role.QVAIN,
+    Role.QVAIN_LIGHT,
 ]
 api_permissions.rest.files["update"] = [
     Role.METAX,
@@ -114,6 +116,8 @@ api_permissions.rest.files["update"] = [
     Role.TPAS,
     Role.FDS,
     Role.END_USERS,
+    Role.QVAIN,
+    Role.QVAIN_LIGHT,
 ]
 api_permissions.rest.files.delete = [Role.METAX, Role.IDA, Role.TPAS]
 

@@ -958,10 +958,6 @@ paths:
           description: A specific filter that targets the following fields; research_dataset['title'], research_dataset['curator'][n]['name'], contract['contract_json']['title']. Restricted to permitted users.
           required: false
           type: string
-        - name: editor
-          in: query
-          description: Identifier of the editor used to modify the record, i.e. qvain.
-          type: string
         - name: data_catalog
           in: query
           description: Filter by data catalog urn identifier
@@ -1814,11 +1810,11 @@ paths:
   /rpc/v2/datasets/get_minimal_dataset_template:
     get:
       summary: Get minimal dataset template.
-      description:  Get minimal dataset template that can be used to create datasets. Service and End Users have different kind of templates. The returned template can be used as-is when creating a dataset into Metax.
+      description:  Get minimal dataset template that can be used to create datasets. Service and End Users have different kind of templates. It is also possible to fetch PAS templates for Service and End Users. The returned template can be used as-is when creating a dataset into Metax.
       parameters:
         - name: type
           in: query
-          description: Type of dataset template to retrieve. Accepted values&#58; service, enduser.
+          description: Type of dataset template to retrieve. Accepted values&#58; service, enduser, service_pas, enduser_pas.
           required: true
           type: string
       responses:

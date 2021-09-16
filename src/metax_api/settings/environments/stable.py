@@ -7,9 +7,6 @@ api_permissions.rest.datasets.delete += [Role.IDA, Role.QVAIN_LIGHT, Role.JYU]
 
 api_permissions.rest.directories.read += [Role.IDA, Role.QVAIN_LIGHT]
 
-api_permissions.rest.files.read += [Role.QVAIN, Role.QVAIN_LIGHT]
-api_permissions.rest.files["update"] += [Role.QVAIN, Role.QVAIN_LIGHT]
-
 api_permissions.rpc.datasets.change_cumulative_state.use = [
     Role.METAX,
     Role.QVAIN,
