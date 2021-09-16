@@ -116,6 +116,14 @@ class DatasetViewSet(CommonViewSet):
         if "identifier" in kwargs and "metadata_version_identifier" in kwargs:
             return self._metadata_version_get(request, *args, **kwargs)
 
+        if "cr_identifier" in kwargs:
+            from ..serializers import EditorPermissionsSerializer
+            cr = CatalogRecord.objects.get(pk=kwargs['cr_identifier'])
+
+            _all = cr.editor_permissions.users.all()
+            editorserializer = EditorPermissionsSerializer(_all, many=True)
+            return Response(editorserializer.data)
+
         return super(DatasetViewSet, self).list(request, *args, **kwargs)
 
     def _metadata_version_get(self, request, *args, **kwargs):

@@ -6,7 +6,7 @@
 # :license: MIT
 
 from .api_error import ApiError
-from .catalog_record import AlternateRecordSet, CatalogRecord
+from .catalog_record import AlternateRecordSet, CatalogRecord, EditorPermissions, EditorUserPermission
 from .catalog_record_v2 import CatalogRecordV2
 from .common import Common
 from .contract import Contract
