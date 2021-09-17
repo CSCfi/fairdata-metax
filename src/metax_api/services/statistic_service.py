@@ -6,12 +6,14 @@
 # :license: MIT
 
 import logging
-
+from collections import OrderedDict
 from django.conf import settings
 from django.db import connection
+from django.db.models import Count, Sum
+from django.db.models.functions import Coalesce
 
 from metax_api.exceptions import Http400
-from metax_api.models import CatalogRecord, DataCatalog
+from metax_api.models import CatalogRecord, DataCatalog, File
 
 _logger = logging.getLogger(__name__)
 
@@ -607,3 +609,20 @@ class StatisticService:
         _logger.info("Done retrieving total counts")
 
         return file_stats
+
+    @classmethod
+    def count_files(cls, projects, removed=None):
+        kwargs = OrderedDict()
+        file_query = File.objects_unfiltered.all()
+
+        kwargs['project_identifier__in'] = projects
+        kwargs['record__state'] = "published"
+        if removed is not None:
+            kwargs['removed'] = False if removed == 'false' else True
+        # "record" is defined for CatalogRecord to enable lookups from Files to CatalogRecord
+        file_query = file_query.filter(**kwargs) \
+                               .values("id", "byte_size") \
+                               .distinct()
+
+        # Coalesce is required to provides default value
+        return file_query.aggregate(count=Count("id"), byte_size=Coalesce(Sum("byte_size"), 0))

@@ -136,3 +136,15 @@ class StatisticRPC(CommonRPC):
     @action(detail=False, methods=["get"], url_path="unused_files")
     def unused_files(self, request):
         return Response(StatisticService.unused_files())
+
+    @action(detail=False, methods=["get"], url_path="count_files")
+    def count_files(self, request):
+        if not request.query_params.get("projects"):
+            raise Http400("projects parameter is required")
+
+        params = {
+            "projects": list(CS.get_list_query_param(request, "projects")),
+            "removed": request.query_params.get("removed", None),
+        }
+
+        return Response(StatisticService.count_files(**params))
