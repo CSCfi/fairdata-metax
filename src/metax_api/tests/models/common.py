@@ -14,9 +14,8 @@ from metax_api.tests.utils import TestClassUtils, test_data_file_path
 
 
 class CommonModelTests(TestCase, TestClassUtils):
-
     def setUp(self):
-        call_command('loaddata', test_data_file_path, verbosity=0)
+        call_command("loaddata", test_data_file_path, verbosity=0)
 
     def get(self):
         return CatalogRecord.objects.get(pk=1)
@@ -37,7 +36,7 @@ class CommonModelTrackNormalFieldsTests(CommonModelTests):
 
         cr = self.get()
         cr.preservation_state = 2
-        self.assertEqual(cr.field_changed('preservation_state'), True)
+        self.assertEqual(cr.field_changed("preservation_state"), True)
 
     def test_field_not_changed_ok(self):
         cr = self.get()
@@ -46,12 +45,15 @@ class CommonModelTrackNormalFieldsTests(CommonModelTests):
 
         cr = self.get()
         cr.preservation_state = 1
-        self.assertEqual(cr.field_changed('preservation_state'), False)
+        self.assertEqual(cr.field_changed("preservation_state"), False)
 
     def test_field_is_not_tracked(self):
         cr = self.get()
-        with self.assertRaises(FieldError, msg='field is not tracked, so checking changes should be an error'):
-            cr.field_changed('user_modified')
+        with self.assertRaises(
+            FieldError,
+            msg="field is not tracked, so checking changes should be an error",
+        ):
+            cr.field_changed("user_modified")
 
     def test_field_is_tracked_but_not_loaded(self):
         """
@@ -62,20 +64,23 @@ class CommonModelTrackNormalFieldsTests(CommonModelTests):
         However, if the field does end up being modified, then the caller should make sure the
         field is included when the object is being created.
         """
-        queryset = CatalogRecord.objects.filter(pk=1).only('id')
+        queryset = CatalogRecord.objects.filter(pk=1).only("id")
         cr = queryset[0]
         cr.preservation_state = 2
-        with self.assertRaises(FieldError, msg='field is not loaded in init, so checking changes should be an error'):
-            cr.field_changed('preservation_state')
+        with self.assertRaises(
+            FieldError,
+            msg="field is not loaded in init, so checking changes should be an error",
+        ):
+            cr.field_changed("preservation_state")
 
     def test_field_is_tracked_and_explicitly_loaded(self):
         """
         Same as above, but the caller makes sure to include the field in the ORM query.
         """
-        queryset = CatalogRecord.objects.filter(pk=1).only('preservation_state')
+        queryset = CatalogRecord.objects.filter(pk=1).only("preservation_state")
         cr = queryset[0]
         cr.preservation_state = 2
-        self.assertEqual(cr.field_changed('preservation_state'), True)
+        self.assertEqual(cr.field_changed("preservation_state"), True)
 
 
 class CommonModelTrackJsonFieldsTests(CommonModelTests):
@@ -87,17 +92,20 @@ class CommonModelTrackJsonFieldsTests(CommonModelTests):
 
     def test_json_field_changed_ok(self):
         cr = self.get()
-        cr.research_dataset['preferred_identifier'] = 'new'
-        self.assertEqual(cr.field_changed('research_dataset.preferred_identifier'), True)
+        cr.research_dataset["preferred_identifier"] = "new"
+        self.assertEqual(cr.field_changed("research_dataset.preferred_identifier"), True)
 
     def test_json_field_not_changed_ok(self):
         cr = self.get()
-        cr.research_dataset['preferred_identifier'] = cr.research_dataset['preferred_identifier']
-        self.assertEqual(cr.field_changed('research_dataset.preferred_identifier'), False)
+        cr.research_dataset["preferred_identifier"] = cr.research_dataset["preferred_identifier"]
+        self.assertEqual(cr.field_changed("research_dataset.preferred_identifier"), False)
 
     def test_json_field_is_tracked_but_not_loaded(self):
-        queryset = CatalogRecord.objects.filter(pk=1).only('id')
+        queryset = CatalogRecord.objects.filter(pk=1).only("id")
         cr = queryset[0]
-        cr.research_dataset['preferred_identifier'] = cr.research_dataset['preferred_identifier']
-        with self.assertRaises(FieldError, msg='field is not loaded in init, so checking changes should be an error'):
-            cr.field_changed('research_dataset.preferred_identifier')
+        cr.research_dataset["preferred_identifier"] = cr.research_dataset["preferred_identifier"]
+        with self.assertRaises(
+            FieldError,
+            msg="field is not loaded in init, so checking changes should be an error",
+        ):
+            cr.field_changed("research_dataset.preferred_identifier")

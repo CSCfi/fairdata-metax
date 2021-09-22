@@ -20,7 +20,9 @@ class InfraDataService:
     so it is first fetched and parsed.
     """
 
-    INFRA_REF_DATA_SOURCE_URL = "https://avaa.tdata.fi/api/jsonws/tupa-portlet.Infrastructures/get-all-infrastructures"
+    INFRA_REF_DATA_SOURCE_URL = (
+        "https://avaa.tdata.fi/api/jsonws/tupa-portlet.Infrastructures/get-all-infrastructures"
+    )
 
     TEMP_FILENAME = "/tmp/data.json"
 

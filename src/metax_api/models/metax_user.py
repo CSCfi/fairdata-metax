@@ -14,5 +14,6 @@ even if the default model is sufficient, in case there becomes a need to extend 
 https://docs.djangoproject.com/en/1.11/topics/auth/customizing/#using-a-custom-user-model-when-starting-a-project
 """
 
+
 class MetaxUser(AbstractUser):
     pass

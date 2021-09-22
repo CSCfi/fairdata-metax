@@ -88,13 +88,9 @@ class _RedisCacheService:
         if not settings.get("SENTINEL", None):
             raise Exception("Missing configuration from settings for REDIS: SENTINEL")
         if not settings["SENTINEL"].get("HOSTS", None):
-            raise Exception(
-                "Missing configuration from settings for REDIS.SENTINEL: HOSTS"
-            )
+            raise Exception("Missing configuration from settings for REDIS.SENTINEL: HOSTS")
         if not settings["SENTINEL"].get("SERVICE", None):
-            raise Exception(
-                "Missing configuration from settings for REDIS.SENTINEL: SERVICE"
-            )
+            raise Exception("Missing configuration from settings for REDIS.SENTINEL: SERVICE")
         if not settings.get("TEST_DB", None):
             raise Exception("Missing configuration from settings for REDIS: TEST_DB")
         if len(settings["SENTINEL"]["HOSTS"]) < 3:
@@ -105,9 +101,7 @@ class _RedisCacheService:
         if executing_test_case():
             db = settings["TEST_DB"]
         elif db == settings["TEST_DB"]:
-            raise Exception(
-                "Invalid db: db index %d is reserved for test suite execution." % db
-            )
+            raise Exception("Invalid db: db index %d is reserved for test suite execution." % db)
 
         self._redis_local = StrictRedis(
             host="localhost",
@@ -245,9 +239,7 @@ class _RedisCacheService:
             res = master.get(key, **kwargs)
         except (TimeoutError, MasterNotFoundError):
             if self._DEBUG:
-                d(
-                    "cache: master timed out also. no read instances available. returning None"
-                )
+                d("cache: master timed out also. no read instances available. returning None")
             # uh oh, no master available either. either all redis instances have hit the bucket,
             # or there is a fail-over in process, and a new master will be in line in a moment
             return None
@@ -273,8 +265,7 @@ class _RedisCacheService:
         return self._sentinel.slave_for(self._service_name, socket_timeout=0.1)
 
     def _count_nodes(self):
-        return (
-            len(self._sentinel.discover_slaves(self._service_name)) + 1
-        )  # +1 is master
+        return len(self._sentinel.discover_slaves(self._service_name)) + 1  # +1 is master
+
 
 RedisCacheService = RedisClient

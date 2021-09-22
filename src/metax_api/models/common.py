@@ -15,7 +15,6 @@ from metax_api.utils.utils import executing_test_case, get_tz_aware_now_without_
 
 
 class CommonManager(models.Manager):
-
     def get_queryset(self):
         return super(CommonManager, self).get_queryset().filter(active=True, removed=False)
 
@@ -31,10 +30,16 @@ class Common(models.Model):
     user_modified = models.CharField(max_length=200, null=True)
     date_created = models.DateTimeField()
     user_created = models.CharField(max_length=200, null=True)
-    service_modified = models.CharField(max_length=200, null=True,
-        help_text='Name of the service who last modified the record')
-    service_created = models.CharField(max_length=200, null=True,
-        help_text='Name of the service who created the record')
+    service_modified = models.CharField(
+        max_length=200,
+        null=True,
+        help_text="Name of the service who last modified the record",
+    )
+    service_created = models.CharField(
+        max_length=200,
+        null=True,
+        help_text="Name of the service who created the record",
+    )
     date_removed = models.DateTimeField(null=True)
 
     # END OF MODEL FIELD DEFINITIONS #
@@ -50,14 +55,14 @@ class Common(models.Model):
 
     class Meta:
         indexes = [
-            models.Index(fields=['active']),
-            models.Index(fields=['removed']),
+            models.Index(fields=["active"]),
+            models.Index(fields=["removed"]),
         ]
         abstract = True
 
     def __init__(self, *args, **kwargs):
-        if '__request' in kwargs:
-            self.request = kwargs.pop('__request')
+        if "__request" in kwargs:
+            self.request = kwargs.pop("__request")
 
         super(Common, self).__init__(*args, **kwargs)
 
@@ -65,9 +70,9 @@ class Common(models.Model):
         self._tracked_fields = []
 
         self.track_fields(
-            'date_created',
-            'user_created',
-            'service_created',
+            "date_created",
+            "user_created",
+            "service_created",
         )
 
     def save(self, *args, **kwargs):
@@ -83,7 +88,7 @@ class Common(models.Model):
         checks. Should be used only in testing to set up data for a test case.
         """
         if not executing_test_case():
-            raise Exception('this method should only be used inside a test case')
+            raise Exception("this method should only be used inside a test case")
         super(Common, self).save(*args, **kwargs)
         self._update_tracked_field_values()
 
@@ -92,7 +97,7 @@ class Common(models.Model):
         Mark record as removed, never delete from db.
         """
         self._set_removed()
-        super().save(update_fields=['removed', 'date_removed', 'date_modified'])
+        super().save(update_fields=["removed", "date_removed", "date_modified"])
         self._update_tracked_field_values()
 
     def user_has_access(self, request):
@@ -140,7 +145,7 @@ class Common(models.Model):
 
             self._tracked_fields.append(field_name)
 
-            if '.' in field_name:
+            if "." in field_name:
                 self._track_json_field(field_name)
             else:
                 if self._field_is_loaded(field_name):
@@ -160,7 +165,7 @@ class Common(models.Model):
         self.date_modified = get_tz_aware_now_without_micros()
 
     def _track_json_field(self, field_name):
-        field_name, json_field_name = field_name.split('.')
+        field_name, json_field_name = field_name.split(".")
         if self._field_is_loaded(field_name) and json_field_name in getattr(self, field_name):
             json_field_value = getattr(self, field_name)[json_field_name]
 
@@ -194,7 +199,7 @@ class Common(models.Model):
         """
         Check if a tracked field has changed since last saved to db.
         """
-        if '.' in field_name:
+        if "." in field_name:
             return self._json_field_changed(field_name)
 
         if not self._field_is_loaded(field_name):
@@ -203,13 +208,13 @@ class Common(models.Model):
         if self._field_is_tracked(field_name):  # pragma: no cover
             if not self._field_initial_value_loaded(field_name):
                 self._raise_field_not_tracked_error(field_name)
-        else: # pragma: no cover
-            raise FieldError('Field %s is not being tracked for changes' % (field_name))
+        else:  # pragma: no cover
+            raise FieldError("Field %s is not being tracked for changes" % (field_name))
 
         return getattr(self, field_name) != self._initial_data[field_name]
 
     def _json_field_changed(self, field_name_full):
-        field_name, json_field_name = field_name_full.split('.')
+        field_name, json_field_name = field_name_full.split(".")
 
         if not self._field_is_loaded(field_name):
             return False
@@ -217,8 +222,8 @@ class Common(models.Model):
         if self._field_is_tracked(field_name_full):  # pragma: no cover
             if not self._field_initial_value_loaded(field_name):
                 self._raise_field_not_tracked_error(field_name_full)
-        else: # pragma: no cover
-            raise FieldError('Field %s is not being tracked for changes' % (field_name_full))
+        else:  # pragma: no cover
+            raise FieldError("Field %s is not being tracked for changes" % (field_name_full))
 
         json_field_value = self._initial_data[field_name].get(json_field_name, None)
         return getattr(self, field_name).get(json_field_name, None) != json_field_value
@@ -238,18 +243,18 @@ class Common(models.Model):
         their initial query to include all the data they were going to need anyway.
         """
         raise FieldError(
-            'Tried to check changes in field %(field_name)s, but the field was not loaded for '
-            'tracking changes during __init__. Call .only(%(field_name)s) in you ORM query to '
-            'load the field during __init__, so that it will be tracked.' % locals()
+            "Tried to check changes in field %(field_name)s, but the field was not loaded for "
+            "tracking changes during __init__. Call .only(%(field_name)s) in you ORM query to "
+            "load the field during __init__, so that it will be tracked." % locals()
         )
 
     def _check_read_only_after_create_fields(self):
-        if self.field_changed('date_created'):
-            self.date_created = self._initial_data['date_created']
-        if self.field_changed('user_created'):
-            self.user_created = self._initial_data['user_created']
-        if self.field_changed('service_created'):
-            self.service_created = self._initial_data['service_created']
+        if self.field_changed("date_created"):
+            self.date_created = self._initial_data["date_created"]
+        if self.field_changed("user_created"):
+            self.user_created = self._initial_data["user_created"]
+        if self.field_changed("service_created"):
+            self.service_created = self._initial_data["service_created"]
 
     def _operation_is_create(self):
         return self.id is None
@@ -263,10 +268,12 @@ class Common(models.Model):
         field_changed() keeps working as expected
         """
         for field_name in self._initial_data.keys():
-            if '.' in field_name:
-                field_name, json_field_name = field_name.split('.')
+            if "." in field_name:
+                field_name, json_field_name = field_name.split(".")
                 # by now should have crashed to checks in previous steps, so no need to check here
-                self._initial_data[field_name][json_field_name] = getattr(self, field_name).get(json_field_name, None)
+                self._initial_data[field_name][json_field_name] = getattr(self, field_name).get(
+                    json_field_name, None
+                )
             else:
                 self._initial_data[field_name] = getattr(self, field_name)
 

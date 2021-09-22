@@ -33,7 +33,6 @@ class MockRedisCacheService(RedisClient):
 
 
 class ReferenceDataMixinTests(TestCase, TestClassUtils):
-
     @classmethod
     def setUpClass(cls):
         """
@@ -47,7 +46,7 @@ class ReferenceDataMixinTests(TestCase, TestClassUtils):
         cls.cache = RedisClient()
 
     def setUp(self):
-        self.cache.delete('reference_data')
+        self.cache.delete("reference_data")
         RDM.process_cached_reference_data = None
 
     def tearDown(self):
@@ -63,14 +62,14 @@ class ReferenceDataMixinTests(TestCase, TestClassUtils):
         RDM.get_reference_data(self.cache)
         self._assert_reference_data_ok()
 
-    @patch('metax_api.utils.ReferenceDataLoader.populate_cache_reference_data')
+    @patch("metax_api.utils.ReferenceDataLoader.populate_cache_reference_data")
     def test_reference_data_reload_in_progress(self, mock_populate_cache_reference_data):
         """
         Ensure the reference data fetch survives when another request has already started
         reloading the reference data. The method should retry for a few seconds, and finally succeed
         """
         return_data_after_retries = 1
-        mock_populate_cache_reference_data.return_value = 'reload_started_by_other'
+        mock_populate_cache_reference_data.return_value = "reload_started_by_other"
         self._populate_cache_reference_data()
         mock_cache = MockRedisCacheService(return_data_after_retries=return_data_after_retries)
 
@@ -78,10 +77,10 @@ class ReferenceDataMixinTests(TestCase, TestClassUtils):
         RDM.get_reference_data(mock_cache)
 
         self._assert_reference_data_ok()
-        #self.assertEqual(mock_cache.call_count, return_data_after_retries,
+        # self.assertEqual(mock_cache.call_count, return_data_after_retries,
         #                 'ref data fetching should have retried a few times before succeeding')
 
-    @patch('metax_api.utils.ReferenceDataLoader.populate_cache_reference_data')
+    @patch("metax_api.utils.ReferenceDataLoader.populate_cache_reference_data")
     def test_reference_data_reload_in_progress_times_out(self, mock_populate_cache_reference_data):
         """
         Ensure the reference data fetch finally gives up when another request has already started
@@ -91,7 +90,7 @@ class ReferenceDataMixinTests(TestCase, TestClassUtils):
         # since get_reference_data() retries MAX_RETRIES times, it should give up
         return_data_after_retries = 100
 
-        mock_populate_cache_reference_data.return_value = 'reload_started_by_other'
+        mock_populate_cache_reference_data.return_value = "reload_started_by_other"
         self._populate_cache_reference_data()
         mock_cache = MockRedisCacheService(return_data_after_retries=return_data_after_retries)
 
@@ -99,11 +98,15 @@ class ReferenceDataMixinTests(TestCase, TestClassUtils):
             # the method being tested
             RDM.get_reference_data(mock_cache)
         except Exception as e:
-            self.assertEqual(e.__class__.__name__, 'Http503', 'ref data reload should raise Http503 when it gives up')
+            self.assertEqual(
+                e.__class__.__name__,
+                "Http503",
+                "ref data reload should raise Http503 when it gives up",
+            )
 
         self._assert_reference_data_ok()
 
-    @patch('metax_api.utils.ReferenceDataLoader.populate_cache_reference_data')
+    @patch("metax_api.utils.ReferenceDataLoader.populate_cache_reference_data")
     def test_reference_data_reload_failed(self, mock_populate_cache_reference_data):
         """
         Ensure 503 is raised when reload by the request failed
@@ -123,13 +126,17 @@ class ReferenceDataMixinTests(TestCase, TestClassUtils):
             # the method being tested
             RDM.get_reference_data(mock_cache)
         except Exception as e:
-            self.assertEqual(e.__class__.__name__, 'Http503', 'ref data reload should raise Http503 when it gives up')
+            self.assertEqual(
+                e.__class__.__name__,
+                "Http503",
+                "ref data reload should raise Http503 when it gives up",
+            )
 
         self._assert_reference_data_ok()
 
     def _assert_reference_data_ok(self):
-        self.assertEqual('reference_data' in self.cache.get('reference_data'), True)
-        self.assertEqual('organization_data' in self.cache.get('reference_data'), True)
+        self.assertEqual("reference_data" in self.cache.get("reference_data"), True)
+        self.assertEqual("organization_data" in self.cache.get("reference_data"), True)
 
     def _populate_cache_reference_data(self):
         """
@@ -137,7 +144,10 @@ class ReferenceDataMixinTests(TestCase, TestClassUtils):
         in the tests. Instead, this method is executed to load something in the cache, which
         get_reference_data() will then try to return
         """
-        self.cache.set('reference_data', {
-            'reference_data': {'language': ['stuff']},
-            'organization_data': {'organization': ['stuff']},
-        })
+        self.cache.set(
+            "reference_data",
+            {
+                "reference_data": {"language": ["stuff"]},
+                "organization_data": {"organization": ["stuff"]},
+            },
+        )

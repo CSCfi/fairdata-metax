@@ -6,6 +6,7 @@
 /src/__pycache__/*
 /src/static/*
 /src/.coverage
+/src/coverage_data
 /swagger/*index.html
 /swagger/*/index.html
 .idea/
@@ -18,6 +19,7 @@ ubuntu-xenial-16.04-cloudimg-console.log
 !.env.template
 *.pem
 /src/log
+/src/metax_api/templates/swagger
 
 # Unit test / coverage reports
 htmlcov/

@@ -24,19 +24,18 @@ from rest_framework.routers import Route
 
 from metax_api.api.rest.base import CustomRouter
 from metax_api.api.rest.base.views import (
-    ApiErrorViewSet,
     ContractViewSet,
     DirectoryViewSet,
     FileStorageViewSet,
     FileViewSet,
     SchemaViewSet,
 )
+from metax_api.api.rest.v2.views import ApiErrorViewSetV2
 
 from .views import DataCatalogViewSet, DatasetViewSet
 
 
 class CustomRouterV2(CustomRouter):
-
     def __init__(self, *args, **kwargs):
 
         super().__init__(*args, **kwargs)
@@ -48,61 +47,67 @@ class CustomRouterV2(CustomRouter):
 
         # - retrieve all file user metadata
         # - update file user metadata in bulk-manner
-        self.routes.append(Route(
-            url=r'^{prefix}/{lookup}/files/user_metadata{trailing_slash}$',
-            mapping={
-                'get': 'files_user_metadata_list',
-                'put': 'files_user_metadata_update',
-                'patch': 'files_user_metadata_update',
-            },
-            name='{basename}-files-user-metadata-list',
-            detail=True,
-            initkwargs={'suffix': 'FilesUserMetadataList'}
-        ))
+        self.routes.append(
+            Route(
+                url=r"^{prefix}/{lookup}/files/user_metadata{trailing_slash}$",
+                mapping={
+                    "get": "files_user_metadata_list",
+                    "put": "files_user_metadata_update",
+                    "patch": "files_user_metadata_update",
+                },
+                name="{basename}-files-user-metadata-list",
+                detail=True,
+                initkwargs={"suffix": "FilesUserMetadataList"},
+            )
+        )
 
         # - retrieve single dataset file technical metadata
-        self.routes.append(Route(
-            url=r'^{prefix}/{lookup}/files/(?P<file_pk>.+){trailing_slash}$',
-            mapping={
-                'get': 'files_retrieve',
-            },
-            name='{basename}-files-retrieve',
-            detail=True,
-            initkwargs={'suffix': 'FilesRetrieve'}
-        ))
+        self.routes.append(
+            Route(
+                url=r"^{prefix}/{lookup}/files/(?P<file_pk>.+){trailing_slash}$",
+                mapping={
+                    "get": "files_retrieve",
+                },
+                name="{basename}-files-retrieve",
+                detail=True,
+                initkwargs={"suffix": "FilesRetrieve"},
+            )
+        )
 
         # - retrieve all dataset files technical metadata
         # - change files of a dataset
-        self.routes.append(Route(
-            url=r'^{prefix}/{lookup}/files{trailing_slash}$',
-            mapping={
-                'get': 'files_list',
-                'post': 'files_post',
-            },
-            name='{basename}-files-list',
-            detail=True,
-            initkwargs={'suffix': 'FilesList'}
-        ))
+        self.routes.append(
+            Route(
+                url=r"^{prefix}/{lookup}/files{trailing_slash}$",
+                mapping={
+                    "get": "files_list",
+                    "post": "files_post",
+                },
+                name="{basename}-files-list",
+                detail=True,
+                initkwargs={"suffix": "FilesList"},
+            )
+        )
 
 
 # v2 urls, but using v1 view classes, because nothing changes
 
 router_v1 = CustomRouter(trailing_slash=False)
-router_v1.register(r'apierrors/?', ApiErrorViewSet)
-router_v1.register(r'contracts/?', ContractViewSet)
-router_v1.register(r'directories/?', DirectoryViewSet)
-router_v1.register(r'files/?', FileViewSet)
-router_v1.register(r'filestorages/?', FileStorageViewSet)
-router_v1.register(r'schemas/?', SchemaViewSet)
+router_v1.register(r"contracts/?", ContractViewSet)
+router_v1.register(r"directories/?", DirectoryViewSet)
+router_v1.register(r"files/?", FileViewSet)
+router_v1.register(r"filestorages/?", FileStorageViewSet)
+router_v1.register(r"schemas/?", SchemaViewSet)
 
 # v2 urls, using v2 view classes with changes
 
 router_v2 = CustomRouterV2(trailing_slash=False)
-router_v2.register(r'datasets/?', DatasetViewSet)
-router_v2.register(r'datacatalogs/?', DataCatalogViewSet)
+router_v2.register(r"apierrors/?", ApiErrorViewSetV2)
+router_v2.register(r"datasets/?", DatasetViewSet)
+router_v2.register(r"datacatalogs/?", DataCatalogViewSet)
 router_v2.register(
-    r'datasets/(?P<identifier>.+)/metadata_versions/(?P<metadata_version_identifier>.+)/?',
-    DatasetViewSet
+    r"datasets/(?P<identifier>.+)/metadata_versions/(?P<metadata_version_identifier>.+)/?",
+    DatasetViewSet,
 )
 
 api_urlpatterns = router_v1.urls + router_v2.urls

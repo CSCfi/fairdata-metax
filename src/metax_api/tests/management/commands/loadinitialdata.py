@@ -24,8 +24,8 @@ class LoadInitialDataTest(LiveServerTestCase):
 
     def setUp(self, *args, **kwargs):
         self._test_settings = {
-            'metax_url': self.live_server_url,
-            'metax_credentials': settings.API_METAX_USER,
+            "metax_url": self.live_server_url,
+            "metax_credentials": settings.API_METAX_USER,
         }
         super(LoadInitialDataTest, self).setUp(*args, **kwargs)
 
@@ -34,11 +34,17 @@ class LoadInitialDataTest(LiveServerTestCase):
         storages_before = FileStorage.objects.all().count()
 
         out = StringIO()
-        call_command('loadinitialdata', **{ 'test_settings': self._test_settings, 'stdout': out, })
+        call_command(
+            "loadinitialdata",
+            **{
+                "test_settings": self._test_settings,
+                "stdout": out,
+            },
+        )
         cmd_output = out.getvalue()
 
-        self.assertIn('Created catalog', cmd_output)
-        self.assertIn('Created file storage', cmd_output)
+        self.assertIn("Created catalog", cmd_output)
+        self.assertIn("Created file storage", cmd_output)
         self.assertEqual(catalogs_before < DataCatalog.objects.all().count(), True)
         self.assertEqual(storages_before < FileStorage.objects.all().count(), True)
 
@@ -48,10 +54,22 @@ class LoadInitialDataTest(LiveServerTestCase):
         """
         out = StringIO()
         # create
-        call_command('loadinitialdata', **{ 'test_settings': self._test_settings, 'stdout': out, })
+        call_command(
+            "loadinitialdata",
+            **{
+                "test_settings": self._test_settings,
+                "stdout": out,
+            },
+        )
         # update
-        call_command('loadinitialdata', **{ 'test_settings': self._test_settings, 'stdout': out, })
+        call_command(
+            "loadinitialdata",
+            **{
+                "test_settings": self._test_settings,
+                "stdout": out,
+            },
+        )
         cmd_output = out.getvalue()
 
-        self.assertIn('Updated catalog', cmd_output)
-        self.assertIn('Updated file storage', cmd_output)
+        self.assertIn("Updated catalog", cmd_output)
+        self.assertIn("Updated file storage", cmd_output)

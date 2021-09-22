@@ -27,9 +27,21 @@ api_permissions.rest.datacatalogs.create += [Role.TEST_USER]
 api_permissions.rest.datacatalogs["update"] += [Role.TEST_USER]
 api_permissions.rest.datacatalogs.delete += [Role.TEST_USER]
 
-api_permissions.rest.datasets.create += [Role.API_AUTH_USER, Role.EXTERNAL, Role.TEST_USER]
-api_permissions.rest.datasets["update"] += [Role.API_AUTH_USER, Role.EXTERNAL, Role.TEST_USER]
-api_permissions.rest.datasets.delete += [Role.API_AUTH_USER, Role.EXTERNAL, Role.TEST_USER]
+api_permissions.rest.datasets.create += [
+    Role.API_AUTH_USER,
+    Role.EXTERNAL,
+    Role.TEST_USER,
+]
+api_permissions.rest.datasets["update"] += [
+    Role.API_AUTH_USER,
+    Role.EXTERNAL,
+    Role.TEST_USER,
+]
+api_permissions.rest.datasets.delete += [
+    Role.API_AUTH_USER,
+    Role.EXTERNAL,
+    Role.TEST_USER,
+]
 
 api_permissions.rest.directories.read += [Role.TEST_USER]
 

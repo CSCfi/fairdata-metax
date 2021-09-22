@@ -22,13 +22,14 @@ django-environ = "^0.4.5"
 django-split-settings = "^1.0.1"
 rdflib = "^5.0.0"
 python-dateutil = "^2.8.1"
-pyoai = "^2.5.0"
+pyoai = {git = "https://github.com/infrae/pyoai", rev = "5f6eba12"}
+python-box = "^5.3.0"
 python-simplexquery = {version = "*", optional = true}
 # These are here because of: https://github.com/python-poetry/poetry/issues/1644
-Sphinx = {version = "^3.5.4", optional = true}
+Sphinx = {version = "^4.0.2", optional = true}
 sphinx-autobuild = {version = "^2021.3.14", optional = true}
 sphinx-rtd-theme = {version = "^0.5.2", optional = true}
-python-box = "^5.3.0"
+PyYAML = { version = "^5.4.1", optional = true}
 
 [tool.poetry.dev-dependencies]
 responses = "^0.13.2"
@@ -46,6 +47,7 @@ coverage = {version = "^5.5", extras = ["toml"]}
 [tool.poetry.extras]
 simplexquery = ["python-simplexquery"]
 docs = ["Sphinx", "sphinx-autobuild", "sphinx-rtd-theme"]
+swagger = ["PyYAML"]
 
 [tool.isort]
 profile = "black"
@@ -54,11 +56,11 @@ known_first_party = ["metax_api", "src/metax_api"]
 skip_glob = "*/models/__init__.py,__init__.py"
 include_trailing_comma = true
 combine_as_imports = true
-line_length = 120
+line_length = 100
 
 [tool.black]
 target-version = ['py38']
-line-length = 120
+line-length = 100
 exclude = "/migrations/"
 
 [build-system]

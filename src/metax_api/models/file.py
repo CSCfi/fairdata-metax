@@ -13,22 +13,24 @@ from .common import Common, CommonManager
 
 
 class FileManager(CommonManager):
-
     def get(self, *args, **kwargs):
-        if kwargs.get('using_dict', None):
+        if kwargs.get("using_dict", None):
             # for a simple "just get me the instance that equals this dict i have" search.
 
             # this is useful if during a request the url does not contain the identifier (bulk update),
             # and in generic operations where the type of object being handled is not known (also bulk operations).
-            row = kwargs.pop('using_dict')
-            if row.get('id', None):
-                kwargs['id'] = row['id']
-            elif row.get('identifier', None):
-                kwargs['identifier'] = row['identifier']
+            row = kwargs.pop("using_dict")
+            if row.get("id", None):
+                kwargs["id"] = row["id"]
+            elif row.get("identifier", None):
+                kwargs["identifier"] = row["identifier"]
             else:
-                raise ValidationError([
-                    'this operation requires one of the following identifying keys to be present: %s'
-                    % ', '.join([ 'id', 'identifier' ])])
+                raise ValidationError(
+                    [
+                        "this operation requires one of the following identifying keys to be present: %s"
+                        % ", ".join(["id", "identifier"])
+                    ]
+                )
         return super(FileManager, self).get(*args, **kwargs)
 
 
@@ -48,22 +50,26 @@ class File(Common):
     file_modified = models.DateTimeField()
     file_name = models.TextField()
     file_path = models.TextField()
-    file_storage = models.ForeignKey('metax_api.FileStorage', on_delete=models.DO_NOTHING)
+    file_storage = models.ForeignKey("metax_api.FileStorage", on_delete=models.DO_NOTHING)
     file_uploaded = models.DateTimeField()
     identifier = models.CharField(max_length=200)
     open_access = models.BooleanField(default=False)
-    parent_directory = models.ForeignKey('metax_api.Directory', on_delete=models.SET_NULL, null=True,
-        related_name='files')
+    parent_directory = models.ForeignKey(
+        "metax_api.Directory",
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="files",
+    )
     project_identifier = models.CharField(max_length=200)
 
     # END OF MODEL FIELD DEFINITIONS #
 
     class Meta:
         indexes = [
-            models.Index(fields=['file_path']),
-            models.Index(fields=['identifier']),
-            models.Index(fields=['parent_directory']),
-            models.Index(fields=['project_identifier']),
+            models.Index(fields=["file_path"]),
+            models.Index(fields=["identifier"]),
+            models.Index(fields=["parent_directory"]),
+            models.Index(fields=["project_identifier"]),
         ]
 
     objects = FileManager()
@@ -72,17 +78,21 @@ class File(Common):
         if request.user.is_service:
             return True
         from metax_api.services import AuthService
+
         return self.project_identifier in AuthService.get_user_projects(request)
 
     def __repr__(self):
-        return '<%s: %d, removed: %s, project_identifier: %s, identifier: %s, file_path: %s >' % (
-            'File',
+        return "<%s: %d, removed: %s, project_identifier: %s, identifier: %s, file_path: %s >" % (
+            "File",
             self.id,
             str(self.removed),
             self.project_identifier,
             self.identifier,
-            self.file_path
+            self.file_path,
         )
 
-    def delete(self):
-        super(File, self).remove()
+    def delete(self, *args, **kwargs):
+        if kwargs.get("hard"):
+            super().delete()
+        else:
+            super(File, self).remove()

@@ -5,7 +5,9 @@ import logging.config
 
 from metax_api.tasks.refdata.refdata_indexer.domain.indexable_data import IndexableData as IdxData
 from metax_api.tasks.refdata.refdata_indexer.domain.reference_data import ReferenceData as RefData
-from metax_api.tasks.refdata.refdata_indexer.service.elasticsearch_service import ElasticSearchService as ESS
+from metax_api.tasks.refdata.refdata_indexer.service.elasticsearch_service import (
+    ElasticSearchService as ESS,
+)
 from metax_api.tasks.refdata.refdata_indexer.service.finto_data_service import FintoDataService
 
 # from service.infra_data_service import InfraDataService
@@ -58,9 +60,7 @@ def index_data():
     for data_type in RefData.FINTO_REF_DATA_TYPES:
         finto_es_data_models = finto_service.get_data(data_type)
         if len(finto_es_data_models) == 0:
-            _logger.info(
-                "No data models to reindex for finto data type {0}".format(data_type)
-            )
+            _logger.info("No data models to reindex for finto data type {0}".format(data_type))
             continue
 
         es.delete_and_update_indexable_data(

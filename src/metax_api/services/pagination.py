@@ -4,13 +4,13 @@ from rest_framework.pagination import LimitOffsetPagination
 class DirectoryPagination(LimitOffsetPagination):
 
     page_size = 10
-    page_size_query_param = 'page_size'
+    page_size_query_param = "page_size"
 
     def paginate_directory_data(self, dirs, files, request, view=None):
-        '''
+        """
         Takes in directories and files as lists or querysets.
         Output is list tuple.
-        '''
+        """
         self.count = self.get_count([dirs, files])
 
         self.request = request
@@ -38,11 +38,11 @@ class DirectoryPagination(LimitOffsetPagination):
                 dirs = []
             offset = self.offset - dir_len
             if files:
-                files = files[offset:offset + self.limit]
+                files = files[offset : offset + self.limit]
 
         # if directories are not enough for one page limit
         elif (self.offset + self.limit) > dir_len:
-            dirs = dirs[self.offset:]
+            dirs = dirs[self.offset :]
             if files:
                 files_to_show = self.limit - (dir_len - self.offset)
                 if files_to_show > 0:
@@ -50,7 +50,7 @@ class DirectoryPagination(LimitOffsetPagination):
 
         # if enough directories for page limit
         else:
-            dirs = dirs[self.offset:self.offset + self.limit]
+            dirs = dirs[self.offset : self.offset + self.limit]
             if files:
                 files = []
 
@@ -65,6 +65,8 @@ class DirectoryPagination(LimitOffsetPagination):
 
         for content in contents:
             if content:
-                count = count + len(content) if isinstance(content, list) else count + content.count()
+                count = (
+                    count + len(content) if isinstance(content, list) else count + content.count()
+                )
 
         return count

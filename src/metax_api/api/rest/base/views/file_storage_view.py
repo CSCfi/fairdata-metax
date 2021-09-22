@@ -20,7 +20,7 @@ class FileStorageViewSet(CommonViewSet):
 
     serializer_class = FileStorageSerializer
     object = FileStorage
-    lookup_field = 'pk'
+    lookup_field = "pk"
 
     def __init__(self, *args, **kwargs):
         self.set_json_schema(__file__)
@@ -35,7 +35,8 @@ class FileStorageViewSet(CommonViewSet):
         # was not a pk - try identifier
         lookup_value = self.kwargs.pop(self.lookup_field)
         return super(FileStorageViewSet, self).get_object(
-            search_params={'file_storage_json__contains': {'identifier': lookup_value}})
+            search_params={"file_storage_json__contains": {"identifier": lookup_value}}
+        )
 
     def set_json_schema(self, view_file):
-        self.json_schema = CS.get_json_schema(path.dirname(view_file) + '/../schemas', 'file')
+        self.json_schema = CS.get_json_schema(path.dirname(view_file) + "/../schemas", "file")

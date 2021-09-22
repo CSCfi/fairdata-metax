@@ -16,13 +16,16 @@ from rest_framework.serializers import ValidationError
 from metax_api.api.rest.base.serializers import CatalogRecordSerializer
 from metax_api.api.rest.base.serializers.catalog_record_serializer import DFT_CATALOG
 from metax_api.models import CatalogRecordV2
-from metax_api.services import CatalogRecordService as CRS, CommonService as CS, RedisCacheService as cache
+from metax_api.services import (
+    CatalogRecordService as CRS,
+    CommonService as CS,
+    RedisCacheService as cache,
+)
 
 _logger = logging.getLogger(__name__)
 
 
 class CatalogRecordSerializerV2(CatalogRecordSerializer):
-
     class Meta:
         # deepcopied, so that changes in this model don't affect
         # the V1 model
@@ -31,55 +34,56 @@ class CatalogRecordSerializerV2(CatalogRecordSerializer):
 
     # define separately for inherited class, so that schemas are searched
     # from api/rest/v2/schemas, instead of api/rest/v1/schemas
-    _schemas_directory_path = path.join(path.dirname(path.dirname(__file__)), 'schemas')
+    _schemas_directory_path = path.join(path.dirname(path.dirname(__file__)), "schemas")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.Meta.model = CatalogRecordV2
         self.Meta.fields += (
-            'draft_of',
-            'next_draft',
+            "draft_of",
+            "next_draft",
         )
-        self.Meta.extra_kwargs.update({
-            'draft_of':     { 'required': False },
-            'next_draft':   { 'required': False },
-        })
+        self.Meta.extra_kwargs.update(
+            {
+                "draft_of": {"required": False},
+                "next_draft": {"required": False},
+            }
+        )
 
     def is_valid(self, raise_exception=False):
-        if CS.get_boolean_query_param(self.context['request'], 'draft') and not self.initial_data.get('data_catalog'):
-            self.initial_data['data_catalog'] = DFT_CATALOG
+        if CS.get_boolean_query_param(
+            self.context["request"], "draft"
+        ) and not self.initial_data.get("data_catalog"):
+            self.initial_data["data_catalog"] = DFT_CATALOG
 
-        self.initial_data.pop('draft_of', None)
-        self.initial_data.pop('editor', None)
-        self.initial_data.pop('next_draft', None)
+        self.initial_data.pop("draft_of", None)
+        self.initial_data.pop("next_draft", None)
         super().is_valid(raise_exception=raise_exception)
 
     def to_representation(self, instance):
 
         res = super().to_representation(instance)
 
-        if 'request' in self.context:
+        if "request" in self.context:
 
-            if CS.get_boolean_query_param(self.context['request'], 'include_user_metadata'):
+            if CS.get_boolean_query_param(self.context["request"], "include_user_metadata"):
                 # keep user metadata and possible file_details that have been populated in super().to_representation()
                 pass
             else:
-                res.get('research_dataset', {}).pop('files', None)
-                res.get('research_dataset', {}).pop('directories', None)
+                res.get("research_dataset", {}).pop("files", None)
+                res.get("research_dataset", {}).pop("directories", None)
 
-        if 'draft_of' in res:
-            if instance.user_is_privileged(instance.request or self.context['request']):
-                res['draft_of'] = instance.draft_of.identifiers_dict
+        if "draft_of" in res:
+            if instance.user_is_privileged(instance.request or self.context["request"]):
+                res["draft_of"] = instance.draft_of.identifiers_dict
             else:
-                del res['draft_of']
+                del res["draft_of"]
 
-        if 'next_draft' in res:
-            if instance.user_is_privileged(instance.request or self.context['request']):
-                res['next_draft'] = instance.next_draft.identifiers_dict
+        if "next_draft" in res:
+            if instance.user_is_privileged(instance.request or self.context["request"]):
+                res["next_draft"] = instance.next_draft.identifiers_dict
             else:
-                del res['next_draft']
-
-        res.pop('editor', None)
+                del res["next_draft"]
 
         return res
 
@@ -97,15 +101,17 @@ class CatalogRecordSerializerV2(CatalogRecordSerializer):
 
         CRS.validate_reference_data(value, cache)
 
-        rd_files_schema = CS.get_json_schema(self._schemas_directory_path, 'dataset_files')
+        rd_files_schema = CS.get_json_schema(self._schemas_directory_path, "dataset_files")
 
         resolver = RefResolver(
             # at some point when jsonschema package is updated, probably need to switch to
             # using the below commented out parameter names instead
             # schema_path='file:{}'.format(path.dirname(path.dirname(__file__)) + '/schemas/dataset_files_schema.json'),
             # schema=rd_files_schema
-            base_uri='file:{}'.format(path.join(self._schemas_directory_path, 'dataset_files_schema.json')),
-            referrer=rd_files_schema
+            base_uri="file:{}".format(
+                path.join(self._schemas_directory_path, "dataset_files_schema.json")
+            ),
+            referrer=rd_files_schema,
         )
 
         # for debugging, below may be useful
@@ -114,27 +120,35 @@ class CatalogRecordSerializerV2(CatalogRecordSerializer):
         validator = Draft4Validator(rd_files_schema, resolver=resolver, format_checker=None)
 
         if not value:
-            _logger.info('Validating files and/or directories with empty value. Nothing to validate.')
+            _logger.info(
+                "Validating files and/or directories with empty value. Nothing to validate."
+            )
             return
         try:
             validator.validate(value)
         except JsonValidationError as e:
-            raise ValidationError({ 'detail':
-                ['%s. Json path: %s. Schema: %s' % (e.message, [p for p in e.path], e.schema)]
-            })
+            raise ValidationError(
+                {
+                    "detail": [
+                        "%s. Json path: %s. Schema: %s" % (e.message, [p for p in e.path], e.schema)
+                    ]
+                }
+            )
 
     def _set_dataset_schema(self):
         if self._validate_as_draft():
             # drafts only exists for V2 records, otherwise normal rules apply
-            schema_prefix = 'dft'
-            self.json_schema = CS.get_json_schema(self._schemas_directory_path, 'dataset', schema_prefix)
+            schema_prefix = "dft"
+            self.json_schema = CS.get_json_schema(
+                self._schemas_directory_path, "dataset", schema_prefix
+            )
 
         else:
             super()._set_dataset_schema()
 
     def _validate_as_draft(self):
         if self._operation_is_create and "request" in self.context:
-            return CS.get_boolean_query_param(self.context["request"], 'draft')
+            return CS.get_boolean_query_param(self.context["request"], "draft")
 
         if CS.request_is_create_operation(self.instance.request):
             return self.instance._save_as_draft()

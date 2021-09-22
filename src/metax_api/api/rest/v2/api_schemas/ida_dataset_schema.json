@@ -252,14 +252,6 @@
                     "type":"object",
                     "$ref":"#/definitions/CatalogRecord"
                 },
-                "editor":{
-                    "@id":"http://uri.suomi.fi/datamodel/ns/mrd#editor",
-                    "title":"Editor",
-                    "description":"Software or service that is used to modify the catalog record and the dataset",
-                    "@type":"@id",
-                    "type":"object",
-                    "$ref":"#/definitions/Editor"
-                },
                 "identifier":{
                     "@id":"http://uri.suomi.fi/datamodel/ns/mrd#identifier",
                     "title":"Identifier",
@@ -489,51 +481,6 @@
             "required":[
                 "identifier"
             ]
-        },
-        "Editor":{
-            "title":"Editor",
-            "type":"object",
-            "@id":"http://uri.suomi.fi/datamodel/ns/mrd#Editor",
-            "description":"Software or service that is used to modify the catalog record and the dataset.",
-            "minProperties":1,
-            "properties":{
-                "identifier":{
-                    "@id":"http://purl.org/dc/terms/identifier",
-                    "title":"Identifier",
-                    "description":"Identifier of the editor, such as Qvain or harvester.",
-                    "enum":[
-                        "QVAIN"
-                    ],
-                    "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "minLength":1,
-                    "type":"string"
-                },
-                "owner_id":{
-                    "@id":"http://uri.suomi.fi/datamodel/ns/mrd#owner_identifier",
-                    "title":"Owner identifier",
-                    "description":"owner of the resource",
-                    "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "minLength":1,
-                    "type":"string"
-                },
-                "creator_id":{
-                    "@id":"http://uri.suomi.fi/datamodel/ns/mrd#creator_identifier",
-                    "title":"Creator identifier",
-                    "description":"creator of the resource",
-                    "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "minLength":1,
-                    "type":"string"
-                },
-                "record_id":{
-                    "@id":"http://uri.suomi.fi/datamodel/ns/mrd#recordIdentifier",
-                    "title":"Record identifier",
-                    "description":"local record identifier",
-                    "@type":"http://www.w3.org/2001/XMLSchema#string",
-                    "minLength":1,
-                    "type":"string"
-                }
-            },
-            "additionalProperties": true
         },
         "EntityRelation":{
             "title":"Entity relation",

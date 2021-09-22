@@ -17,11 +17,11 @@ from django.utils import timezone
 
 
 class IdentifierType(Enum):
-    URN = 'urn'
-    DOI = 'doi'
+    URN = "urn"
+    DOI = "doi"
 
 
-class DelayedLog():
+class DelayedLog:
 
     """
     A callable that can be passed to CallableService as a post_request_callable,
@@ -40,16 +40,16 @@ def executing_test_case():
     """
     Returns True whenever code is being executed by automatic test cases
     """
-    return 'test' in sys.argv
+    return "test" in sys.argv
 
 
 def datetime_to_str(date_obj):
     if isinstance(date_obj, datetime):
-        return date_obj.strftime('%Y-%m-%dT%H:%M:%SZ')
+        return date_obj.strftime("%Y-%m-%dT%H:%M:%SZ")
     elif datetime is None:
         return None
     else:
-        assert isinstance(date_obj, datetime), 'date_obj must be datetime object or None'
+        assert isinstance(date_obj, datetime), "date_obj must be datetime object or None"
 
 
 def parse_timestamp_string_to_tz_aware_datetime(timestamp_str):
@@ -82,7 +82,7 @@ def get_tz_aware_now_without_micros():
 
 def generate_uuid_identifier(urn_prefix=False):
     if urn_prefix:
-        return 'urn:nbn:fi:att:%s' % str(uuid4())
+        return "urn:nbn:fi:att:%s" % str(uuid4())
     return str(uuid4())
 
 
@@ -93,10 +93,15 @@ def is_metax_generated_doi_identifier(identifier):
     :param identifier:
     :return: boolean
     """
-    if not identifier or not hasattr(settings, 'DATACITE') or not settings.DATACITE.get('PREFIX', False):
+    if (
+        not identifier
+        or not hasattr(settings, "DATACITE")
+        or not settings.DATACITE.get("PREFIX", False)
+    ):
         return False
 
-    return identifier.startswith('doi:{0}/'.format(settings.DATACITE.get('PREFIX')))
+    return identifier.startswith("doi:{0}/".format(settings.DATACITE.get("PREFIX")))
+
 
 def is_remote_doi_identifier(identifier):
     """
@@ -105,11 +110,14 @@ def is_remote_doi_identifier(identifier):
     :param identifier:
     :return: boolean
     """
-    if not identifier or not settings.DATACITE.get('PREFIX', False):
+    if not identifier or not settings.DATACITE.get("PREFIX", False):
         return False
 
-    if identifier.startswith('doi:') and not identifier.startswith('doi:{0}/'.format(settings.DATACITE.get('PREFIX'))):
+    if identifier.startswith("doi:") and not identifier.startswith(
+        "doi:{0}/".format(settings.DATACITE.get("PREFIX"))
+    ):
         return True
+
 
 def is_metax_generated_urn_identifier(identifier):
     """
@@ -121,7 +129,7 @@ def is_metax_generated_urn_identifier(identifier):
     if not identifier:
         return False
 
-    return identifier.startswith('urn:nbn:fi:att:') or identifier.startswith('urn:nbn:fi:csc')
+    return identifier.startswith("urn:nbn:fi:att:") or identifier.startswith("urn:nbn:fi:csc")
 
 
 def generate_doi_identifier(doi_suffix=None):
@@ -135,13 +143,13 @@ def generate_doi_identifier(doi_suffix=None):
         doi_suffix = generate_uuid_identifier()
 
     doi_prefix = None
-    if hasattr(settings, 'DATACITE'):
-        doi_prefix = settings.DATACITE.get('PREFIX', None)
+    if hasattr(settings, "DATACITE"):
+        doi_prefix = settings.DATACITE.get("PREFIX", None)
     if not doi_prefix:
         raise Exception("PREFIX must be defined in settings DATACITE dictionary")
     if not doi_suffix:
         raise ValueError("DOI suffix must be provided in order to create a DOI identifier")
-    return 'doi:{0}/{1}'.format(doi_prefix, doi_suffix)
+    return "doi:{0}/{1}".format(doi_prefix, doi_suffix)
 
 
 def extract_doi_from_doi_identifier(doi_identifier):
@@ -152,16 +160,16 @@ def extract_doi_from_doi_identifier(doi_identifier):
     :param doi_identifier: Must start with doi:10. for this method to work properly
     :return: If the doi_identifier does not start with doi:10., return None. Otherwise return doi starting from 10.
     """
-    if doi_identifier and doi_identifier.startswith('doi:10.'):
-        return doi_identifier[doi_identifier.index('10.'):]
+    if doi_identifier and doi_identifier.startswith("doi:10."):
+        return doi_identifier[doi_identifier.index("10.") :]
     return None
 
 
 def get_identifier_type(identifier):
     if identifier:
-        if identifier.startswith('doi:'):
+        if identifier.startswith("doi:"):
             return IdentifierType.DOI
-        elif identifier.startswith('urn:'):
+        elif identifier.startswith("urn:"):
             return IdentifierType.URN
     return None
 
@@ -176,11 +184,16 @@ def remove_keys_recursively(obj, fields_to_remove):
     """
     if isinstance(obj, dict):
         obj = {
-            key: remove_keys_recursively(value, fields_to_remove) for key, value in obj.items()
+            key: remove_keys_recursively(value, fields_to_remove)
+            for key, value in obj.items()
             if key not in fields_to_remove
         }
     elif isinstance(obj, list):
-        obj = [remove_keys_recursively(item, fields_to_remove) for item in obj if item not in fields_to_remove]
+        obj = [
+            remove_keys_recursively(item, fields_to_remove)
+            for item in obj
+            if item not in fields_to_remove
+        ]
 
     return obj
 
@@ -200,8 +213,8 @@ def leave_keys_in_dict(dict_obj, fields_to_leave):
 
 
 if executing_test_case():
-    class TestJsonLogger():
 
+    class TestJsonLogger:
         def info(self, *args, **kwargs):
             pass
 
@@ -216,4 +229,4 @@ if executing_test_case():
 
     json_logger = TestJsonLogger()
 else:
-    json_logger = structlog.get_logger('structlog')
+    json_logger = structlog.get_logger("structlog")

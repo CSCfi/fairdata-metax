@@ -7,16 +7,19 @@
 
 import logging
 import random
-from json import dumps as json_dumps
+from json import dumps as json_dumps, loads
 from time import sleep
 
 import pika
+from django.db import DatabaseError
 from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
 
+from metax_api.models import ApiError
 from metax_api.utils.utils import executing_test_case
 
 _logger = logging.getLogger(__name__)
+
 
 class _RabbitMQService:
     def __init__(self):
@@ -27,46 +30,46 @@ class _RabbitMQService:
             self._settings["USER"], self._settings["PASSWORD"]
         )
         self._hosts = self._settings["HOSTS"]
-        self._connection = None
 
     def _connect(self):
-        if self._connection and self._connection.is_open:
-            return
+        """
+        Creates and returns a new BlockingConnection for the caller. Creating a new connection enables multiple
+        threads (i.e. requests) to access RabbitMQ in parallel using synchronous connection. Even though initializing
+        a new connection for each request is slow and has some overhead, thread-safety is more important.
+        """
 
         # Connection retries are needed as long as there is no load balancer in front of rabbitmq-server VMs
         sleep_time = 1
         num_conn_retries = 5
-        _logger.info(
-            f"connecting to RabbitMQ host: {self._hosts} port: {self._settings['PORT']}"
-        )
+        _logger.info(f"connecting to RabbitMQ host: {self._hosts} port: {self._settings['PORT']}")
 
         for x in range(0, num_conn_retries):
             # Choose host randomly so that different hosts are tried out in case of connection problems
             host = random.choice(self._hosts)
             try:
-                kwarg_params = {"port": self._settings["PORT"], "credentials": self._credentials}
+                kwarg_params = {
+                    "port": self._settings["PORT"],
+                    "credentials": self._credentials,
+                }
                 if settings.RABBIT_MQ_USE_VHOST:
                     kwarg_params["virtual_host"] = self._settings["VHOST"]
 
                 conn_params = pika.ConnectionParameters(host, **kwarg_params)
-                self._connection = pika.BlockingConnection(
-                    conn_params
-                )
+                connection = pika.BlockingConnection(conn_params)
 
             except Exception as e:
                 _logger.error(
-                    "Problem connecting to RabbitMQ server (%s), trying to reconnect..."
-                    % str(e)
+                    "Problem connecting to RabbitMQ server (%s), trying to reconnect..." % str(e)
                 )
                 sleep(sleep_time)
             else:
-                self._channel = self._connection.channel()
                 _logger.info("RabbitMQ connected to %s" % host)
-                break
+
+                return connection
         else:
             raise Exception("Unable to connect to RabbitMQ")
 
-    def publish(self, body, routing_key='', exchange=None, persistent=True):
+    def publish(self, body, routing_key="", exchange=None, persistent=True):
         """
         Publish a message to an exchange, which might or might not have queues bound to it.
 
@@ -80,7 +83,8 @@ class _RabbitMQService:
                     otherwise messages not retrieved by clients before restart will be lost.
                     (still is not 100 % guaranteed to persist!)
         """
-        self._connect()
+        connection = self._connect()
+        channel = connection.channel()
         self._validate_publish_params(routing_key, exchange)
 
         additional_args = {}
@@ -95,16 +99,42 @@ class _RabbitMQService:
         try:
             for message in messages:
                 if isinstance(message, dict):
-                    message = json_dumps(
-                        message,
-                        cls=DjangoJSONEncoder)
-                self._channel.basic_publish(body=message, routing_key=routing_key, exchange=exchange, **additional_args)
+                    message = json_dumps(message, cls=DjangoJSONEncoder)
+                channel.basic_publish(
+                    body=message,
+                    routing_key=routing_key,
+                    exchange=exchange,
+                    **additional_args,
+                )
         except Exception as e:
             _logger.error(e)
             _logger.error("Unable to publish message to RabbitMQ")
             raise
         finally:
-            self._connection.close()
+            connection.close()
+
+    def consume_api_errors(self):
+        connection = self._connect()
+        channel = connection.channel()
+
+        try:
+            for method, _, body in channel.consume("metax-apierrors", inactivity_timeout=1):
+                if method is None and body is None:
+                    channel.cancel()
+                    break
+                try:
+                    error = loads(body)
+                    ApiError.objects.create(identifier=error["identifier"], error=error)
+                except DatabaseError as e:
+                    _logger.error("cannot create API Error. Discarding..")
+                    _logger.debug(f"error: {e}")
+                finally:
+                    channel.basic_ack(method.delivery_tag)
+        except Exception as e:
+            _logger.error(e)
+        finally:
+            _logger.debug("All ApiErrors were handled")
+            connection.close()
 
     def init_exchanges(self):
         """
@@ -112,28 +142,31 @@ class _RabbitMQService:
         an error will occur if an exchange existed, and it is being re-declared with different settings.
         In that case the exchange has to be manually removed first, which can result in lost messages.
         """
-        self._connect()
+        connection = self._connect()
+
+        if connection is None:
+            return
+
+        channel = connection.channel()
         try:
             for exchange in self._settings["EXCHANGES"]:
-                self._channel.exchange_declare(
+                channel.exchange_declare(
                     exchange["NAME"],
                     exchange_type=exchange["TYPE"],
                     durable=exchange["DURABLE"],
                 )
                 for queue in exchange.get("QUEUES", []):
                     # declare queues in settings
-                    self._channel.queue_declare(queue["NAME"], durable=exchange["DURABLE"])
-                    self._channel.queue_bind(
-                        queue["NAME"],
-                        exchange["NAME"],
-                        queue.get("ROUTING_KEY")
+                    channel.queue_declare(queue["NAME"], durable=exchange["DURABLE"])
+                    channel.queue_bind(
+                        queue["NAME"], exchange["NAME"], queue.get("ROUTING_KEY")
                     )
         except Exception as e:
             _logger.error(e)
             _logger.exception("Failed to initialize RabbitMQ exchanges")
             raise
         finally:
-            self._connection.close()
+            connection.close()
 
     def _validate_publish_params(self, routing_key, exchange_name):
         """
@@ -170,6 +203,8 @@ class _RabbitMQServiceDummy:
     def init_exchanges(self, *args, **kwargs):
         pass
 
+    def consume_api_errors(self):
+        pass
 
 if executing_test_case():
     RabbitMQService = _RabbitMQServiceDummy()

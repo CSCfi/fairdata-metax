@@ -179,9 +179,7 @@ class ApiEndUserAdditionalProjects(CatalogRecordApiWriteCommon):
 
     def setUp(self):
         super().setUp()
-        self._use_http_authorization(
-            method="bearer", token=get_test_oidc_token(new_proxy=True)
-        )
+        self._use_http_authorization(method="bearer", token=get_test_oidc_token(new_proxy=True))
         self._mock_token_validation_succeeds()
 
     def tearDown(self):
@@ -189,9 +187,7 @@ class ApiEndUserAdditionalProjects(CatalogRecordApiWriteCommon):
         try:
             os.remove(settings.ADDITIONAL_USER_PROJECTS_PATH)
         except:
-            _logger.info(
-                "error removing file from %s" % settings.ADDITIONAL_USER_PROJECTS_PATH
-            )
+            _logger.info("error removing file from %s" % settings.ADDITIONAL_USER_PROJECTS_PATH)
 
     @responses.activate
     def test_successful_read(self):
@@ -203,9 +199,7 @@ class ApiEndUserAdditionalProjects(CatalogRecordApiWriteCommon):
             json.dump(testdata, testfile, indent=4)
             os.chmod(settings.ADDITIONAL_USER_PROJECTS_PATH, 0o400)
 
-        response = self.client.get(
-            "/rest/files?project_identifier=project_x", format="json"
-        )
+        response = self.client.get("/rest/files?project_identifier=project_x", format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
     @responses.activate
@@ -213,9 +207,7 @@ class ApiEndUserAdditionalProjects(CatalogRecordApiWriteCommon):
         """
         Projects are fetched from token when local file is not available.
         """
-        response = self.client.get(
-            "/rest/files?project_identifier=2001036", format="json"
-        )
+        response = self.client.get("/rest/files?project_identifier=2001036", format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
     @responses.activate
@@ -228,9 +220,7 @@ class ApiEndUserAdditionalProjects(CatalogRecordApiWriteCommon):
             json.dump(testdata, testfile, indent=4)
             os.chmod(settings.ADDITIONAL_USER_PROJECTS_PATH, 0o400)
 
-        response = self.client.get(
-            "/rest/files?project_identifier=project_x", format="json"
-        )
+        response = self.client.get("/rest/files?project_identifier=project_x", format="json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
 
     @responses.activate
@@ -243,9 +233,7 @@ class ApiEndUserAdditionalProjects(CatalogRecordApiWriteCommon):
             json.dump(testdata, testfile, indent=4)
             os.chmod(settings.ADDITIONAL_USER_PROJECTS_PATH, 0o400)
 
-        response = self.client.get(
-            "/rest/files?project_identifier=project_x", format="json"
-        )
+        response = self.client.get("/rest/files?project_identifier=project_x", format="json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
 
     @responses.activate
@@ -258,7 +246,5 @@ class ApiEndUserAdditionalProjects(CatalogRecordApiWriteCommon):
             json.dump(testdata, testfile, indent=4)
             os.chmod(settings.ADDITIONAL_USER_PROJECTS_PATH, 0o400)
 
-        response = self.client.get(
-            "/rest/files?project_identifier=2001036", format="json"
-        )
+        response = self.client.get("/rest/files?project_identifier=2001036", format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)

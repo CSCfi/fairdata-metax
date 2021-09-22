@@ -33,9 +33,7 @@ class ElasticSearchService:
     def create_index(self, index, filename):
         _logger.info("Trying to create index " + index)
         return self._operation_ok(
-            self.es.indices.create(
-                index=index, body=self._get_json_file_as_str(filename)
-            )
+            self.es.indices.create(index=index, body=self._get_json_file_as_str(filename))
         )
 
     def delete_index(self, index):
@@ -54,24 +52,16 @@ class ElasticSearchService:
             )
             self._delete_all_documents_from_index_with_type(index, doc_type)
             _logger.info(
-                "Trying to bulk update reference data with type "
-                + doc_type
-                + " to index "
-                + index
+                "Trying to bulk update reference data with type " + doc_type + " to index " + index
             )
 
-            return self._operation_ok(
-                self.es.bulk(body=bulk_update_str, request_timeout=30)
-            )
+            return self._operation_ok(self.es.bulk(body=bulk_update_str, request_timeout=30))
 
         return None
 
     def _delete_all_documents_from_index_with_type(self, index, doc_type):
         _logger.info(
-            "Trying to delete all documents from index "
-            + index
-            + " having type "
-            + doc_type
+            "Trying to delete all documents from index " + index + " having type " + doc_type
         )
         return self._operation_ok(
             self.es.delete_by_query(

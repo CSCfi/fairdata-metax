@@ -4,23 +4,22 @@ from enum import Enum
 
 from box import Box
 
-api_permissions = Box({
-    "rest": {
-        "apierrors": {},
-        "datacatalogs": {},
-        "datasets": {},
-        "directories": {},
-        "files": {},
-        "filestorages": {},
-        "schemas": {}
+api_permissions = Box(
+    {
+        "rest": {
+            "apierrors": {},
+            "datacatalogs": {},
+            "datasets": {},
+            "directories": {},
+            "files": {},
+            "filestorages": {},
+            "schemas": {},
+        },
+        "rpc": {"datasets": {}, "elasticsearchs": {}, "files": {}, "statistics": {}},
     },
-    "rpc": {
-        "datasets": {},
-        "elasticsearchs": {},
-        "files": {},
-        "statistics": {}
-    }
-}, default_box_attr={}, default_box=True)
+    default_box_attr={},
+    default_box=True,
+)
 
 
 class Role(Enum):
@@ -69,16 +68,57 @@ api_permissions.rest.datacatalogs.read = [Role.ALL]
 api_permissions.rest.datacatalogs["update"] = [Role.METAX, Role.ETSIN]
 api_permissions.rest.datacatalogs.delete = [Role.METAX, Role.ETSIN]
 
-api_permissions.rest.datasets.create = [Role.METAX, Role.END_USERS, Role.TPAS, Role.QVAIN, Role.ETSIN]
+api_permissions.rest.datasets.create = [
+    Role.METAX,
+    Role.END_USERS,
+    Role.TPAS,
+    Role.QVAIN,
+    Role.ETSIN,
+]
 api_permissions.rest.datasets.read = [Role.ALL]
-api_permissions.rest.datasets["update"] = [Role.METAX, Role.END_USERS, Role.TPAS, Role.QVAIN, Role.ETSIN]
-api_permissions.rest.datasets.delete = [Role.METAX, Role.END_USERS, Role.TPAS, Role.QVAIN, Role.ETSIN]
+api_permissions.rest.datasets["update"] = [
+    Role.METAX,
+    Role.END_USERS,
+    Role.TPAS,
+    Role.QVAIN,
+    Role.ETSIN,
+]
+api_permissions.rest.datasets.delete = [
+    Role.METAX,
+    Role.END_USERS,
+    Role.TPAS,
+    Role.QVAIN,
+    Role.ETSIN,
+]
 
-api_permissions.rest.directories.read = [Role.METAX, Role.QVAIN, Role.ETSIN, Role.TPAS, Role.FDS, Role.END_USERS]
+api_permissions.rest.directories.read = [
+    Role.METAX,
+    Role.QVAIN,
+    Role.ETSIN,
+    Role.TPAS,
+    Role.FDS,
+    Role.END_USERS,
+]
 
 api_permissions.rest.files.create = [Role.METAX, Role.IDA, Role.TPAS]
-api_permissions.rest.files.read = [Role.METAX, Role.IDA, Role.FDS, Role.TPAS, Role.END_USERS]
-api_permissions.rest.files["update"] = [Role.METAX, Role.IDA, Role.TPAS, Role.FDS, Role.END_USERS]
+api_permissions.rest.files.read = [
+    Role.METAX,
+    Role.IDA,
+    Role.FDS,
+    Role.TPAS,
+    Role.END_USERS,
+    Role.QVAIN,
+    Role.QVAIN_LIGHT,
+]
+api_permissions.rest.files["update"] = [
+    Role.METAX,
+    Role.IDA,
+    Role.TPAS,
+    Role.FDS,
+    Role.END_USERS,
+    Role.QVAIN,
+    Role.QVAIN_LIGHT,
+]
 api_permissions.rest.files.delete = [Role.METAX, Role.IDA, Role.TPAS]
 
 api_permissions.rest.filestorages.create = [Role.METAX]
@@ -106,11 +146,13 @@ api_permissions.rpc.files.flush_project.use = [Role.METAX, Role.IDA, Role.TPAS]
 api_permissions.rpc.statistics.all_datasets_cumulative.use = [Role.ALL]
 api_permissions.rpc.statistics.catalog_datasets_cumulative.use = [Role.ALL]
 api_permissions.rpc.statistics.count_datasets.use = [Role.ALL]
+api_permissions.rpc.statistics.count_files.use = [Role.ALL]
 api_permissions.rpc.statistics.deprecated_datasets_cumulative.use = [Role.ALL]
 api_permissions.rpc.statistics.end_user_datasets_cumulative.use = [Role.ALL]
 api_permissions.rpc.statistics.harvested_datasets_cumulative.use = [Role.ALL]
 api_permissions.rpc.statistics.organization_datasets_cumulative.use = [Role.ALL]
 api_permissions.rpc.statistics.unused_files.use = [Role.ALL]
+
 
 def prepare_perm_values(d):
     new_d = d
