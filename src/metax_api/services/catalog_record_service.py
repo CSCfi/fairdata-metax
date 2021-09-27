@@ -5,6 +5,7 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 import logging
+import re
 import urllib.parse
 from collections import defaultdict
 from os.path import dirname, join
@@ -167,16 +168,22 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         """
 
         def _get_person_filter(agent, person):
+            param = "name"
+            # check if query parameter is person's ID
+            if re.search(r"((\d*-\d*)+)", person):
+                person = "http://orcid.org/" + person
+                param = "identifier"
+
             name_filter = Q()
             # only one publisher possible
             if agent == "publisher":
-                name_filter |= Q(**{f"research_dataset__{agent}__name__iregex": person})
+                name_filter |= Q(**{f"research_dataset__{agent}__{param}__iregex": person})
             else:
                 # having same problem as in set_pas_filter below..
                 for i in range(3):
-                    name_filter |= Q(**{f"research_dataset__{agent}__{i}__name__iregex": person})
+                    name_filter |= Q(**{f"research_dataset__{agent}__{i}__{param}__iregex": person})
 
-                name_filter |= Q(**{f"research_dataset__{agent}__contains": [{"name": person}]})
+                name_filter |= Q(**{f"research_dataset__{agent}__contains": [{param: person}]})
 
             # regex will find matches from organization name fields so have to disable it
             person_filter = Q(**{f"research_dataset__{agent}__contains": [{"@type": "Person"}]})
@@ -185,44 +192,66 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
             return name_filter
 
         def _get_org_filter(agent, org):
+            name = "name"
+            name_en = "name__en"
+            name_fi = "name__fi"
+            # check if query parameter is organizational ID
+            if re.search(r"\b\d{5}\b", org[:5]):
+                org = "http://uri.suomi.fi/codelist/fairdata/organization/code/" + org
+                name = "identifier"
+                name_en = "identifier"
+                name_fi = "identifier"
+
             name_filter = Q()
             # only one publisher possible
             if agent == "publisher":
-                name_filter |= Q(**{f"research_dataset__{agent}__name__en__iregex": org})
-                name_filter |= Q(**{f"research_dataset__{agent}__name__fi__iregex": org})
-                name_filter |= Q(**{f"research_dataset__{agent}__member_of__name__en__iregex": org})
-                name_filter |= Q(**{f"research_dataset__{agent}__member_of__name__fi__iregex": org})
+                name_filter |= Q(**{f"research_dataset__{agent}__{name_en}__iregex": org})
+                name_filter |= Q(**{f"research_dataset__{agent}__{name_fi}__iregex": org})
+                name_filter |= Q(**{f"research_dataset__{agent}__member_of__{name_en}__iregex": org})
+                name_filter |= Q(**{f"research_dataset__{agent}__member_of__{name_fi}__iregex": org})
             else:
                 for i in range(3):
-                    name_filter |= Q(**{f"research_dataset__{agent}__{i}__name__en__iregex": org})
-                    name_filter |= Q(**{f"research_dataset__{agent}__{i}__name__fi__iregex": org})
+                    name_filter |= Q(**{f"research_dataset__{agent}__{i}__{name_en}__iregex": org})
+                    name_filter |= Q(**{f"research_dataset__{agent}__{i}__{name_fi}__iregex": org})
                     name_filter |= Q(
-                        **{f"research_dataset__{agent}__{i}__member_of__name__en__iregex": org}
+                        **{f"research_dataset__{agent}__{i}__member_of__{name_en}__iregex": org}
                     )
                     name_filter |= Q(
-                        **{f"research_dataset__{agent}__{i}__member_of__name__fi__iregex": org}
+                        **{f"research_dataset__{agent}__{i}__member_of__{name_fi}__iregex": org}
                     )
 
-                name_filter |= Q(
-                    **{f"research_dataset__{agent}__contains": [{"name": {"en": org}}]}
-                )
-                name_filter |= Q(
-                    **{f"research_dataset__{agent}__contains": [{"name": {"fi": org}}]}
-                )
-                name_filter |= Q(
-                    **{
-                        f"research_dataset__{agent}__contains": [
-                            {"member_of": {"name": {"en": org}}}
-                        ]
-                    }
-                )
-                name_filter |= Q(
-                    **{
-                        f"research_dataset__{agent}__contains": [
-                            {"member_of": {"name": {"fi": org}}}
-                        ]
-                    }
-                )
+                if name == "name":
+                    name_filter |= Q(
+                        **{f"research_dataset__{agent}__contains": [{name: {"en": org}}]}
+                    )
+                    name_filter |= Q(
+                        **{f"research_dataset__{agent}__contains": [{name: {"fi": org}}]}
+                    )
+                    name_filter |= Q(
+                        **{
+                            f"research_dataset__{agent}__contains": [
+                                {"member_of": {name: {"en": org}}}
+                            ]
+                        }
+                    )
+                    name_filter |= Q(
+                        **{
+                            f"research_dataset__{agent}__contains": [
+                                {"member_of": {name: {"fi": org}}}
+                            ]
+                        }
+                    )
+                else:
+                    name_filter |= Q(
+                        **{f"research_dataset__{agent}__contains": [{name: org}]}
+                    )
+                    name_filter |= Q(
+                        **{
+                            f"research_dataset__{agent}__contains": [
+                                {"member_of": {name: org}}
+                            ]
+                        }
+                    )
 
             return name_filter
 

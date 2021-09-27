@@ -594,6 +594,34 @@ class CatalogRecordApiReadActorFilter(CatalogRecordApiReadCommon):
             )
             self.assertEqual(len(response.data["results"]), 0)
 
+    def test_agents_and_actors_with_ids(self):
+        # set test conditions
+        cr = CatalogRecord.objects.get(pk=11)
+        cr.research_dataset["curator"] = []
+        cr.research_dataset["curator"].append(
+            {
+                "@type": "Person",
+                "name": "Tarmo Termiitti",
+                "member_of": {
+                    "identifier": "org_identifier",
+                    "name": {"en": "Unique Organization"},
+                },
+                "identifier": "http://orcid.org/1234-1234-1234-1234",
+            }
+        )
+        cr.research_dataset["creator"] = []
+        cr.research_dataset["creator"].append(
+            {"@type": "Organization", "name": {"en": "Unique Organization"}, "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/1234567"}
+        )
+        cr.force_save()
+
+        # test that querys can be made also with organizational and persons' IDs
+        response = self.client.get("/rest/datasets?creator_organization=1234567")
+        self.assertEqual(len(response.data["results"]), 1, response.data)
+
+        response = self.client.get("/rest/datasets?curator_person=1234-1234-1234-1234")
+        self.assertEqual(len(response.data["results"]), 1, response.data)
+
 
 class CatalogRecordApiReadPASFilter(CatalogRecordApiReadCommon):
     def test_pas_filter(self):
