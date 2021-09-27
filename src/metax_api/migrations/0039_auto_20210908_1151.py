@@ -7,6 +7,29 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+def build_email_string(f_name, l_name, provider, domain_type):
+    return f"{f_name}.{l_name}@{provider}.{domain_type}"
+
+def replace_access_granter(cr, old_name, old_email, old_user_id, new_name, new_email, new_user_id):
+    logger.info(f"replacing access granter: {old_name}, {old_email}, {old_user_id} with {new_name}, {new_email}, {new_user_id}")
+    if cr.access_granter:
+        if cr.access_granter["name"] == old_name:
+            cr.access_granter["name"] = new_name
+            logger.info("access granter name changed")
+        if cr.access_granter["email"] == old_email:
+            cr.access_granter["email"] = new_email
+            logger.info("access granter email changed")
+        if cr.access_granter["userid"] == old_user_id:
+            cr.access_granter["userid"] = new_user_id
+            logger.info("access granter user_id changed")
+
+def replace_metadata_provider_user(cr, old_user, new_user):
+    logger.info(f"replacing metadata_provider_user: {old_user} with new_user: {new_user}")
+    if cr.metadata_provider_user:
+        if cr.metadata_provider_user == old_user:
+            cr.metadata_provider_user = new_user
+            logger.info("metadata_provider_user changed")
+
 datasets = [
     "1acea3cc-c245-4f6d-80ee-f9c6a6c907be",
     "72dc2050-70bc-4f46-9fc7-b3ac2bd58bdc",
@@ -15,43 +38,20 @@ datasets = [
     "51c7c6c4-0129-4856-be71-072582882cb5",
     "56ab6296-9bc9-41b3-95ea-b4655aa7978b",
     "66cc0770-08f9-4df3-ac6f-b65a15f5e73e",
+    "cr955e904-e3dd-4d7e-99f1-3fed446f9630" # test
 ]
-
-"""
-Changes:
-
-metadata_provider_user: tuokalma
-to ->
-metadata_provider_user: ksuomine
-
-access_granter:
-name: Alma Tuokko
-email: alma.tuokko@helsinki.fi
-userid: tuokalma
-to ->
-access_granter:
-name: Karina Lukin
-email: karina.lukin@helsinki.fi
-userid: ksuomine
-"""
 
 def change_metadata_provider_user(apps, schema_editor):
     CatalogRecord = apps.get_model('metax_api', 'CatalogRecord')
     for cr in CatalogRecord.objects.filter(identifier__in=datasets):
         try:
-            if cr.metadata_provider_user:
-                provider_usr = json.loads(json.dumps(cr.metadata_provider_user))
-                changed_usr = provider_usr.replace("tuokalma", "ksuomine")
-                cr.metadata_provider_user = changed_usr
-
-            if cr.access_granter:
-                access_granter = json.loads(json.dumps(cr.access_granter))
-                changed_granter = access_granter.replace("Alma Tuokko", "Karina Lukin")
-                changed_granter = changed_granter.replace("alma.tuokko@helsinki.fi", "karina.lukin@helsinki.fi")
-                changed_granter = changed_granter.replace("tuokalma", "ksuomine")
-                cr.access_granter = changed_granter
-
+            logger.info(f"changing access granter for cr {cr.identifier}")
+            old_mail = build_email_string("alma", "tuokko", "helsinki", "fi")
+            new_email = build_email_string("karina", "lukin", "helsinki", "fi")
+            replace_metadata_provider_user(cr, "tuokalma", "ksuomine")
+            replace_access_granter(cr, "Alma Tuokko", old_mail, "tuokalma", "Karina Lukin", new_email, "ksuomine")
             cr.save()
+            logger.info("cr save successful")
         except Exception as e:
             logger.error(e)
 
@@ -60,19 +60,14 @@ def revert(apps, schema_editor):
     CatalogRecord = apps.get_model('metax_api', 'CatalogRecord')
     for cr in CatalogRecord.objects.filter(identifier__in=datasets):
         try:
-            if cr.metadata_provider_user:
-                provider_usr = json.loads(json.dumps(cr.metadata_provider_user))
-                changed_usr = provider_usr.replace("ksuomine", "tuokalma")
-                cr.metadata_provider_user = changed_usr
-
-            if cr.access_granter:
-                access_granter = json.loads(json.dumps(cr.access_granter))
-                changed_granter = access_granter.replace("Karina Lukin", "Alma Tuokko")
-                changed_granter = changed_granter.replace("karina.lukin@helsinki.fi", "alma.tuokko@helsinki.fi")
-                changed_granter = changed_granter.replace("ksuomine", "tuokalma")
-                cr.access_granter = changed_granter
+            logger.info(f"changing access granter for cr {cr.identifier}")
+            old_mail = build_email_string("alma", "tuokko", "helsinki", "fi")
+            new_email = build_email_string("karina", "lukin", "helsinki", "fi")
+            replace_metadata_provider_user(cr, "ksuomine", "tuokalma")
+            replace_access_granter(cr, "Karina Lukin", new_email, "ksuomine", "Alma Tuokko", old_mail, "tuokalma", )
 
             cr.save()
+            logger.info("cr save successful")
         except Exception as e:
             logger.error(e)
 
