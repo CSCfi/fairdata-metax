@@ -531,7 +531,7 @@ class CatalogRecord(Common):
             return True
 
         elif request.method in READ_METHODS:
-            if request.user.username is None:  # unauthenticated user
+            if request.user.username == "":  # unauthenticated user
                 if self.state == self.STATE_PUBLISHED:
                     return True
                 else:
