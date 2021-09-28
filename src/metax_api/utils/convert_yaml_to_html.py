@@ -33,6 +33,7 @@ TEMPLATE = """
       background: #fafafa;
     }
   </style>
+  <script src=" https://metrics.fairdata.fi/fdwe.js"></script>
 </head>
 <body>
 
