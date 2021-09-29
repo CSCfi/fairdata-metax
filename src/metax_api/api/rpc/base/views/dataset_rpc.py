@@ -49,9 +49,11 @@ class DatasetRPC(CommonRPC):
         with open("metax_api/exampledata/dataset_minimal.json", "rb") as f:
             example_ds = load(f)
 
-        example_ds["data_catalog"] = django_settings.END_USER_ALLOWED_DATA_CATALOGS[0]
+        example_ds["data_catalog"] = django_settings.IDA_DATA_CATALOG_IDENTIFIER
 
         if request.query_params["type"].endswith("_pas"):
+            example_ds["data_catalog"] = django_settings.PAS_DATA_CATALOG_IDENTIFIER
+
             if 'issued' not in example_ds['research_dataset']:
                 example_ds['research_dataset']['issued'] = '2019-01-01'
             if 'publisher' not in example_ds['research_dataset']:
