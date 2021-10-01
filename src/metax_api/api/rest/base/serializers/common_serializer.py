@@ -30,26 +30,26 @@ class CommonSerializer(ModelSerializer):
     class Meta:
         model = Common
         fields = (
-            'user_modified',
-            'date_modified',
-            'user_created',
-            'date_created',
-            'service_modified',
-            'service_created',
-            'removed',
-            'date_removed'
+            "user_modified",
+            "date_modified",
+            "user_created",
+            "date_created",
+            "service_modified",
+            "service_created",
+            "removed",
+            "date_removed",
         )
         extra_kwargs = {
             # not required during creation, or updating
             # they would be overwritten by the api anyway.
             # except for user_modified can and should
             # be given by the requestor if possible.
-            'user_modified':       { 'required': False },
-            'date_modified':       { 'required': False },
-            'user_created':        { 'required': False },
-            'date_created':        { 'required': False },
-            'service_modified':    { 'required': False },
-            'service_created':     { 'required': False },
+            "user_modified": {"required": False},
+            "date_modified": {"required": False},
+            "user_created": {"required": False},
+            "date_created": {"required": False},
+            "service_modified": {"required": False},
+            "service_created": {"required": False},
         }
 
     _operation_is_update = False
@@ -68,11 +68,11 @@ class CommonSerializer(ModelSerializer):
 
         super(CommonSerializer, self).__init__(*args, **kwargs)
 
-        if hasattr(self, 'initial_data') and self.initial_data is not None:
-            self.initial_data.pop('removed', None)
-            self.initial_data.pop('date_removed', None)
+        if hasattr(self, "initial_data") and self.initial_data is not None:
+            self.initial_data.pop("removed", None)
+            self.initial_data.pop("date_removed", None)
 
-        if hasattr(self, 'instance') and self.instance is not None:
+        if hasattr(self, "instance") and self.instance is not None:
             self._operation_is_update = True
         else:
             self._operation_is_create = True
@@ -89,11 +89,11 @@ class CommonSerializer(ModelSerializer):
             # to do so. solution: read the docs and be aware of it.
             self.partial = True
 
-        if 'only_fields' in kwargs:
-            self.requested_fields = kwargs.pop('only_fields')
+        if "only_fields" in kwargs:
+            self.requested_fields = kwargs.pop("only_fields")
 
-        elif 'request' in self.context and 'fields' in self.context['request'].query_params:
-            self.requested_fields = self.context['view'].fields
+        elif "request" in self.context and "fields" in self.context["request"].query_params:
+            self.requested_fields = self.context["view"].fields
 
     @transaction.atomic
     def save(self, *args, **kwargs):
@@ -114,12 +114,12 @@ class CommonSerializer(ModelSerializer):
         with metadata_version_identifier generation, file changes handling, alternate_record_set and
         versions handling.
         """
-        if hasattr(self, 'instance') and self.instance is not None:
+        if hasattr(self, "instance") and self.instance is not None:
             # update operation.
             # request cant be passed as __request inside kwargs (as is done
             # when creating records), due to some 'known fields only' validations
             # along the way... this seems to be most convenient.
-            self.instance.request = self.context.get('request', None)
+            self.instance.request = self.context.get("request", None)
         super().save(*args, **kwargs)
 
     def create(self, validated_data):
@@ -127,7 +127,7 @@ class CommonSerializer(ModelSerializer):
         # the request object needs to be passed along the general parameters.
         # luckily, the validate_data is just passed to the Model __init__
         # as **validated_data, and all our extra kwargs can ride along.
-        validated_data['__request'] = self.context.get('request', None)
+        validated_data["__request"] = self.context.get("request", None)
         return super().create(validated_data)
 
     def to_representation(self, instance):
@@ -172,12 +172,15 @@ class CommonSerializer(ModelSerializer):
         to decide whether or not to include the complete relation object in the API response
         or not.
         """
-        if 'view' in self.context and 'expand_relation' in self.context['view'].request.query_params:
-            return relation_name in self.context['view'].request.query_params['expand_relation']
+        if (
+            "view" in self.context
+            and "expand_relation" in self.context["view"].request.query_params
+        ):
+            return relation_name in self.context["view"].request.query_params["expand_relation"]
         return False
 
     def _get_id_from_related_object(self, relation_field, string_relation_func):
-        '''
+        """
         Use for finding out a related object's id, which Django needs to save the relation
         to the database. The related object, or its id, or identifier
         should be present in the initial data's relation field.
@@ -186,7 +189,7 @@ class CommonSerializer(ModelSerializer):
         :return: id of the related object
         :string_relation_func: a function which will be called to retrieve the related object
             in case the relation is a string identifier.
-        '''
+        """
         identifier_value = self.initial_data[relation_field]
 
         if isinstance(identifier_value, int):
@@ -204,30 +207,45 @@ class CommonSerializer(ModelSerializer):
             # the actual related object as a dict. it is expected to be
             # in un-tampered form with normal fields present, since
             # relation fields can not be updated through another object
-            if 'id' in identifier_value:
+            if "id" in identifier_value:
                 try:
-                    return int(identifier_value['id'])
+                    return int(identifier_value["id"])
                 except:
-                    raise ValidationError({relation_field: ['Validation error for relation id field. '
-                                                            'Data in unexpected format']})
+                    raise ValidationError(
+                        {
+                            relation_field: [
+                                "Validation error for relation id field. "
+                                "Data in unexpected format"
+                            ]
+                        }
+                    )
             else:
                 # try to look for identifier field in the dict
-                return string_relation_func(identifier_value['identifier'])
-            raise ValidationError({ relation_field: [
-                'Relation dict does not have any fields to identify relation with (id or identifier)'] })
+                return string_relation_func(identifier_value["identifier"])
+            raise ValidationError(
+                {
+                    relation_field: [
+                        "Relation dict does not have any fields to identify relation with (id or identifier)"
+                    ]
+                }
+            )
         else:
-            _logger.error('is_valid() field validation for relation %s: unexpected type: %s'
-                          % (relation_field, type(identifier_value)))
-            raise ValidationError('Validation error for relation %s. Data in unexpected format' % relation_field)
+            _logger.error(
+                "is_valid() field validation for relation %s: unexpected type: %s"
+                % (relation_field, type(identifier_value))
+            )
+            raise ValidationError(
+                "Validation error for relation %s. Data in unexpected format" % relation_field
+            )
 
     def _request_by_end_user(self):
-        return 'request' in self.context and not self.context['request'].user.is_service
+        return "request" in self.context and not self.context["request"].user.is_service
 
     def _request_by_service(self):
-        return 'request' in self.context and self.context['request'].user.is_service
+        return "request" in self.context and self.context["request"].user.is_service
 
 
-class LightSerializer():
+class LightSerializer:
 
     """
     LightSerializer is optimized for speed for read-only serializing of a
@@ -302,15 +320,23 @@ class LightSerializer():
 
         This default method only filters out fields that are not ine the allowed_fields list.
         """
-        assert isinstance(cls.allowed_fields, set), 'light serializer must specify allowed_fields as a set()'
+        assert isinstance(
+            cls.allowed_fields, set
+        ), "light serializer must specify allowed_fields as a set()"
 
         if received_field_list:
             # ensure only allowed fields and no rubbish ends up in the query - unknown
             # fields to the db will cause crash.
-            field_list = [ field for field in received_field_list if field in cls.allowed_fields ]
+            field_list = [field for field in received_field_list if field in cls.allowed_fields]
             if not field_list:
-                raise Http400({ 'detail': ['uh oh, none of the fields you requested are listed in allowed_fields. '
-                    'received fields: %s' % str(received_field_list)] })
+                raise Http400(
+                    {
+                        "detail": [
+                            "uh oh, none of the fields you requested are listed in allowed_fields. "
+                            "received fields: %s" % str(received_field_list)
+                        ]
+                    }
+                )
 
         else:
             # get all fields
@@ -328,9 +354,17 @@ class LightSerializer():
 
         The end result is supposed to look the same as normally from a serializer.
         """
-        assert type(unserialized_data) in (QuerySet, dict, list), 'unserialized_data type must be QuerySet or dict'
-        assert isinstance(cls.special_fields, set), 'light serializer must specify special_fields as a set()'
-        assert isinstance(cls.relation_fields, set), 'light serializer must specify relation_fields as a set()'
+        assert type(unserialized_data) in (
+            QuerySet,
+            dict,
+            list,
+        ), "unserialized_data type must be QuerySet or dict"
+        assert isinstance(
+            cls.special_fields, set
+        ), "light serializer must specify special_fields as a set()"
+        assert isinstance(
+            cls.relation_fields, set
+        ), "light serializer must specify relation_fields as a set()"
 
         special_fields = cls.special_fields
         relation_fields = cls.relation_fields
@@ -338,7 +372,7 @@ class LightSerializer():
         _relation_id_fields = cls._relation_id_fields
 
         for field in relation_fields:
-            _relation_id_fields.add('%s_id' % field)
+            _relation_id_fields.add("%s_id" % field)
 
         if isinstance(unserialized_data, (QuerySet, list)):
             unserialized_data = unserialized_data
@@ -359,18 +393,18 @@ class LightSerializer():
                     continue
                 elif field in special_fields:
                     serialize_special_field(item, field, value)
-                elif '__' in field:
+                elif "__" in field:
                     # fields from relations, such as parent_directory__identifier
-                    field_sections = field.split('__')
+                    field_sections = field.split("__")
                     field_name = field_sections[0]
-                    if field.endswith('_json'):
+                    if field.endswith("_json"):
                         # _json -ending fields are a special case. only handles
                         # fields identifier and id.
                         if field_name not in item:
                             item[field_name] = {}
                         if isinstance(value, dict):
                             # take identifier from inside the json-field
-                            item[field_name] = { 'identifier': value['identifier'] }
+                            item[field_name] = {"identifier": value["identifier"]}
                         else:
                             # id
                             item[field_name][field_sections[-1]] = value
@@ -379,13 +413,12 @@ class LightSerializer():
                         try:
                             item[field_name][field_sections[-1]] = value
                         except KeyError:
-                            item[field_name] = { field_sections[-1]: value }
+                            item[field_name] = {field_sections[-1]: value}
                 elif field in _relation_id_fields:
                     raise ValueError(
-                        'LightSerializer received field: %s. Expected: %s__attrname. '
-                        'Did you forget to pass result of ls_field_list() to queryset '
-                        '.values(*field_list)?'
-                        % (field, field[:-3])
+                        "LightSerializer received field: %s. Expected: %s__attrname. "
+                        "Did you forget to pass result of ls_field_list() to queryset "
+                        ".values(*field_list)?" % (field, field[:-3])
                     )
                 else:
                     if isinstance(value, datetime):

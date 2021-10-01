@@ -62,9 +62,7 @@ def parse_csv():
 
                         # otherwise create an org and append it to existing root's hierarchy
                         if unit_sub_code and unit_name:
-                            organization_code = "-".join(
-                                [org_code, unit_sub_code]
-                            )  # Unique
+                            organization_code = "-".join([org_code, unit_sub_code])  # Unique
                             parent_id = root_orgs.get(org_code, None)
                             output_orgs.append(
                                 create_organization(

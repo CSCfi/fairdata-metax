@@ -14,13 +14,12 @@ from metax_api.tests.utils import TestClassUtils, test_data_file_path
 
 
 class DirectoryModelTests(APITestCase, TestClassUtils):
-
     @classmethod
     def setUpClass(cls):
         """
         Loaded only once for test cases inside this class.
         """
-        call_command('loaddata', test_data_file_path, verbosity=0)
+        call_command("loaddata", test_data_file_path, verbosity=0)
         super(DirectoryModelTests, cls).setUpClass()
 
     def setUp(self):
@@ -34,13 +33,16 @@ class DirectoryModelTests(APITestCase, TestClassUtils):
         for root_dir in Directory.objects.filter(parent_directory_id=None):
             root_dir.calculate_byte_size_and_file_count()
 
-            byte_size = File.objects.filter(project_identifier=root_dir.project_identifier) \
-                .aggregate(Sum('byte_size'))['byte_size__sum']
+            byte_size = File.objects.filter(
+                project_identifier=root_dir.project_identifier
+            ).aggregate(Sum("byte_size"))["byte_size__sum"]
             file_count = File.objects.filter(project_identifier=root_dir.project_identifier).count()
 
-            response = self.client.get('/rest/directories/root?project=%s' % root_dir.project_identifier)
-            self.assertEqual(response.data['byte_size'], byte_size)
-            self.assertEqual(response.data['file_count'], file_count)
+            response = self.client.get(
+                "/rest/directories/root?project=%s" % root_dir.project_identifier
+            )
+            self.assertEqual(response.data["byte_size"], byte_size)
+            self.assertEqual(response.data["file_count"], file_count)
 
     def test_disallow_calculate_byte_size_and_file_count_for_non_root(self):
         with self.assertRaises(Exception):

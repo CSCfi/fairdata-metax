@@ -17,13 +17,15 @@ from rest_framework.serializers import ValidationError
 
 from metax_api.exceptions import Http400, Http412
 from metax_api.models import CatalogRecord as cr, File
-from metax_api.utils import get_tz_aware_now_without_micros, parse_timestamp_string_to_tz_aware_datetime
+from metax_api.utils import (
+    get_tz_aware_now_without_micros,
+    parse_timestamp_string_to_tz_aware_datetime,
+)
 
 _logger = logging.getLogger(__name__)
 
 
-class CommonService():
-
+class CommonService:
     @staticmethod
     def is_primary_key(received_lookup_value):
         if not received_lookup_value:
@@ -47,14 +49,14 @@ class CommonService():
         else:
             # if method is called before a view's dispatch() method, the only request available
             # is a low level WSGIRequest.
-            for query_param in (val for val in request.environ['QUERY_STRING'].split('&')):
+            for query_param in (val for val in request.environ["QUERY_STRING"].split("&")):
                 try:
-                    param, val = query_param.split('=')
+                    param, val = query_param.split("=")
                 except ValueError:
                     # probably error was 'cant unpack tuple, not enough values' -> was a
                     # param without value specified, such as ?recursive, instead of ?recursive=true.
                     # if flag is specified without value, default value is to be considered True.
-                    param, val = query_param, 'true'
+                    param, val = query_param, "true"
 
                 if param == param_name:
                     value = val
@@ -62,16 +64,16 @@ class CommonService():
             else:
                 return False
 
-        if value in ('', 'true'):
+        if value in ("", "true"):
             # flag was specified without value (?recursive), or with value (?recursive=true)
             return True
-        elif value in (None, 'false'):
+        elif value in (None, "false"):
             # flag was not present, or its value was ?recursive=false
             return False
         else:
-            raise ValidationError({ param_name: [
-                'boolean value must be true or false. received value was %s' % value
-            ]})
+            raise ValidationError(
+                {param_name: ["boolean value must be true or false. received value was %s" % value]}
+            )
 
     @staticmethod
     def get_list_query_param(request, param_name):
@@ -87,10 +89,10 @@ class CommonService():
 
         if value is None:
             return None
-        elif value in ('', ','):
+        elif value in ("", ","):
             return set()
 
-        values_set = set( v.strip() for v in value.split(',') )
+        values_set = set(v.strip() for v in value.split(","))
 
         if values_set:
             return values_set
@@ -104,10 +106,10 @@ class CommonService():
         Queries are for example 'creator_person' or 'publisher_organization'
         Returns boolean
         """
-        fields = ['creator', 'curator', 'publisher', 'rights_holder']
-        types = ['organization', 'person']
+        fields = ["creator", "curator", "publisher", "rights_holder"]
+        types = ["organization", "person"]
         for field in fields:
-            if any(request.query_params.get(f'{field}_{type}') for type in types):
+            if any(request.query_params.get(f"{field}_{type}") for type in types):
                 return True
 
         return False
@@ -125,26 +127,26 @@ class CommonService():
         serializer_class: does the actual saving, knows what kind of object is in question
         """
         common_info = cls.update_common_info(request, return_only=True)
-        kwargs['context']['request'] = request
+        kwargs["context"]["request"] = request
 
         results = None
 
         if not request.data:
-            raise Http400('Request body is required')
+            raise Http400("Request body is required")
 
         if isinstance(request.data, list):
 
             if len(request.data) == 0:
-                raise ValidationError(['the received object list is empty'])
+                raise ValidationError(["the received object list is empty"])
 
             # dont fail the entire request if only some inserts fail.
             # successfully created rows are added to 'successful', and
             # failed inserts are added to 'failed', with a related error message.
-            results = { 'success': [], 'failed': []}
+            results = {"success": [], "failed": []}
 
             cls._create_bulk(common_info, request.data, results, serializer_class, **kwargs)
 
-            if results['success']:
+            if results["success"]:
                 # if even one insert was successful, general status of the request is success
                 http_status = status.HTTP_201_CREATED
             else:
@@ -152,9 +154,11 @@ class CommonService():
                 http_status = status.HTTP_400_BAD_REQUEST
 
         else:
-            results, http_status = cls._create_single(common_info, request.data, serializer_class, **kwargs)
+            results, http_status = cls._create_single(
+                common_info, request.data, serializer_class, **kwargs
+            )
 
-        if 'failed' in results:
+        if "failed" in results:
             cls._check_and_raise_atomic_error(request, results)
 
         return results, http_status
@@ -184,7 +188,7 @@ class CommonService():
                 cls._append_error(results, serializer, e)
             else:
                 serializer.save(**common_info)
-                results['success'].append({ 'object': serializer.data })
+                results["success"].append({"object": serializer.data})
 
     @staticmethod
     def get_json_schema(schema_folder_path, model_name, data_catalog_prefix=False):
@@ -195,27 +199,27 @@ class CommonService():
         For datasets, a data catalog prefix can be given, in which case it will
         be the prefix for the schema file name.
         """
-        schema_name = ''
+        schema_name = ""
 
-        if model_name == 'dataset':
+        if model_name == "dataset":
             if data_catalog_prefix:
                 schema_name = data_catalog_prefix
             else:
-                schema_name = 'ida'
+                schema_name = "ida"
 
-            schema_name += '_'
+            schema_name += "_"
 
-        schema_name += '%s_schema.json' % model_name
+        schema_name += "%s_schema.json" % model_name
 
         try:
-            with open('%s/%s' % (schema_folder_path, schema_name), encoding='utf-8') as f:
+            with open("%s/%s" % (schema_folder_path, schema_name), encoding="utf-8") as f:
                 return json_load(f)
         except IOError as e:
-            if model_name != 'dataset':
+            if model_name != "dataset":
                 # only datasets have a default schema
                 raise
             _logger.warning(e)
-            with open('%s/ida_dataset_schema.json' % schema_folder_path, encoding='utf-8') as f:
+            with open("%s/ida_dataset_schema.json" % schema_folder_path, encoding="utf-8") as f:
                 return json_load(f)
 
     @classmethod
@@ -242,15 +246,20 @@ class CommonService():
 
         """
         if not isinstance(request.data, list):
-            raise ValidationError({ 'detail': ['request.data is not a list'] })
+            raise ValidationError({"detail": ["request.data is not a list"]})
 
         common_info = cls.update_common_info(request, return_only=True)
-        results = { 'success': [], 'failed': []}
+        results = {"success": [], "failed": []}
 
         for row in request.data:
 
-            instance = cls._get_object_for_update(request, model_obj, row, results,
-                                                  cls._request_has_header(request, 'HTTP_IF_UNMODIFIED_SINCE'))
+            instance = cls._get_object_for_update(
+                request,
+                model_obj,
+                row,
+                results,
+                cls._request_has_header(request, "HTTP_IF_UNMODIFIED_SINCE"),
+            )
 
             if not instance:
                 continue
@@ -264,15 +273,15 @@ class CommonService():
                 cls._append_error(results, serializer, e)
             else:
                 serializer.save(**common_info)
-                results['success'].append({ 'object': serializer.data })
+                results["success"].append({"object": serializer.data})
 
         # if even one operation was successful, general status of the request is success
-        if len(results.get('success', [])) > 0:
+        if len(results.get("success", [])) > 0:
             http_status = status.HTTP_200_OK
         else:
             http_status = status.HTTP_400_BAD_REQUEST
 
-        if 'failed' in results:
+        if "failed" in results:
             cls._check_and_raise_atomic_error(request, results)
 
         return results, http_status
@@ -288,31 +297,33 @@ class CommonService():
         return the common info, so that its info can be used manually, instead of updating
         request.data here automatically. For that purpose, use the return_only flag.
         """
-        if not request.user.username: # pragma: no cover
+        if not request.user.username:  # pragma: no cover
             # should never happen: update_common_info is executed only on update operations,
             # which requires authorization, which should put the username into the request obj.
-            ValidationError({
-                'detail': 'request.user.username not set; unknown service or user. '
-                'how did you get here without passing authorization...?'
-            })
+            ValidationError(
+                {
+                    "detail": "request.user.username not set; unknown service or user. "
+                    "how did you get here without passing authorization...?"
+                }
+            )
 
         method = request.stream and request.stream.method or False
         current_time = get_tz_aware_now_without_micros()
         common_info = {}
 
-        if method in ('PUT', 'PATCH', 'DELETE'):
-            common_info['date_modified'] = current_time
+        if method in ("PUT", "PATCH", "DELETE"):
+            common_info["date_modified"] = current_time
             if request.user.is_service:
-                common_info['service_modified'] = request.user.username
+                common_info["service_modified"] = request.user.username
             else:
-                common_info['user_modified'] = request.user.username
-                common_info['service_modified'] = None
-        elif method == 'POST':
-            common_info['date_created'] = current_time
+                common_info["user_modified"] = request.user.username
+                common_info["service_modified"] = None
+        elif method == "POST":
+            common_info["date_created"] = current_time
             if request.user.is_service:
-                common_info['service_created'] = request.user.username
+                common_info["service_created"] = request.user.username
             else:
-                common_info['user_created'] = request.user.username
+                common_info["user_created"] = request.user.username
         else:
             pass
 
@@ -323,18 +334,23 @@ class CommonService():
 
     @staticmethod
     def _check_and_raise_atomic_error(request, results):
-        if 'success' in results and not len(results['success']):
+        if "success" in results and not len(results["success"]):
             # everything failed anyway, so return normal route even if atomic was used
             return
-        if len(results.get('failed', [])) > 0 and request.query_params.get('atomic', None) in ('', 'true'):
-            raise ValidationError({
-                'success': [],
-                'failed': results['failed'],
-                'detail': [
-                    'request was failed due to parameter atomic=true. all changes were rolled back. '
-                    'actual failed rows are listed in the field \"failed\".'
-                ]
-            })
+        if len(results.get("failed", [])) > 0 and request.query_params.get("atomic", None) in (
+            "",
+            "true",
+        ):
+            raise ValidationError(
+                {
+                    "success": [],
+                    "failed": results["failed"],
+                    "detail": [
+                        "request was failed due to parameter atomic=true. all changes were rolled back. "
+                        'actual failed rows are listed in the field "failed".'
+                    ],
+                }
+            )
 
     @staticmethod
     def _append_error(results, serializer, error):
@@ -346,16 +362,18 @@ class CommonService():
         is still a crash, and should be fixed.
         """
         try:
-            results['failed'].append({ 'object': serializer.initial_data, 'errors': serializer.errors })
+            results["failed"].append(
+                {"object": serializer.initial_data, "errors": serializer.errors}
+            )
         except AssertionError:
             _logger.exception(
-                'Looks like serializer.is_valid() tripped - could not access serializer.errors. '
-                'Returning str(e) instead. THIS SHOULD BE FIXED. YES, IM TALKING TO YOU'
+                "Looks like serializer.is_valid() tripped - could not access serializer.errors. "
+                "Returning str(e) instead. THIS SHOULD BE FIXED. YES, IM TALKING TO YOU"
             )
             # note that all cases where this happens should be fixed - this is a programming error.
             # str(e) might show dicts or lists as strings, which would look silly to receiving
             # humans
-            results['failed'].append({ 'object': serializer.initial_data, 'errors': str(error) })
+            results["failed"].append({"object": serializer.initial_data, "errors": str(error)})
 
     @staticmethod
     def _get_object_for_update(request, model_obj, row, results, check_unmodified_since):
@@ -374,39 +392,48 @@ class CommonService():
         try:
             instance = model_obj.objects.get(using_dict=row)
         except model_obj.DoesNotExist:
-            results['failed'].append({ 'object': row, 'errors': { 'detail': ['object not found'] }})
+            results["failed"].append({"object": row, "errors": {"detail": ["object not found"]}})
         except ValidationError as e:
-            results['failed'].append({ 'object': row, 'errors': { 'detail': e.detail } })
+            results["failed"].append({"object": row, "errors": {"detail": e.detail}})
 
         if instance and not instance.user_has_access(request):
 
             # dont reveal anything from the actual instance
             ret = {}
 
-            if 'id' in row:
-                ret['id'] = row['id']
-            if 'identifier' in row:
-                ret['identifier'] = row['identifier']
+            if "id" in row:
+                ret["id"] = row["id"]
+            if "identifier" in row:
+                ret["identifier"] = row["identifier"]
 
-            results['failed'].append({
-                'object': ret,
-                'errors': {
-                    'detail': ['You are not permitted to access this resource.']
+            results["failed"].append(
+                {
+                    "object": ret,
+                    "errors": {"detail": ["You are not permitted to access this resource."]},
                 }
-            })
+            )
 
             instance = None
 
         if instance and check_unmodified_since:
-            if 'date_modified' not in row:
-                results['failed'].append({
-                    'object': row,
-                    'errors': {
-                        'detail': ['Field date_modified is required when the header If-Unmodified-Since is set']
+            if "date_modified" not in row:
+                results["failed"].append(
+                    {
+                        "object": row,
+                        "errors": {
+                            "detail": [
+                                "Field date_modified is required when the header If-Unmodified-Since is set"
+                            ]
+                        },
                     }
-                })
-            elif instance.modified_since(row['date_modified']):
-                results['failed'].append({ 'object': row, 'errors': { 'detail': ['Resource has been modified'] } })
+                )
+            elif instance.modified_since(row["date_modified"]):
+                results["failed"].append(
+                    {
+                        "object": row,
+                        "errors": {"detail": ["Resource has been modified"]},
+                    }
+                )
             else:
                 # good case - all is good
                 pass
@@ -416,22 +443,22 @@ class CommonService():
     @classmethod
     def _validate_and_get_if_unmodified_since_header_as_tz_aware_datetime(cls, request):
         try:
-            return cls._validate_http_date_header(request, 'HTTP_IF_UNMODIFIED_SINCE')
+            return cls._validate_http_date_header(request, "HTTP_IF_UNMODIFIED_SINCE")
         except:
-            raise Http400('Bad If-Unmodified-Since header')
+            raise Http400("Bad If-Unmodified-Since header")
 
     @classmethod
     def validate_and_get_if_modified_since_header_as_tz_aware_datetime(cls, request):
         try:
-            return cls._validate_http_date_header(request, 'HTTP_IF_MODIFIED_SINCE')
+            return cls._validate_http_date_header(request, "HTTP_IF_MODIFIED_SINCE")
         except:
-            raise Http400('Bad If-Modified-Since header')
+            raise Http400("Bad If-Modified-Since header")
 
     @staticmethod
     def _validate_http_date_header(request, header_name):
-        timestamp = request.META.get(header_name, '')
+        timestamp = request.META.get(header_name, "")
         # According to RFC 7232, Http date should always be expressed in 'GMT'. Forcing its use makes this explicit
-        if not timestamp.endswith('GMT'):
+        if not timestamp.endswith("GMT"):
             raise Exception
         return parse_timestamp_string_to_tz_aware_datetime(timestamp)
 
@@ -441,7 +468,7 @@ class CommonService():
 
     @staticmethod
     def _request_is_write_operation(request):
-        return request.method in ('POST', 'PUT', 'PATCH', 'DELETE')
+        return request.method in ("POST", "PUT", "PATCH", "DELETE")
 
     @staticmethod
     def request_is_create_operation(request):
@@ -451,17 +478,23 @@ class CommonService():
         files to the dataset thus, not creating the dataset. This might not work for other
         datatypes out of the box.
         """
-        return request.method in ('POST') and 'files' not in request.path
+        return request.method in ("POST") and "files" not in request.path
 
     @classmethod
     def check_if_unmodified_since(cls, request, obj):
-        if cls._request_is_write_operation(request) and \
-                cls._request_has_header(request, 'HTTP_IF_UNMODIFIED_SINCE'):
+        if cls._request_is_write_operation(request) and cls._request_has_header(
+            request, "HTTP_IF_UNMODIFIED_SINCE"
+        ):
 
-            header_timestamp = cls._validate_and_get_if_unmodified_since_header_as_tz_aware_datetime(request)
+            header_timestamp = (
+                cls._validate_and_get_if_unmodified_since_header_as_tz_aware_datetime(request)
+            )
             if obj.modified_since(header_timestamp):
-                raise Http412('Resource has been modified since {0} (timezone: {1})'.format(
-                    str(header_timestamp), timezone.get_default_timezone_name()))
+                raise Http412(
+                    "Resource has been modified since {0} (timezone: {1})".format(
+                        str(header_timestamp), timezone.get_default_timezone_name()
+                    )
+                )
 
     @classmethod
     def set_if_modified_since_filter(cls, request, filter_obj):
@@ -475,16 +508,18 @@ class CommonService():
         :param filter_obj
         :return:
         """
-        if not cls._request_is_write_operation(request) and cls._request_has_header(request, 'HTTP_IF_MODIFIED_SINCE'):
+        if not cls._request_is_write_operation(request) and cls._request_has_header(
+            request, "HTTP_IF_MODIFIED_SINCE"
+        ):
 
             ts = cls.validate_and_get_if_modified_since_header_as_tz_aware_datetime(request)
 
             flter = Q(date_modified__gt=ts) | (Q(date_modified=None) & Q(date_created__gt=ts))
 
-            if 'q_filters' in filter_obj:
-                filter_obj['q_filters'].append(flter)
+            if "q_filters" in filter_obj:
+                filter_obj["q_filters"].append(flter)
             else:
-                filter_obj['q_filters'] = [flter]
+                filter_obj["q_filters"] = [flter]
 
     @staticmethod
     def identifiers_to_ids(identifiers: List[any], params=None):
@@ -493,16 +528,24 @@ class CommonService():
         do a query to get a list of pk's instead, since they will be used quite a few times.
         """
         if not isinstance(identifiers, list):
-            raise Http400('Received identifiers is not a list')
+            raise Http400("Received identifiers is not a list")
         elif not identifiers:
-            _logger.info('Received empty list of identifiers. Aborting')
-            raise Http400('Received empty list of identifiers')
+            _logger.info("Received empty list of identifiers. Aborting")
+            raise Http400("Received empty list of identifiers")
         elif all(isinstance(x, int) for x in identifiers):
             return identifiers
 
-        if params in ['files', 'noparams']:
-            identifiers = [ id for id in File.objects.filter(identifier__in=identifiers).values_list('id', flat=True) ]
+        if params in ["files", "noparams"]:
+            identifiers = [
+                id
+                for id in File.objects.filter(identifier__in=identifiers).values_list(
+                    "id", flat=True
+                )
+            ]
         else:
-            identifiers = [ id for id in cr.objects.filter(identifier__in=identifiers).values_list('id', flat=True) ]
+            identifiers = [
+                id
+                for id in cr.objects.filter(identifier__in=identifiers).values_list("id", flat=True)
+            ]
 
         return identifiers

@@ -17,9 +17,7 @@ class IndexableData:
 
         self.doc_type = doc_type
         self.doc_id = self._create_es_document_id(doc_id)
-        self.label = (
-            label  # { 'fi': 'value1', 'en': 'value2',..., 'und': 'default_value' }
-        )
+        self.label = label  # { 'fi': 'value1', 'en': 'value2',..., 'und': 'default_value' }
         self.same_as = same_as
         self.code = doc_id
 

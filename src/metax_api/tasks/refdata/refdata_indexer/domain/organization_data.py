@@ -12,9 +12,7 @@ class OrganizationData(IndexableData):
     """
 
     ORG_PURL_BASE_URL = (
-        "http://uri.suomi.fi/codelist/fairdata/"
-        + IndexableData.DATA_TYPE_ORGANIZATION
-        + "/code/"
+        "http://uri.suomi.fi/codelist/fairdata/" + IndexableData.DATA_TYPE_ORGANIZATION + "/code/"
     )
 
     def __init__(self, org_id, label, parent_id="", same_as=[], org_csc="", scheme=""):

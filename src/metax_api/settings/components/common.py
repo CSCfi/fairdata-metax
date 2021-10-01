@@ -17,7 +17,7 @@ END_USER_ALLOWED_DATA_CATALOGS = [
     ATT_DATA_CATALOG_IDENTIFIER,
     LEGACY_DATA_CATALOG_IDENTIFIER,
     DFT_DATA_CATALOG_IDENTIFIER,
-    PAS_DATA_CATALOG_IDENTIFIER
+    PAS_DATA_CATALOG_IDENTIFIER,
 ]
 
 # catalogs where uniqueness of dataset pids is not enforced.
@@ -188,3 +188,6 @@ API_USERS = [
     {"password": "test-fds", "username": "fds"},
     {"password": "test-download", "username": "download"},
 ]
+
+SWAGGER_YAML_PATH = env('SWAGGER_YAML_PATH')
+SWAGGER_HTML_PATH = env('SWAGGER_HTML_PATH')

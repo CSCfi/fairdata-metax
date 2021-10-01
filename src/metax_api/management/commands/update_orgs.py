@@ -1,6 +1,5 @@
 import csv
 import logging
-from collections import OrderedDict
 from dataclasses import asdict, dataclass, field
 from typing import List
 
@@ -23,31 +22,21 @@ CSV_HEADERS = [
 ]
 
 
-@dataclass()
+@dataclass(order=True)
 class Organization:
-    org_name_fi: str = field()
-    org_name_en: str = field()
-    org_code: str = field()
-    org_name_sv: str = field(default="")
-    unit_sub_code: str = field(default="")
-    unit_name: str = field(default="")
-    org_isni: str = field(default="")
-    org_csc: str = field(default="")
-    unit_main_code: str = field(default="")
-
-    def compare(self, other):
-        """Not overriding default __cmp__ for clarity"""
-        if (
-            self.org_code == other.org_code
-            and self.unit_sub_code == other.unit_sub_code
-            and self.unit_main_code == other.unit_main_code
-        ):
-            return True
-        return False
+    org_name_fi: str = field(compare=False)
+    org_name_en: str = field(compare=False)
+    org_code: str = field(compare=True)
+    org_name_sv: str = field(default="", compare=False)
+    unit_sub_code: str = field(default="", compare=True)
+    unit_name: str = field(default="", compare=False)
+    org_isni: str = field(default="", compare=False)
+    org_csc: str = field(default="", compare=False)
+    unit_main_code: str = field(default="", compare=True)
 
     def compare_and_update(self, other):
         changes = 0
-        match = self.compare(other)
+        match = self == other
         if match:
             if self.org_name_fi != other.org_name_fi:
                 self.org_name_fi = other.org_name_fi
@@ -61,15 +50,36 @@ class Organization:
             if self.unit_name != other.unit_name:
                 self.unit_name = other.unit_name
                 changes += 1
+            if self.org_isni is None and other.org_isni is not None:
+                self.org_isni = other.org_isni
+                changes += 1
+            elif self.org_isni is not None and other.org_isni is None:
+                other.org_isni = self.org_isni
+                changes += 1
+
+            if self.org_csc is None and other.org_csc is not None:
+                self.org_csc = other.org_csc
+                changes += 1
+            elif self.org_csc is not None and other.org_csc is None:
+                other.org_csc = self.org_csc
+                changes += 1
+        if self.unit_name.endswith(";;"):
+            self.unit_name = self.unit_name[:-2]
 
         return match, changes
 
     def __str__(self):
         return f"{self.org_code}-{self.unit_sub_code}-{self.unit_name}"
 
+    def __post_init__(self):
+        if self.unit_name.endswith(";;"):
+            self.unit_name = self.unit_name[:-2]
+
 
 def get_orgs_from_api() -> List[Organization]:
-    res = requests.get("https://researchfi-api-production-researchfi.rahtiapp.fi/portalapi/organization/_search")
+    res = requests.get(
+        "https://researchfi-api-production-researchfi.rahtiapp.fi/portalapi/organization/_search?size=100"
+    )
     data = res.json()
 
     orgs_json = data["hits"]["hits"]
@@ -127,15 +137,18 @@ class Command(BaseCommand):
             for a in api_orgs:
                 match, changes = i.compare_and_update(a)
                 if match and changes > 0:
-                    logger.info(f"updated org {i.org_code} with {changes} changes")
+                    logger.info(
+                        f"updated org {i.org_name_fi} with {changes} changes in unit: {a.unit_name}"
+                    )
             union.append(i)
         # add missing orgs to local ones
         added = 0
         for i in api_orgs:
             match = False
             for a in loc_orgs:
-                match = i.compare(a)
+                match = i == a
             if not match:
+                # logger.info(f"adding missing org {i.org_name_fi}, {i.unit_name}")
                 union.append(i)
                 added += 1
         logger.info(f"Added {added} organisations from research.fi to local org list")
@@ -143,16 +156,27 @@ class Command(BaseCommand):
         s = sorted(union, key=lambda i: (i.org_name_fi, i.unit_name))
         with open(settings.ORG_FILE_PATH, "w") as f:
             logger.info("writing updated csv")
-            no_duplicates = OrderedDict()
+            no_duplicates = []
             for c in s:
-                no_duplicates[str(c)] = c
+                if c not in no_duplicates:
+                    no_duplicates.append(c)
 
-            csv_serialized = [asdict(v) for k, v in no_duplicates.items()]
+            csv_serialized = [asdict(v) for v in no_duplicates]
             writer = csv.DictWriter(
                 f,
                 fieldnames=CSV_HEADERS,
             )
             writer.writeheader()
             for i in csv_serialized:
+                # Don't write header as row
+                if i["org_name_fi"] == "org_name_fi":
+                    continue
+                # Malformed values from TTV api
+                if i["unit_name"] == "LÃ„Ã„KETIETEELLINEN TIEDEKUNTA":
+                    continue
+                if "Ã…bo" in i["unit_name"]:
+                    i["unit_name"] = str(i["unit_name"]).replace("Ã…bo", "Åbo")
+                if "Ã–S" in i["unit_name"]:
+                    i["unit_name"] = str(i["unit_name"]).replace("Ã–S", "Ö")
                 writer.writerow(i)
             logger.info("successfully updated organization csv")

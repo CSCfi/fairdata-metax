@@ -21,9 +21,7 @@ class MimeDataService:
     """
 
     IANA_NS = "{http://www.iana.org/assignments}"
-    MIME_TYPE_REF_DATA_SOURCE_URL = (
-        "https://www.iana.org/assignments/media-types/media-types.xml"
-    )
+    MIME_TYPE_REF_DATA_SOURCE_URL = "https://www.iana.org/assignments/media-types/media-types.xml"
     MIME_TYPE_REGISTRY_IDS = [
         "application",
         "audio",
@@ -57,9 +55,7 @@ class MimeDataService:
         is_parsing_model_elem = False
         found_valid_file_elem = False
         found_valid_name_elem = False
-        for event, elem in ET.iterparse(
-            self.TEMP_XML_FILENAME, events=("start", "end")
-        ):
+        for event, elem in ET.iterparse(self.TEMP_XML_FILENAME, events=("start", "end")):
             if event == "start":
                 if (
                     elem.tag == (self.IANA_NS + "registry")
@@ -84,9 +80,7 @@ class MimeDataService:
                 ):
                     if elem.text:
                         found_valid_file_elem = True
-                        uri = (
-                            "https://www.iana.org/assignments/media-types/" + elem.text
-                        )
+                        uri = "https://www.iana.org/assignments/media-types/" + elem.text
                         data_id = elem.text
             elif event == "end":
                 if elem.tag == self.IANA_NS + "registry":

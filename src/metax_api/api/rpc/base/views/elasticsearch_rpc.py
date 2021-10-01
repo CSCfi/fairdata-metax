@@ -21,8 +21,7 @@ _logger = logging.getLogger(__name__)
 
 
 class ElasticsearchRPC(CommonRPC):
-
-    @action(detail=False, methods=['get'], url_path="map_refdata")
+    @action(detail=False, methods=["get"], url_path="map_refdata")
     def map_refdata(self, request):
 
         if not isinstance(django_settings, dict):
@@ -30,69 +29,69 @@ class ElasticsearchRPC(CommonRPC):
 
         connection_params = RDL.get_connection_parameters(settings)
         # returns scan object as well but that is not needed here
-        esclient = RDL.get_es_imports(settings['HOSTS'], connection_params)[0]
+        esclient = RDL.get_es_imports(settings["HOSTS"], connection_params)[0]
 
         if not self.request.query_params:
             return Response(status=status.HTTP_200_OK)
 
-        elif '_mapping' in self.request.query_params:
+        elif "_mapping" in self.request.query_params:
             try:
                 res = esclient.indices.get_mapping()
             except Exception as e:
-                raise Http400(f'Error when accessing elasticsearch. {e}')
+                raise Http400(f"Error when accessing elasticsearch. {e}")
 
             return Response(data=res, status=status.HTTP_200_OK)
 
         params = {}
         for k, v in self.request.query_params.items():
             # python dict.items() keeps order so the url is always the first one
-            if '_data/' in k:
-                splitted = k.split('/')
+            if "_data/" in k:
+                splitted = k.split("/")
 
                 if len(splitted) < 3:
-                    _logger.info('Bad url to elasticsearch proxy')
+                    _logger.info("Bad url to elasticsearch proxy")
                     return Response(data=None, status=status.HTTP_204_NO_CONTENT)
 
                 idx = splitted[0]
                 type = splitted[1]
 
-                if '?' in splitted[2]:
-                    action, first_param = splitted[2].split('?')
+                if "?" in splitted[2]:
+                    action, first_param = splitted[2].split("?")
                 else:
                     action, first_param = splitted[2], None
 
-                if action != '_search':
-                    _logger.info('Bad action to elasticsearch proxy')
+                if action != "_search":
+                    _logger.info("Bad action to elasticsearch proxy")
                     return Response(data=None, status=status.HTTP_204_NO_CONTENT)
 
                 if first_param:
                     params[first_param] = v
 
-            elif k == 'pretty':
-                params[k] = 'true' if v else 'false'
+            elif k == "pretty":
+                params[k] = "true" if v else "false"
 
-            elif k == 'q':
+            elif k == "q":
                 try:
                     # new ES client separates filters with a space
-                    v = v.replace('+AND+', ' AND ')
-                    v = v.replace('+OR+', ' OR ')
-                    if 'type:' not in v:
-                        params[k] = v + f' AND type:{type}'
+                    v = v.replace("+AND+", " AND ")
+                    v = v.replace("+OR+", " OR ")
+                    if "type:" not in v:
+                        params[k] = v + f" AND type:{type}"
                     else:
                         params[k] = v
                 except:
-                    _logger.info('Elasticsearch proxy has missing type. This should not happen')
+                    _logger.info("Elasticsearch proxy has missing type. This should not happen")
                     return Response(data=None, status=status.HTTP_204_NO_CONTENT)
 
             else:
                 params[k] = v
 
-        if 'q' not in params:
-            params['q'] = f'type:{type}'
+        if "q" not in params:
+            params["q"] = f"type:{type}"
 
         try:
             res = esclient.search(index=idx, params=params)
         except Exception as e:
-            raise Http400(f'Error when accessing elasticsearch. {e}')
+            raise Http400(f"Error when accessing elasticsearch. {e}")
 
         return Response(data=res, status=status.HTTP_200_OK)

@@ -40,7 +40,14 @@
           }
         },
         "contributor_role": [{
-          "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_role/code/visualization"
+          "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_role/code/visualization",
+            "pref_label": {
+              "en": "Visualization",
+              "fi": "Visualisointi",
+              "sv": "Visualisering",
+              "und": "Visualisointi"
+            },
+            "in_scheme": "http://uri.suomi.fi/codelist/fairdata/contributor_role"
         }]
       }
     ],
@@ -53,18 +60,37 @@
           "fi": "Organisaatio"
         },
         "contributor_type": [{
-          "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/ResearchGroup"
+          "identifier": "http://uri.suomi.fi/codelist/fairdata/contributor_type/code/ResearchGroup",
+          "pref_label": {
+            "en": "ResearchGroup",
+            "fi": "Tutkimusryhmä",
+            "sv": "Forskningsgrupp",
+            "und": "Tutkimusryhmä"
+          },
+          "in_scheme": "http://uri.suomi.fi/codelist/fairdata/contributor_type"
         }]
       }
     ],
     "language": [
       {
-        "identifier": "http://lexvo.org/id/iso639-3/eng"
+        "identifier": "http://lexvo.org/id/iso639-3/eng",
+        "title": {
+          "en": "English",
+          "sv": "engelska",
+          "fi": "englanti",
+          "und": "englanti"
+        }
       }
     ],
     "access_rights": {
       "access_type": {
-        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open"
+        "in_scheme": "http://uri.suomi.fi/codelist/fairdata/access_type",
+        "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open",
+        "pref_label": {
+          "fi": "Avoin",
+          "en": "Open",
+          "und": "Avoin"
+        }
       }
     }
   },

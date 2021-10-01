@@ -3,7 +3,9 @@ import logging
 from watchman.decorators import check
 
 from metax_api.services.redis_cache_service import RedisClient
-from metax_api.tasks.refdata.refdata_indexer.service.elasticsearch_service import ElasticSearchService
+from metax_api.tasks.refdata.refdata_indexer.service.elasticsearch_service import (
+    ElasticSearchService,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -40,6 +42,4 @@ def redis_check():
             return {"redis": [{"key: reference_data": {"ok": True}}]}
     except Exception as e:
         logger.error(e)
-        return {
-            "redis": {"ok": False, "error": str(e), "traceback": str(e.__traceback__)}
-        }
+        return {"redis": {"ok": False, "error": str(e), "traceback": str(e.__traceback__)}}
