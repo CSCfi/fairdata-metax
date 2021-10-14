@@ -10,6 +10,7 @@ from json import dump
 
 from django.conf import settings
 from django.http import Http404
+
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -115,14 +116,6 @@ class DatasetViewSet(CommonViewSet):
         # actually a nested url /datasets/id/metadata_versions/id. this is probably a very screwed up way to do this...
         if "identifier" in kwargs and "metadata_version_identifier" in kwargs:
             return self._metadata_version_get(request, *args, **kwargs)
-
-        if "cr_identifier" in kwargs:
-            from ..serializers import EditorPermissionsSerializer
-            cr = CatalogRecord.objects.get(pk=kwargs['cr_identifier'])
-
-            _all = cr.editor_permissions.users.all()
-            editorserializer = EditorPermissionsSerializer(_all, many=True)
-            return Response(editorserializer.data)
 
         return super(DatasetViewSet, self).list(request, *args, **kwargs)
 

@@ -27,6 +27,7 @@ from .views import (
     DataCatalogViewSet,
     DatasetViewSet,
     DirectoryViewSet,
+    EditorPermissionViewSet,
     FileStorageViewSet,
     FileViewSet,
     SchemaViewSet,
@@ -84,12 +85,12 @@ router.register(
 )
 
 router.register(
-    r"datasets/(?P<cr_identifier>.+)/editor_permissions/users/(?P<user_id>.+)/?",
-    DatasetViewSet,
+    r"datasets/(?P<cr_identifier>.+)/editor_permissions/users/(?P<user_id>.+)$",
+    EditorPermissionViewSet,
 )
 router.register(
-    r"datasets/(?P<cr_identifier>.+)/editor_permissions/users/?",
-    DatasetViewSet,
+    r"datasets/(?P<cr_identifier>.+)/editor_permissions/users$",
+    EditorPermissionViewSet,
 )
 
 api_urlpatterns = router.urls

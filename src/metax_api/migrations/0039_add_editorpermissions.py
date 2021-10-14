@@ -71,7 +71,7 @@ def revert(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('metax_api', '0037_auto_20210811_1037'),
+        ('metax_api', '0038_remove_catalogrecord_editor'),
     ]
 
     operations = [
@@ -125,4 +125,10 @@ class Migration(migrations.Migration):
             constraint=models.CheckConstraint(check=models.Q(role__in=['creator', 'editor']), name='require_role'),
         ),
         migrations.RunPython(add_permissions, revert),
+        migrations.AlterField(
+            model_name='catalogrecord',
+            name='editor_permissions',
+            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='catalog_records',
+                                    to='metax_api.editorpermissions'),
+        ),
     ]
