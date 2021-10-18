@@ -1,4 +1,4 @@
-[{"id":"relation", "uri":"http://purl.org/dc/terms/relation", "label":{"fi":"Liittyvä aineisto", "en":"Related dataset"}},
+[{"id":"relation", "uri":"http://purl.org/dc/terms/relation", "label":{"fi":"Liittyy", "en":"Relation"}},
 {"id":"cites", "uri":"http://purl.org/spar/cito/cites", "label":{"fi":"Viittaa", "en":"Cites"}},
 {"id":"isCitedBy", "uri":"http://purl.org/spar/cito/isCitedBy", "label":{"fi":"Viitattu", "en":"Is cited by"}},
 {"id":"isSupplementTo", "uri":"http://purl.org/vocab/frbr/core#isSupplementTo", "label":{"fi":"Viittaus tausta-aineistoon", "en":"Is supplement to"}},
