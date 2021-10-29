@@ -5,7 +5,6 @@ from rest_framework.serializers import ValidationError, ModelSerializer
 from metax_api.models import EditorUserPermission
 
 from .common_serializer import CommonSerializer
-from .serializer_utils import validate_json
 
 
 class EditorPermissionsSerializer(ModelSerializer):
