@@ -640,7 +640,7 @@ paths:
           in: query
           description: Sets paging on with default limit of 10
           required: false
-          type: bolean
+          type: boolean
         - name: offset
           in: query
           description: Offset for paging
@@ -1414,8 +1414,133 @@ paths:
           description: Resource not found.
       tags:
         - Dataset API
-
-
+  /rest/datasets/{CRID}/editor_permissions/users:
+    get:
+      summary: List all editor permissions of a record
+      parameters:
+        - name: CRID
+          in: path
+          description: Catalog record ID
+          required: true
+          type: string
+      responses:
+        "200":
+          description: Successful operation, return a list of editor rights. May return an empty list.
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/EditorUserPermission'
+        "400":
+          description: Bad request.
+        "404":
+          description: Resource not found.
+      tags:
+        - Dataset API
+    post:
+      summary: Create a new editor permission of a record
+      parameters:
+        - name: CRID
+          in: path
+          description: Catalog record ID
+          required: true
+          type: string
+        - name: body
+          in: body
+          schema:
+            type: object
+            properties:
+              user_id:
+                type: string
+              role:
+                type: string
+      responses:
+        "201":
+          description: Successful operation, return created editor rights.
+          schema:
+            $ref: '#/definitions/EditorUserPermission'
+        "400":
+          description: Bad request.
+        "404":
+          description: Resource not found.
+      tags:
+        - Dataset API
+  /rest/datasets/{CRID}/editor_permissions/users/{USER_ID}:
+    get:
+      summary: List all editor permissions of a record
+      parameters:
+        - name: CRID
+          in: path
+          description: Catalog record ID
+          required: true
+          type: string
+        - name: USER_ID
+          in: path
+          description: User ID
+          required: true
+          type: string
+      responses:
+        "200":
+          description: Successful operation, return a list of editor rights. May return an empty list.
+          schema:
+            $ref: '#/definitions/EditorUserPermission'
+        "400":
+          description: Bad request.
+        "404":
+          description: Resource not found.
+      tags:
+        - Dataset API
+    patch:
+      summary: Update role or enable verified
+      parameters:
+        - name: CRID
+          in: path
+          description: Catalog record ID
+          required: true
+          type: string
+        - name: USER_ID
+          in: path
+          description: User ID
+          required: true
+          type: string
+        - name: body
+          in: body
+          schema:
+            $ref: '#/definitions/EditorUserPermission'
+      responses:
+        "200":
+          description: Successful operation, return changed editor rights.
+          schema:
+            $ref: '#/definitions/EditorUserPermission'
+        "400":
+          description: Bad request.
+        "404":
+          description: Resource not found.
+      tags:
+        - Dataset API
+    delete:
+      summary: Editorpermission marked as removed
+      parameters:
+        - name: CRID
+          in: path
+          description: Catalog record ID
+          required: true
+          type: string
+        - name: USER_ID
+          in: path
+          description: User ID
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Successful operation
+        '400':
+          description: Bad request
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
+      tags:
+        - Dataset API
 # Contract API
   /rest/contracts:
     get:
@@ -2043,8 +2168,48 @@ definitions:
       count_cumulative:
         type: number
         format: float
-
-
+  EditorUserPermission:
+    type: object
+    properties:
+      id:
+        type: integer
+        readOnly: true
+      active:
+        type: boolean
+      removed:
+        type: boolean
+      date_modified:
+        type: string
+        format: date-time
+        readOnly: true
+      user_modified:
+        type: string
+      date_created:
+        type: string
+        format: date-time
+        readOnly: true
+      user_created:
+        type: string
+      service_modified:
+        type: string
+      service_created:
+        type: string
+      date_removed:
+        type: string
+        format: date-time
+      user_id:
+        type: string
+      role:
+        type: string
+      verified:
+        type: boolean
+      verification_token:
+        type: string
+      verification_token_expires:
+        type: string
+        format: date-time
+      editor_permission_id:
+        type: integer
 examples:
   count_datasets:
     type: object
