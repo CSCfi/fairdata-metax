@@ -27,6 +27,7 @@ class EditorUserPermissionApiReadCommon(APITestCase, TestClassUtils):
     def setUp(self):
         self.cr_from_test_data = self._get_whole_object_from_test_data("catalogrecord", requested_pk=1)
         self.crid = self.cr_from_test_data['pk']
+        self.identifier = "cr955e904-e3dd-4d7e-99f1-3fed446f96d1"
         self.permissionid = self.cr_from_test_data["fields"]["editor_permissions_id"]
         self.editor_user_permission = self._get_whole_object_from_test_data("editoruserpermission", requested_pk=1)
         self.userid = self.editor_user_permission["fields"]["user_id"]
@@ -62,8 +63,12 @@ class EditorUserPermissionApiReadBasicTests(EditorUserPermissionApiReadCommon):
     Basic read operations
     """
 
-    def test_read_editor_permission_list(self):
+    def test_read_editor_permission_list_with_pk(self):
         response = self.client.get("/rest/datasets/%d/editor_permissions/users" % self.crid)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_read_editor_permission_list_with_uuid(self):
+        response = self.client.get("/rest/datasets/%s/editor_permissions/users" % self.identifier)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_read_editor_permission_list_invalid(self):
@@ -78,5 +83,5 @@ class EditorUserPermissionApiReadBasicTests(EditorUserPermissionApiReadCommon):
 
     def test_read_editor_permission_details_by_pk_invalid(self):
         response = self.client.get("/rest/datasets/%d/editor_permissions/users/%s" % (self.crid, "invalid"))
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 

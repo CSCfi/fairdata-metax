@@ -85,11 +85,7 @@ router.register(
 )
 
 router.register(
-    r"datasets/(?P<cr_identifier>.+)/editor_permissions/users/(?P<user_id>.+)$",
-    EditorPermissionViewSet,
-)
-router.register(
-    r"datasets/(?P<cr_identifier>.+)/editor_permissions/users$",
+    "datasets/(?P<cr_identifier>.+)/editor_permissions/users",
     EditorPermissionViewSet,
 )
 

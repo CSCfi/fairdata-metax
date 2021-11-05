@@ -10,14 +10,14 @@ from .common_serializer import CommonSerializer
 class EditorPermissionsSerializer(ModelSerializer):
     class Meta:
         model = EditorUserPermission
-        fields = '__all__'
+        fields = "__all__"
 
         extra_kwargs = CommonSerializer.Meta.extra_kwargs
 
     def validate(self, attrs):
         data = ModelSerializer.validate(self, attrs)
 
-        if data.get('verified') and data.get('verification_token') in EMPTY_VALUES:
-            raise ValidationError({'verification_token': 'Verification token missing'})
+        if data.get("verified") and data.get("verification_token") in EMPTY_VALUES:
+            raise ValidationError({"verification_token": "Verification token missing"})
 
         return data
