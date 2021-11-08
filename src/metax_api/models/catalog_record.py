@@ -69,9 +69,11 @@ class EditorPermissions(models.Model):
     """
     id = models.BigAutoField(primary_key=True, editable=False)
 
+
 class PermissionRole(models.TextChoices):
     CREATOR = "creator"
     EDITOR = "editor"
+
 
 class EditorUserPermission(Common):
     """
@@ -85,8 +87,6 @@ class EditorUserPermission(Common):
     user_id = models.CharField(max_length=200)
     role = models.CharField(max_length=16, choices=PermissionRole.choices)
     verified = models.BooleanField(default=False)
-    verification_token = models.CharField(max_length=32, null=True)
-    verification_token_expires = models.DateTimeField(null=True)
 
     class Meta:
         indexes = [
@@ -107,27 +107,7 @@ class EditorUserPermission(Common):
     def __repr__(self):
         return f"<UserPermission user:{self.user_id} role:{self.role} verified:{self.verified} editor_permissions:{self.editor_permissions_id} >"
 
-    def clear_verification_token(self):
-        self.verification_token = None
-        self.verification_token_expires = None
-
-    def generate_verification_token(self):
-        self.verification_token = get_random_string(length=32)
-        self.verification_token_expires = datetime.now() + timedelta(days=14)
-
-    def verify(self, token):
-        if not token or token != self.verification_token or self.removed:
-            _logger.error("Invalid token or already used")
-            return False
-        if datetime.now() >= self.verification_token_expires:
-            _logger.error("Token expired")
-            return False
-
-        self.verified = True
-        self.clear_verification_token()
-
     def delete(self, *args, **kwargs):
-        self.clear_verification_token()
         super().remove(*args, **kwargs)
 
 

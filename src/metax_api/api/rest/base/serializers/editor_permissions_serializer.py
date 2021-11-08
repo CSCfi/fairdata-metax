@@ -17,7 +17,4 @@ class EditorPermissionsSerializer(ModelSerializer):
     def validate(self, attrs):
         data = ModelSerializer.validate(self, attrs)
 
-        if data.get("verified") and data.get("verification_token") in EMPTY_VALUES:
-            raise ValidationError({"verification_token": "Verification token missing"})
-
         return data

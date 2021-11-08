@@ -102,20 +102,17 @@ class EditorUserPermissionApiWriteBasicTests(EditorUserPermissionApiWriteCommon)
 
     def test_write_editor_permission_change_values(self):
         self._set_http_authorization("service")
-        data = {"role": "editor", "user_id": "change_editor"}
+        data = {"role": "creator", "user_id": "change_editor"}
         response = self.client.get("/rest/datasets/%d/editor_permissions/users" % self.crid)
         user_count = len(response.data)
         response = self.client.post("/rest/datasets/%d/editor_permissions/users" % self.crid, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-        new_permission = EditorUserPermission.objects.get(user_id="change_editor", editor_permissions_id=self.permissionid)
-        new_permission.generate_verification_token()
-        new_data = {"verified": True, "verification_token": new_permission.verification_token}
+        new_data = {"role": "editor", "verified": True}
         response = self.client.patch("/rest/datasets/%d/editor_permissions/users/%s" % (self.crid,
                                                                                         response.data.get('user_id')),
                                      new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assertEqual(response.data.get('verified'), True)
-        self.assertEqual(response.data.get('verification_token'), new_permission.verification_token)
+        self.assertEqual(response.data.get("role"), "editor")
 
     def test_write_editor_permission_remove_users(self):
         self._set_http_authorization("service")
@@ -143,15 +140,15 @@ class EditorUserPermissionApiWriteBasicTests(EditorUserPermissionApiWriteCommon)
         response = self.client.post("/rest/datasets/%d/editor_permissions/users" % self.crid, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         new_permission = EditorUserPermission.objects.get(user_id="new_editor", editor_permissions_id=self.permissionid)
-        new_permission.generate_verification_token()
-        new_data = {"verified": True, "verification_token": new_permission.verification_token}
+
+        new_data = {"verified": True}
         # change
         response = self.client.patch("/rest/datasets/%d/editor_permissions/users/%s" % (self.crid,
                                                                                         response.data.get('user_id')),
                                      new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(response.data.get('verified'), True)
-        self.assertEqual(response.data.get('verification_token'), new_permission.verification_token)
+
         # remove
         response = self.client.delete(
             "/rest/datasets/%d/editor_permissions/users/%s" % (self.crid, data.get('user_id')))
@@ -161,6 +158,5 @@ class EditorUserPermissionApiWriteBasicTests(EditorUserPermissionApiWriteCommon)
         self.assertEqual(removed_user.removed, True)
         response = self.client.post("/rest/datasets/%d/editor_permissions/users" % self.crid, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-        self.assertEqual(response.data.get('verification_token'), None)
         self.assertEqual(response.data.get('removed'), False)
 

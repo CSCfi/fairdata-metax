@@ -16,6 +16,7 @@ from rest_framework.response import Response
 
 from metax_api.models import CatalogRecord
 from metax_api.models.catalog_record import PermissionRole, EditorUserPermission
+from metax_api.permissions import ServicePermissions
 from metax_api.services import CommonService
 
 from ..serializers import EditorPermissionsSerializer
@@ -26,7 +27,7 @@ _logger = logging.getLogger(__name__)
 
 class EditorPermissionViewSet(CommonViewSet):
     lookup_field = "user_id"
-
+    permission_classes = [ServicePermissions,]
     serializer_class = EditorPermissionsSerializer
 
     def __init__(self, *args, **kwargs):
@@ -56,7 +57,7 @@ class EditorPermissionViewSet(CommonViewSet):
             user_id=data.get('user_id'), editor_permissions_id=perms_id).first()
         data['verified'] = False
         if removed_user not in EMPTY_VALUES and removed_user.removed is True:
-            data['verification_token'] = None
+            #data['verification_token'] = None
             data['date_modified'] = datetime.datetime.now()
             data['date_removed'] = None
             data['removed'] = False
