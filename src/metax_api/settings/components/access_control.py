@@ -36,6 +36,7 @@ class Role(Enum):
     API_AUTH_USER = "api_auth_user"
     EXTERNAL = "external"
     JYU = "jyu"
+    REPOTRONIC = "repotronic"
 
     def __ge__(self, other):
         if self.__class__ is other.__class__:

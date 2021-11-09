@@ -1057,6 +1057,29 @@ class CatalogRecordApiWriteUpdateTests(CatalogRecordApiWriteCommon):
         self.assertTrue(cr_depr.deprecated)
         # self.assertEqual(cr_depr.date_modified, cr_depr.date_deprecated, 'date_modified should be updated')
 
+    def test_catalog_record_create_repotronic_dataset(self):
+
+        # Create the repotronic catalog
+        dc_id = django_settings.REPOTRONIC_DATA_CATALOG_IDENTIFIER
+        blueprint_dc = DataCatalog.objects.get(pk=1)
+        catalog_json = blueprint_dc.catalog_json
+        catalog_json["identifier"] = dc_id
+        catalog_json["dataset_versioning"] = False
+        catalog_json["research_dataset_schema"] = "att"
+        dc = DataCatalog.objects.create(
+            catalog_json=catalog_json,
+            date_created=get_tz_aware_now_without_micros(),
+            catalog_record_services_create="testuser,api_auth_user,metax",
+            catalog_record_services_edit="testuser,api_auth_user,metax",
+            catalog_record_services_read="testuser,api_auth_user,metax",
+        )
+        cr = self._get_new_full_test_att_cr_data()
+        dc_json = self.client.get(f"/rest/datacatalogs/{dc_id}").data
+        cr["data_catalog"] = dc_json
+        cr_posted = self.client.post("/rest/datasets", cr, format="json")
+        # ic(RabbitMQService.messages.pop())
+        self.assertEqual(cr_posted.status_code, 201, cr_posted.data)
+
     def test_change_datacatalog_ATT_to_IDA(self):
         cr = self._get_new_full_test_att_cr_data()
 

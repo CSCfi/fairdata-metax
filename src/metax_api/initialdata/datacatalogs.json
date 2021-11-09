@@ -418,4 +418,51 @@
 	"catalog_record_services_edit": "metax,jyu",
 	"catalog_record_services_create": "metax,jyu",
 	"catalog_record_services_read": "metax,jyu,download"
+},
+{
+    "catalog_json": {
+      "title": {
+        "en": "Repotronic catalog",
+        "fi": "Repotronic katalogi"
+      },
+      "language": [
+        {
+          "identifier": "http://lexvo.org/id/iso639-3/fin"
+        }
+      ],
+      "harvested": false,
+      "publisher": {
+        "name": {
+          "en": "Repotronic",
+          "fi": "Repotronic"
+        }
+      },
+      "identifier": "urn:nbn:fi:att:data-catalog-repotronic",
+      "access_rights": {
+        "license": [
+          {
+            "identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/CC-BY-4.0"
+          }
+        ],
+        "access_type": [
+          {
+            "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open",
+            "pref_label": {
+              "en": "Open",
+              "fi": "Avoin",
+              "und": "Avoin"
+            }
+          }
+        ],
+        "description": {
+          "en": "Contains datasets from Repotronic service",
+          "fi": "Sisältää aineistoja Repotronic-palvelusta"
+        }
+      },
+      "dataset_versioning": false,
+      "research_dataset_schema": "att"
+    },
+    "catalog_record_services_edit": "metax,repotronic",
+    "catalog_record_services_create": "metax,repotronic",
+    "catalog_record_services_read": "metax,repotronic"
 }]

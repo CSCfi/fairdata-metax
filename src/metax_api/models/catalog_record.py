@@ -1392,16 +1392,20 @@ class CatalogRecord(Common):
 
         elif self.catalog_is_legacy():
             if "preferred_identifier" not in self.research_dataset:
-                raise ValidationError(
-                    {
-                        "detail": [
-                            "Selected catalog %s is a legacy catalog. Preferred identifiers are not "
-                            "automatically generated for datasets stored in legacy catalogs, nor is "
-                            "their uniqueness enforced. Please provide a value for dataset field "
-                            "preferred_identifier." % self.data_catalog.catalog_json["identifier"]
-                        ]
-                    }
-                )
+
+                # Repotronic catalog does not need to validate unique identifiers
+                # Raise validation error when not repotronic catalog
+                if self.data_catalog.catalog_json["identifier"] != settings.REPOTRONIC_DATA_CATALOG_IDENTIFIER:
+                    raise ValidationError(
+                        {
+                            "detail": [
+                                "Selected catalog %s is a legacy catalog. Preferred identifiers are not "
+                                "automatically generated for datasets stored in legacy catalogs, nor is "
+                                "their uniqueness enforced. Please provide a value for dataset field "
+                                "preferred_identifier." % self.data_catalog.catalog_json["identifier"]
+                            ]
+                        }
+                    )
             _logger.info(
                 "Catalog %s is a legacy catalog - not generating pid"
                 % self.data_catalog.catalog_json["identifier"]
@@ -1491,7 +1495,7 @@ class CatalogRecord(Common):
                 or self.use_doi_for_published is True
             ):
                 self._validate_cr_against_datacite_schema()
-            if is_metax_generated_doi_identifier(self.research_dataset["preferred_identifier"]):
+            if is_metax_generated_doi_identifier(self.research_dataset.get("preferred_identifier")):
                 self.add_post_request_callable(
                     DataciteDOIUpdate(self, self.research_dataset["preferred_identifier"], "create")
                 )
@@ -3071,7 +3075,11 @@ class RabbitMQPublishRecord:
 
         try:
             for exchange in settings.RABBITMQ["EXCHANGES"]:
-                if exchange["EXC_TYPE"] == "dataset":
+                do_publish = True
+                if self.cr.catalog_is_legacy():
+                    do_publish = False
+
+                if do_publish:
                     rabbitmq.publish(cr_json, routing_key=self.routing_key, exchange=exchange["NAME"])
         except:
             # note: if we'd like to let the request be a success even if this operation fails,
