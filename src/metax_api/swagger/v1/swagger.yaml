@@ -2203,11 +2203,6 @@ definitions:
         type: string
       verified:
         type: boolean
-      verification_token:
-        type: string
-      verification_token_expires:
-        type: string
-        format: date-time
       editor_permission_id:
         type: integer
 examples:
