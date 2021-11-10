@@ -384,7 +384,6 @@ def add_editor_permissions(editor_permissions, dataset):
             "date_created": dataset["fields"]["date_created"],
             "editor_permissions_id": pk,
             "role": "creator",
-            "verified": True,
         },
         "model": "metax_api.editoruserpermission",
         "pk": pk + 1,

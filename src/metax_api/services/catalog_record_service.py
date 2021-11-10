@@ -138,7 +138,7 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
     @staticmethod
     def filter_by_editor_permissions_user(request, queryset_search_params):
         """
-        Add filter for querying datasets where user has verified editor user permissions.
+        Add filter for querying datasets where user has editor user permissions.
         """
         user_id = request.query_params["editor_permissions_user"]
 
@@ -150,7 +150,6 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                 raise Http403({"detail": ["Provided editor_permissions_user does not match current user"]})
 
         queryset_search_params["editor_permissions__users__user_id"] = user_id
-        queryset_search_params["editor_permissions__users__verified"] = True
         queryset_search_params["editor_permissions__users__removed"] = False
 
     @staticmethod

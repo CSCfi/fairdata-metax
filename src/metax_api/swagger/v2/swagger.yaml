@@ -1674,7 +1674,7 @@ paths:
       tags:
         - Dataset API
     patch:
-      summary: Update role or enable verified
+      summary: Update role
       parameters:
         - name: CRID
           in: path
@@ -2548,8 +2548,6 @@ definitions:
         type: string
       role:
         type: string
-      verified:
-        type: boolean
       editor_permission_id:
         type: integer
 

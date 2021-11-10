@@ -107,7 +107,7 @@ class EditorUserPermissionApiWriteBasicTests(EditorUserPermissionApiWriteCommon)
         user_count = len(response.data)
         response = self.client.post("/rest/datasets/%d/editor_permissions/users" % self.crid, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-        new_data = {"role": "editor", "verified": True}
+        new_data = {"role": "editor"}
         response = self.client.patch("/rest/datasets/%d/editor_permissions/users/%s" % (self.crid,
                                                                                         response.data.get('user_id')),
                                      new_data, format="json")
@@ -139,15 +139,6 @@ class EditorUserPermissionApiWriteBasicTests(EditorUserPermissionApiWriteCommon)
         # add
         response = self.client.post("/rest/datasets/%d/editor_permissions/users" % self.crid, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-        new_permission = EditorUserPermission.objects.get(user_id="new_editor", editor_permissions_id=self.permissionid)
-
-        new_data = {"verified": True}
-        # change
-        response = self.client.patch("/rest/datasets/%d/editor_permissions/users/%s" % (self.crid,
-                                                                                        response.data.get('user_id')),
-                                     new_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assertEqual(response.data.get('verified'), True)
 
         # remove
         response = self.client.delete(

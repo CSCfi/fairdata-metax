@@ -5722,8 +5722,7 @@
             "date_created": "2017-05-23T10:07:22Z",
             "editor_permissions_id": 0,
             "role": "creator",
-            "user_id": "abc-user-123",
-            "verified": true
+            "user_id": "abc-user-123"
         },
         "model": "metax_api.editoruserpermission",
         "pk": 1
@@ -5738,8 +5737,7 @@
             "date_created": "2017-05-23T10:07:22Z",
             "editor_permissions_id": 2,
             "role": "creator",
-            "user_id": "abc-user-123",
-            "verified": true
+            "user_id": "abc-user-123"
         },
         "model": "metax_api.editoruserpermission",
         "pk": 3
@@ -5754,8 +5752,7 @@
             "date_created": "2017-05-23T10:07:22Z",
             "editor_permissions_id": 4,
             "role": "creator",
-            "user_id": "abc-user-123",
-            "verified": true
+            "user_id": "abc-user-123"
         },
         "model": "metax_api.editoruserpermission",
         "pk": 5
@@ -5770,8 +5767,7 @@
             "date_created": "2017-05-23T10:07:22Z",
             "editor_permissions_id": 6,
             "role": "creator",
-            "user_id": "abc-user-123",
-            "verified": true
+            "user_id": "abc-user-123"
         },
         "model": "metax_api.editoruserpermission",
         "pk": 7
@@ -5786,8 +5782,7 @@
             "date_created": "2017-05-23T10:07:22Z",
             "editor_permissions_id": 8,
             "role": "creator",
-            "user_id": "abc-user-123",
-            "verified": true
+            "user_id": "abc-user-123"
         },
         "model": "metax_api.editoruserpermission",
         "pk": 9
@@ -5802,8 +5797,7 @@
             "date_created": "2017-05-23T10:07:22Z",
             "editor_permissions_id": 10,
             "role": "creator",
-            "user_id": "abc-user-123",
-            "verified": true
+            "user_id": "abc-user-123"
         },
         "model": "metax_api.editoruserpermission",
         "pk": 11
@@ -5818,8 +5812,7 @@
             "date_created": "2017-05-23T10:07:22Z",
             "editor_permissions_id": 12,
             "role": "creator",
-            "user_id": "abc-user-123",
-            "verified": true
+            "user_id": "abc-user-123"
         },
         "model": "metax_api.editoruserpermission",
         "pk": 13
@@ -5834,8 +5827,7 @@
             "date_created": "2017-05-23T10:07:22Z",
             "editor_permissions_id": 14,
             "role": "creator",
-            "user_id": "abc-user-123",
-            "verified": true
+            "user_id": "abc-user-123"
         },
         "model": "metax_api.editoruserpermission",
         "pk": 15
@@ -5850,8 +5842,7 @@
             "date_created": "2017-05-23T10:07:22Z",
             "editor_permissions_id": 16,
             "role": "creator",
-            "user_id": "abc-user-123",
-            "verified": true
+            "user_id": "abc-user-123"
         },
         "model": "metax_api.editoruserpermission",
         "pk": 17
@@ -5866,8 +5857,7 @@
             "date_created": "2017-05-23T10:07:22Z",
             "editor_permissions_id": 18,
             "role": "creator",
-            "user_id": "abc-user-123",
-            "verified": true
+            "user_id": "abc-user-123"
         },
         "model": "metax_api.editoruserpermission",
         "pk": 19
@@ -5882,8 +5872,7 @@
             "date_created": "2017-05-23T10:07:22Z",
             "editor_permissions_id": 20,
             "role": "creator",
-            "user_id": "abc-user-123",
-            "verified": true
+            "user_id": "abc-user-123"
         },
         "model": "metax_api.editoruserpermission",
         "pk": 21
@@ -5898,8 +5887,7 @@
             "date_created": "2017-05-23T10:07:22Z",
             "editor_permissions_id": 22,
             "role": "creator",
-            "user_id": "abc-user-123",
-            "verified": true
+            "user_id": "abc-user-123"
         },
         "model": "metax_api.editoruserpermission",
         "pk": 23
@@ -5914,8 +5902,7 @@
             "date_created": "2017-05-23T10:07:22Z",
             "editor_permissions_id": 24,
             "role": "creator",
-            "user_id": "abc-user-123",
-            "verified": true
+            "user_id": "abc-user-123"
         },
         "model": "metax_api.editoruserpermission",
         "pk": 25
@@ -5930,8 +5917,7 @@
             "date_created": "2017-05-23T10:07:22Z",
             "editor_permissions_id": 26,
             "role": "creator",
-            "user_id": "abc-user-123",
-            "verified": true
+            "user_id": "abc-user-123"
         },
         "model": "metax_api.editoruserpermission",
         "pk": 27
@@ -5946,8 +5932,7 @@
             "date_created": "2017-05-23T10:07:22Z",
             "editor_permissions_id": 28,
             "role": "creator",
-            "user_id": "abc-user-123",
-            "verified": true
+            "user_id": "abc-user-123"
         },
         "model": "metax_api.editoruserpermission",
         "pk": 29
@@ -5962,8 +5947,7 @@
             "date_created": "2017-05-23T10:07:22Z",
             "editor_permissions_id": 30,
             "role": "creator",
-            "user_id": "abc-user-123",
-            "verified": true
+            "user_id": "abc-user-123"
         },
         "model": "metax_api.editoruserpermission",
         "pk": 31
@@ -5978,8 +5962,7 @@
             "date_created": "2017-05-23T10:07:22Z",
             "editor_permissions_id": 32,
             "role": "creator",
-            "user_id": "abc-user-123",
-            "verified": true
+            "user_id": "abc-user-123"
         },
         "model": "metax_api.editoruserpermission",
         "pk": 33
@@ -5994,8 +5977,7 @@
             "date_created": "2017-05-23T10:07:22Z",
             "editor_permissions_id": 34,
             "role": "creator",
-            "user_id": "abc-user-123",
-            "verified": true
+            "user_id": "abc-user-123"
         },
         "model": "metax_api.editoruserpermission",
         "pk": 35
@@ -6010,8 +5992,7 @@
             "date_created": "2017-05-23T10:07:22Z",
             "editor_permissions_id": 36,
             "role": "creator",
-            "user_id": "abc-user-123",
-            "verified": true
+            "user_id": "abc-user-123"
         },
         "model": "metax_api.editoruserpermission",
         "pk": 37
@@ -6026,8 +6007,7 @@
             "date_created": "2017-05-23T10:07:22Z",
             "editor_permissions_id": 38,
             "role": "creator",
-            "user_id": "abc-user-123",
-            "verified": true
+            "user_id": "abc-user-123"
         },
         "model": "metax_api.editoruserpermission",
         "pk": 39
@@ -6042,8 +6022,7 @@
             "date_created": "2017-05-23T10:07:22Z",
             "editor_permissions_id": 40,
             "role": "creator",
-            "user_id": "abc-user-123",
-            "verified": true
+            "user_id": "abc-user-123"
         },
         "model": "metax_api.editoruserpermission",
         "pk": 41
@@ -6058,8 +6037,7 @@
             "date_created": "2017-05-23T10:07:22Z",
             "editor_permissions_id": 42,
             "role": "creator",
-            "user_id": "abc-user-123",
-            "verified": true
+            "user_id": "abc-user-123"
         },
         "model": "metax_api.editoruserpermission",
         "pk": 43
@@ -6074,8 +6052,7 @@
             "date_created": "2017-05-23T10:07:22Z",
             "editor_permissions_id": 44,
             "role": "creator",
-            "user_id": "abc-user-123",
-            "verified": true
+            "user_id": "abc-user-123"
         },
         "model": "metax_api.editoruserpermission",
         "pk": 45
@@ -6090,8 +6067,7 @@
             "date_created": "2017-05-23T10:07:22Z",
             "editor_permissions_id": 46,
             "role": "creator",
-            "user_id": "abc-user-123",
-            "verified": true
+            "user_id": "abc-user-123"
         },
         "model": "metax_api.editoruserpermission",
         "pk": 47
@@ -6106,8 +6082,7 @@
             "date_created": "2017-05-23T10:07:22Z",
             "editor_permissions_id": 48,
             "role": "creator",
-            "user_id": "abc-user-123",
-            "verified": true
+            "user_id": "abc-user-123"
         },
         "model": "metax_api.editoruserpermission",
         "pk": 49
@@ -6122,8 +6097,7 @@
             "date_created": "2017-05-23T10:07:22Z",
             "editor_permissions_id": 50,
             "role": "creator",
-            "user_id": "abc-user-123",
-            "verified": true
+            "user_id": "abc-user-123"
         },
         "model": "metax_api.editoruserpermission",
         "pk": 51

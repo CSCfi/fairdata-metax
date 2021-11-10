@@ -86,7 +86,6 @@ class EditorUserPermission(Common):
     )
     user_id = models.CharField(max_length=200)
     role = models.CharField(max_length=16, choices=PermissionRole.choices)
-    verified = models.BooleanField(default=False)
 
     class Meta:
         indexes = [
@@ -105,7 +104,7 @@ class EditorUserPermission(Common):
         ]
 
     def __repr__(self):
-        return f"<UserPermission user:{self.user_id} role:{self.role} verified:{self.verified} editor_permissions:{self.editor_permissions_id} >"
+        return f"<UserPermission user:{self.user_id} role:{self.role} editor_permissions:{self.editor_permissions_id} >"
 
     def delete(self, *args, **kwargs):
         super().remove(*args, **kwargs)
@@ -3111,7 +3110,6 @@ class CatalogRecord(Common):
         perm = EditorUserPermission(
             editor_permissions=self.editor_permissions,
             user_id=self.metadata_provider_user,
-            verified=True,
             role=PermissionRole.CREATOR,
             date_created=self.date_created,
             date_modified=self.date_modified,

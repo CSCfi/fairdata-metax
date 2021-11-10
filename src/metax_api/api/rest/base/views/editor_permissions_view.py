@@ -55,9 +55,7 @@ class EditorPermissionViewSet(CommonViewSet):
         editorserializer = None
         removed_user = EditorUserPermission.objects_unfiltered.filter(
             user_id=data.get('user_id'), editor_permissions_id=perms_id).first()
-        data['verified'] = False
         if removed_user not in EMPTY_VALUES and removed_user.removed is True:
-            #data['verification_token'] = None
             data['date_modified'] = datetime.datetime.now()
             data['date_removed'] = None
             data['removed'] = False

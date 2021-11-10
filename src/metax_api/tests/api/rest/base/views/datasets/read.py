@@ -971,12 +971,6 @@ class CatalogRecordApiReadQueryParamsTests(CatalogRecordApiReadCommon):
         response = self.client.get(f"/rest/datasets?editor_permissions_user=test_user_x")
         self.assertEqual(response.data["count"], 1)
 
-    def test_filter_by_editor_permissions_user_not_verified(self):
-        cr = CatalogRecord.objects.get(pk=1)
-        cr.editor_permissions.users.update(user_id='test_user_x', verified=False)
-        response = self.client.get(f"/rest/datasets?editor_permissions_user=test_user_x")
-        self.assertEqual(response.data["count"], 0)
-
     def test_filter_by_editor_permissions_user_removed(self):
         cr = CatalogRecord.objects.get(pk=1)
         cr.editor_permissions.users.update(user_id='test_user_x')

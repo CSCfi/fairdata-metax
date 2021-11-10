@@ -564,12 +564,11 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
         )
         cr = CatalogRecord.objects.get(id=response.data["id"])
         self.assertEqual(
-            list(cr.editor_permissions.users.values("user_id", "role", "verified")),
+            list(cr.editor_permissions.users.values("user_id", "role")),
             [
                 {
                     "user_id": self.cr_test_data["metadata_provider_user"],
                     "role": "creator",
-                    "verified": True,
                 }
             ],
         )
