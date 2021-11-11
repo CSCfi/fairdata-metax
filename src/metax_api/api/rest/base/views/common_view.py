@@ -373,7 +373,9 @@ class CommonViewSet(ModelViewSet):
         """
         if "failed" in response.data and len(response.data["failed"]):
             try:
-                error_json = ApiErrorSerializerV2.request_to_json(self.request, response, other={"bulk_request": True})
+                error_json = ApiErrorSerializerV2.request_to_json(
+                    self.request, response, other={"bulk_request": True}
+                )
                 response.data["error_identifier"] = error_json["identifier"]
                 rabbitmq.publish(error_json, exchange="apierrors")
             except Exception as e:
