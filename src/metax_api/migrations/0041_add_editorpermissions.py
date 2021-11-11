@@ -71,7 +71,7 @@ def revert(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('metax_api', '0038_remove_catalogrecord_editor'),
+        ('metax_api', '0040_auto_20211006_1116'),
     ]
 
     operations = [

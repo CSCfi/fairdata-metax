@@ -6,7 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('metax_api', '0039_add_editorpermissions'),
+        ('metax_api', '0041_add_editorpermissions'),
     ]
 
     operations = [
