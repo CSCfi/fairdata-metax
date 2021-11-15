@@ -118,22 +118,29 @@ class _RabbitMQService:
         channel = connection.channel()
 
         try:
+            errors = []
             for method, _, body in channel.consume("metax-apierrors", inactivity_timeout=1):
                 if method is None and body is None:
                     channel.cancel()
                     break
                 try:
-                    error = loads(body)
-                    ApiError.objects.create(identifier=error["identifier"], error=error)
-                except DatabaseError as e:
-                    _logger.error("cannot create API Error. Discarding..")
-                    _logger.debug(f"error: {e}")
+                    error_payload = loads(body)
+                    error = ApiError(identifier=error_payload["identifier"], error=error_payload)
+                    errors.append(error)
+                except Exception as e:
+                    _logger.error(e)
                 finally:
                     channel.basic_ack(method.delivery_tag)
+            try:
+                ApiError.objects.bulk_create(errors, batch_size=5000)
+            except DatabaseError as e:
+                _logger.error("cannot create API Error. Discarding..")
+                _logger.error(f"error: {e}")
+
         except Exception as e:
             _logger.error(e)
         finally:
-            _logger.debug("All ApiErrors were handled")
+            _logger.info("All ApiErrors were handled")
             connection.close()
 
     def init_exchanges(self):
