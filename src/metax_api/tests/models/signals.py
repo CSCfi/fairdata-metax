@@ -33,14 +33,4 @@ class SignalTests(TestCase, TestClassUtils):
         self.assertEqual(deleted_object_v2.model_name, "CatalogRecordV2")
         self.assertEqual(deleted_object_v2.date_deleted.strftime("%d/%m/%Y"), self.today)
 
-    def test_deleting_file_creates_new_deleted_object(self):
-        File.objects.get(pk=1).delete(hard=True)
-        deleted_object = DeletedObject.objects.last()
-        self.assertEqual(deleted_object.model_name, "File")
-        self.assertEqual(deleted_object.date_deleted.strftime("%d/%m/%Y"), self.today)
 
-    def test_deleting_directory_creates_new_deleted_object(self):
-        Directory.objects.get(pk=1).delete()
-        deleted_object = DeletedObject.objects.last()
-        self.assertEqual(deleted_object.model_name, "Directory")
-        self.assertEqual(deleted_object.date_deleted.strftime("%d/%m/%Y"), self.today)
