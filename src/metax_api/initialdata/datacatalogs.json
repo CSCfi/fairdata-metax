@@ -465,4 +465,58 @@
     "catalog_record_services_edit": "metax,repotronic",
     "catalog_record_services_create": "metax,repotronic",
     "catalog_record_services_read": "metax,repotronic"
+},
+{
+    "catalog_json": {
+      "title": {
+        "en": "ACRIS catalog",
+        "fi": "ACRIS katalogi"
+      },
+      "language": [
+        {
+          "identifier": "http://lexvo.org/id/iso639-3/fin"
+        }
+      ],
+      "harvested": false,
+      "publisher": {
+        "name": {
+          "en": "Aalto ACRIS",
+          "fi": "Aalto ACRIS"
+        },
+        "homepage": [{
+          "title": {
+              "en": "https://research.aalto.fi",
+              "fi": "https://research.aalto.fi"
+          },
+          "identifier": "https://research.aalto.fi"
+			}]
+      },
+      "identifier": "urn:nbn:fi:att:data-catalog-acris",
+      "access_rights": {
+        "license": [
+          {
+            "identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/CC-BY-4.0"
+          }
+        ],
+        "access_type": [
+          {
+            "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open",
+            "pref_label": {
+              "en": "Open",
+              "fi": "Avoin",
+              "und": "Avoin"
+            }
+          }
+        ],
+        "description": {
+          "en": "Contains datasets from Aalto University's ACRIS system",
+          "fi": "Sisältää aineistoja Aalto yliopiston ACRIS-järjestelmästä"
+        }
+      },
+      "dataset_versioning": false,
+      "research_dataset_schema": "att"
+    },
+    "catalog_record_services_edit": "metax,aalto",
+    "catalog_record_services_create": "metax,aalto",
+    "catalog_record_services_read": "metax,aalto"
 }]

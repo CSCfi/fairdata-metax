@@ -38,6 +38,7 @@ class Role(Enum):
     EXTERNAL = "external"
     JYU = "jyu"
     REPOTRONIC = "repotronic"
+    AALTO = "aalto"
 
     def __ge__(self, other):
         if self.__class__ is other.__class__:
