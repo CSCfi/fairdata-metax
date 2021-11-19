@@ -612,22 +612,6 @@ class CatalogRecordDraftsOfPublished(CatalogRecordApiWriteCommon):
         )
         self.assertEqual("next_draft" in response.data, False, "next_draft link should be gone")
 
-    def test_create_and_merge_draft_keeps_permissions(self):
-        """
-        Ensure creating and merging drafts keeps the same EditorPermission object.
-        """
-        cr = self._create_dataset()
-        original_editor_permissions_id = CatalogRecordV2.objects.get(id=cr['id']).editor_permissions_id
-
-        draft_cr = self._create_draft(cr["id"])
-        draft_editor_permissions_id = CatalogRecordV2.objects.get(id=draft_cr['id']).editor_permissions_id
-        self.assertEqual(draft_editor_permissions_id, original_editor_permissions_id)
-
-        self._merge_draft_changes(draft_cr["id"])
-        merged_editor_permissions_id = CatalogRecordV2.objects.get(id=cr['id']).editor_permissions_id
-        self.assertEqual(merged_editor_permissions_id, original_editor_permissions_id)
-
-
     def test_missing_issued_date_is_generated_when_draft_is_merged(self):
         """
         Testing a case where user removes 'issued_date' from draft before merging

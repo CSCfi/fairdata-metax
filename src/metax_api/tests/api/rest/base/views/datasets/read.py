@@ -965,19 +965,6 @@ class CatalogRecordApiReadQueryParamsTests(CatalogRecordApiReadCommon):
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(count_all, response.data["count"], response.data)
 
-    def test_filter_by_editor_permissions_user_ok(self):
-        cr = CatalogRecord.objects.get(pk=1)
-        cr.editor_permissions.users.update(user_id='test_user_x')
-        response = self.client.get(f"/rest/datasets?editor_permissions_user=test_user_x")
-        self.assertEqual(response.data["count"], 1)
-
-    def test_filter_by_editor_permissions_user_removed(self):
-        cr = CatalogRecord.objects.get(pk=1)
-        cr.editor_permissions.users.update(user_id='test_user_x')
-        cr.editor_permissions.users.first().delete()
-        response = self.client.get(f"/rest/datasets?editor_permissions_user=test_user_x")
-        self.assertEqual(response.data["count"], 0)
-
 
 class CatalogRecordApiReadXMLTransformationTests(CatalogRecordApiReadCommon):
 

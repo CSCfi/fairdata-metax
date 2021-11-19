@@ -117,12 +117,6 @@ class CatalogRecordV2(CatalogRecord):
 
         self._set_api_version()
 
-        # only new datasets need new EditorPermissions, copies already have one
-        if not self.editor_permissions_id:
-            self._add_editor_permissions()
-            if self.metadata_provider_user:
-                self._add_creator_editor_user_permission()
-
     def _post_create_operations(self, pid_type=None):
         if "files" in self.research_dataset or "directories" in self.research_dataset:
 

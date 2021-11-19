@@ -121,21 +121,6 @@ class CatalogRecordVersionHandling(CatalogRecordApiWriteCommon):
             response.data["identifier"],
         )
 
-    def test_create_new_version_shares_permissions(self):
-        """
-        Ensure new version shares EditorPermissions with the original.
-        """
-        response = self.client.post(
-            "/rpc/v2/datasets/create_new_version?identifier=5", format="json"
-        )
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
-
-        next_version_identifier = response.data.get("identifier")
-        cr = CR.objects.get(id=5)
-        next_version_cr = CR.objects.get(identifier=next_version_identifier)
-        self.assertEqual(cr.editor_permissions_id, next_version_cr.editor_permissions_id)
-
-
     def test_delete_new_version_draft(self):
         """
         Ensure a new version that is created into draft state can be deleted, and is permanently deleted.

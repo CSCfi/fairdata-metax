@@ -29,7 +29,6 @@ from metax_api.api.rest.base.views import (
     FileStorageViewSet,
     FileViewSet,
     SchemaViewSet,
-    EditorPermissionViewSet,
 )
 from metax_api.api.rest.v2.views import ApiErrorViewSetV2
 
@@ -109,11 +108,6 @@ router_v2.register(r"datacatalogs/?", DataCatalogViewSet)
 router_v2.register(
     r"datasets/(?P<identifier>.+)/metadata_versions/(?P<metadata_version_identifier>.+)/?",
     DatasetViewSet,
-)
-
-router_v2.register(
-    "datasets/(?P<cr_identifier>.+)/editor_permissions/users",
-    EditorPermissionViewSet,
 )
 
 api_urlpatterns = router_v1.urls + router_v2.urls
