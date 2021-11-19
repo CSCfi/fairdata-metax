@@ -27,7 +27,6 @@ from .views import (
     DataCatalogViewSet,
     DatasetViewSet,
     DirectoryViewSet,
-    EditorPermissionViewSet,
     FileStorageViewSet,
     FileViewSet,
     SchemaViewSet,
@@ -82,11 +81,6 @@ router.register(r"schemas/?", SchemaViewSet)
 router.register(
     r"datasets/(?P<identifier>.+)/metadata_versions/(?P<metadata_version_identifier>.+)/?",
     DatasetViewSet,
-)
-
-router.register(
-    "datasets/(?P<cr_identifier>.+)/editor_permissions/users",
-    EditorPermissionViewSet,
 )
 
 api_urlpatterns = router.urls

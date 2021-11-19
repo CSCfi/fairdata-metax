@@ -268,7 +268,6 @@ def save_test_data(
     contract_list,
     catalog_record_list,
     dataset_version_sets,
-    editor_permissions
 ):
     with open("test_data.json", "w") as f:
         print("dumping test data as json to metax_api/tests/test_data.json...")
@@ -279,12 +278,12 @@ def save_test_data(
             + data_catalogs_list
             + contract_list
             + dataset_version_sets
-            + editor_permissions
             + catalog_record_list,
             f,
             indent=4,
             sort_keys=True,
         )
+
 
 def generate_data_catalogs(start_idx, data_catalog_max_rows, validate_json, type):
     print("generating %s data catalogs..." % type)
@@ -369,28 +368,6 @@ def generate_contracts(contract_max_rows, validate_json):
     return test_contract_list
 
 
-def add_editor_permissions(editor_permissions, dataset):
-    # add EditorPermissions
-    pk = len(editor_permissions)
-    editor_perms = {
-        "fields": {},
-        "model": "metax_api.editorpermissions",
-        "pk": pk,
-    }
-    editor_permissions.append(editor_perms)
-    editor_user_perms = {
-        "fields": {
-            "user_id": dataset["fields"]["metadata_provider_user"],
-            "date_created": dataset["fields"]["date_created"],
-            "editor_permissions_id": pk,
-            "role": "creator",
-        },
-        "model": "metax_api.editoruserpermission",
-        "pk": pk + 1,
-    }
-    editor_permissions.append(editor_user_perms)
-    dataset["fields"]["editor_permissions_id"] = pk
-
 def generate_catalog_records(
     basic_catalog_record_max_rows,
     data_catalogs_list,
@@ -400,7 +377,6 @@ def generate_catalog_records(
     type,
     test_data_list=[],
     dataset_version_sets=[],
-    editor_permissions=[],
 ):
     print("generating %s catalog records..." % type)
 
@@ -449,8 +425,6 @@ def generate_catalog_records(
         new["fields"]["date_modified"] = "2017-06-23T10:07:22Z"
         new["fields"]["date_created"] = "2017-05-23T10:07:22Z"
         new["fields"]["files"] = []
-
-        add_editor_permissions(editor_permissions, new)
 
         # add files
 
@@ -678,8 +652,6 @@ def generate_catalog_records(
         new["fields"]["date_modified"] = "2017-09-23T10:07:22Z"
         new["fields"]["date_created"] = "2017-05-23T10:07:22Z"
 
-        add_editor_permissions(editor_permissions, new)
-
         new["fields"]["research_dataset"]["metadata_version_identifier"] = generate_test_identifier(
             cr_type, len(test_data_list) + 1, urn=False
         )
@@ -789,7 +761,7 @@ def generate_catalog_records(
         json_validate(new["fields"]["research_dataset"], json_schema)
         test_data_list.append(new)
 
-    return test_data_list, dataset_version_sets, editor_permissions
+    return test_data_list, dataset_version_sets
 
 
 def generate_alt_catalog_records(test_data_list):
@@ -872,7 +844,7 @@ if __name__ == "__main__":
         ida_data_catalog_max_rows + 1, att_data_catalog_max_rows, validate_json, "att"
     )
 
-    catalog_record_list, dataset_version_sets, editor_permissions = generate_catalog_records(
+    catalog_record_list, dataset_version_sets = generate_catalog_records(
         ida_catalog_record_max_rows,
         ida_data_catalogs_list,
         contract_list,
@@ -881,7 +853,7 @@ if __name__ == "__main__":
         "ida",
     )
 
-    catalog_record_list, dataset_version_sets, editor_permissions = generate_catalog_records(
+    catalog_record_list, dataset_version_sets = generate_catalog_records(
         att_catalog_record_max_rows,
         att_data_catalogs_list,
         contract_list,
@@ -890,7 +862,6 @@ if __name__ == "__main__":
         "att",
         catalog_record_list,
         dataset_version_sets,
-        editor_permissions,
     )
 
     catalog_record_list = generate_alt_catalog_records(catalog_record_list)
@@ -905,7 +876,6 @@ if __name__ == "__main__":
         contract_list,
         catalog_record_list,
         dataset_version_sets,
-        editor_permissions,
     )
 
     print("done")

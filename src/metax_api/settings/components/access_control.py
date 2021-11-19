@@ -11,7 +11,6 @@ api_permissions = Box(
             "datacatalogs": {},
             "datasets": {},
             "directories": {},
-            "editorpermissions": {},
             "files": {},
             "filestorages": {},
             "schemas": {},
@@ -86,29 +85,6 @@ api_permissions.rest.datasets["update"] = [
     Role.ETSIN,
 ]
 api_permissions.rest.datasets.delete = [
-    Role.METAX,
-    Role.END_USERS,
-    Role.TPAS,
-    Role.QVAIN,
-    Role.ETSIN,
-]
-
-api_permissions.rest.editorpermissions.create = [
-    Role.METAX,
-    Role.END_USERS,
-    Role.TPAS,
-    Role.QVAIN,
-    Role.ETSIN,
-]
-api_permissions.rest.editorpermissions.read = [Role.ALL]
-api_permissions.rest.editorpermissions["update"] = [
-    Role.METAX,
-    Role.END_USERS,
-    Role.TPAS,
-    Role.QVAIN,
-    Role.ETSIN,
-]
-api_permissions.rest.editorpermissions.delete = [
     Role.METAX,
     Role.END_USERS,
     Role.TPAS,
