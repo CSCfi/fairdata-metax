@@ -1,6 +1,7 @@
 import json
 import logging
 
+from django.conf import settings
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
 from django.core.serializers.json import DjangoJSONEncoder
@@ -21,8 +22,11 @@ def deleted_object_receiver(instance, sender, *args, **kwargs):
             if hasattr(instance, 'date_modified'):
                 instance.date_modified = instance.date_modified.strftime("%m/%d/%Y, %H:%M:%S")
             instance = model_to_dict(instance)
-            deleted_object_json = json.dumps(instance, cls=DjangoJSONEncoder)
-            DeletedObject.objects.create(model_name=model_type, object_data=deleted_object_json)
+            if settings.ENABLE_DELETED_OBJECTS_SAVING:
+                deleted_object_json = json.dumps(instance, cls=DjangoJSONEncoder)
+                DeletedObject.objects.create(model_name=model_type, object_data=deleted_object_json)
+            else:
+                _logger.info(str(instance))
         except Exception as e:
             _logger.error("cannot save Deleted Object. Discarding..")
             _logger.debug(f"error: {e}")

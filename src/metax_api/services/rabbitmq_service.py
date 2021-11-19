@@ -7,16 +7,19 @@
 
 import logging
 import random
+from datetime import datetime
 from json import dumps as json_dumps, loads
 from time import sleep
 
 import pika
+
+from django.core import serializers
 from django.db import DatabaseError
 from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
 
 from metax_api.models import ApiError
-from metax_api.utils.utils import executing_test_case
+from metax_api.utils.utils import executing_test_case, datetime_to_str, parse_timestamp_string_to_tz_aware_datetime
 
 _logger = logging.getLogger(__name__)
 
@@ -132,7 +135,11 @@ class _RabbitMQService:
                 finally:
                     channel.basic_ack(method.delivery_tag)
             try:
-                ApiError.objects.bulk_create(errors, batch_size=5000)
+                # ApiError.objects.bulk_create(errors, batch_size=5000)
+                now = datetime.now()
+                tz_aware = parse_timestamp_string_to_tz_aware_datetime(datetime_to_str(now))
+                with open(f"/var/log/metax-api/errors/api-errors/{tz_aware}") as out:
+                    serializers.serialize("json", errors, stream=out)
             except DatabaseError as e:
                 _logger.error("cannot create API Error. Discarding..")
                 _logger.error(f"error: {e}")
