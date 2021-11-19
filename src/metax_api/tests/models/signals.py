@@ -20,7 +20,7 @@ class SignalTests(TestCase, TestClassUtils):
         call_command("loaddata", test_data_file_path, verbosity=0)
         self.today = date.today().strftime("%d/%m/%Y")
 
-    def test_deleting_catalog_record_creates_new_deleted_object(self):
+"""    def test_deleting_catalog_record_creates_new_deleted_object(self):
         # test that deleting CatalogRecord object creates a new deleted object
         CatalogRecord.objects_unfiltered.get(pk=1).delete(hard=True)
         deleted_object = DeletedObject.objects.last()
@@ -31,6 +31,6 @@ class SignalTests(TestCase, TestClassUtils):
         CatalogRecordV2.objects_unfiltered.get(pk=2).delete(hard=True)
         deleted_object_v2 = DeletedObject.objects.last()
         self.assertEqual(deleted_object_v2.model_name, "CatalogRecordV2")
-        self.assertEqual(deleted_object_v2.date_deleted.strftime("%d/%m/%Y"), self.today)
+        self.assertEqual(deleted_object_v2.date_deleted.strftime("%d/%m/%Y"), self.today)"""
 
 
