@@ -9,6 +9,7 @@ import sys
 from base64 import b64encode
 from contextlib import contextmanager
 from json import load as json_load
+from io import StringIO
 from os import path
 
 import jwt
@@ -456,10 +457,15 @@ class TestClassUtils:
 
 
 @contextmanager
-def streamhandler_to_console(lggr):
+def streamhandler_to_console(lggr, command_obj = None):
     # Use 'up to date' value of sys.stdout for StreamHandler,
     # as set by test runner.
-    stream_handler = logging.StreamHandler(sys.stdout)
+    # If command_obj is given, use OutputWrapper of the given 
+    # Command object
+    if command_obj == None:
+        stream_handler = logging.StreamHandler(sys.stdout)
+    else:
+        stream_handler = logging.StreamHandler(command_obj.stdout)
     lggr.addHandler(stream_handler)
     yield
     lggr.removeHandler(stream_handler)
@@ -474,3 +480,17 @@ def testcase_log_console(lggr):
         return testcase_log_console
 
     return testcase_decorator
+
+def management_command_add_test_logs(lggr):
+    # This decorator can be used by management commands to capture
+    # the logs of the command in a format that can be used in tests
+    def management_command_log_decorator(func):
+        def management_command_add_test_logs(*args, **kwargs):
+            # args[0] is the object which uses this decorator (typically a command object)
+            with streamhandler_to_console(lggr, args[0]):
+                return func(*args, **kwargs)
+
+        return management_command_add_test_logs
+
+    return management_command_log_decorator
+
