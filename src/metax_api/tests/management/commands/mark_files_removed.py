@@ -25,7 +25,7 @@ class RemoveFilesTest(TestCase):
         options = {"path_prefix": path_prefix, "stdout": out}
         call_command('mark_files_removed', *args, **options)
 
-        self.assertIn('Found 10 files to remove in project: ' + project_identifier + ' with path prefix: ' + path_prefix, out.getvalue())
+        self.assertIn(f'Found 10 files to remove in project: {project_identifier} with path prefix: {path_prefix}', out.getvalue())
         self.assertIn('Removed 10 files', out.getvalue())
 
         files = File.objects_unfiltered.filter(project_identifier = project_identifier, file_path__startswith = path_prefix)
