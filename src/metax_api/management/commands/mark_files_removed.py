@@ -33,12 +33,12 @@ class Command(BaseCommand):
 		removed_files_sum = 0
 		for prefix in path_prefixes:
 			files = File.objects.filter(project_identifier = options["project_identifier"], file_path__startswith = prefix, removed = "f")
-			logger.info("Found %d files to remove in project: %s with path prefix: %s" % (len(files), options["project_identifier"], prefix))
+			logger.info(f"Found {len(files)} files to remove in project: {options['project_identifier']} with path prefix: {prefix}")
 			for file in files:
 				file.delete()
 			removed_files_sum += len(files)
 
-		logger.info("Removed %d files" % removed_files_sum)
+		logger.info(f"Removed {removed_files_sum} files")
 
 
 
