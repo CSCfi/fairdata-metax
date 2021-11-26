@@ -8,6 +8,7 @@
 import logging
 from os import path
 
+from django.conf import settings
 from django.http import Http404, HttpResponse
 from rest_framework import status
 from rest_framework.exceptions import APIException, MethodNotAllowed, PermissionDenied
@@ -141,7 +142,10 @@ class CommonViewSet(ModelViewSet):
             try:
                 error_json = ApiErrorSerializerV2.request_to_json(self.request, response)
                 response.data["error_identifier"] = error_json["identifier"]
-                rabbitmq.publish(error_json, exchange="apierrors")
+                if settings.ENABLE_API_ERROR_OBJECTS:
+                    rabbitmq.publish(error_json, exchange="apierrors")
+                else:
+                    _logger.error(f"api error: {str(error_json)}")
             except Exception as e:
                 _logger.error(f"could not send api error to rabbitmq. Error: {e}")
 
@@ -375,7 +379,10 @@ class CommonViewSet(ModelViewSet):
             try:
                 error_json = ApiErrorSerializerV2.request_to_json(self.request, response, other={"bulk_request": True})
                 response.data["error_identifier"] = error_json["identifier"]
-                rabbitmq.publish(error_json, exchange="apierrors")
+                if settings.ENABLE_API_ERROR_OBJECTS:
+                    rabbitmq.publish(error_json, exchange="apierrors")
+                else:
+                    _logger.error(f"api error: {str(error_json)}")
             except Exception as e:
                 _logger.error(f"could not send api error to rabbitmq. Error: {e}")
 

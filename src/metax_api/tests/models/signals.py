@@ -6,21 +6,23 @@
 # :license: MIT
 
 from datetime import date
-
+import unittest
 from django.core.management import call_command
 from django.test import TestCase
+from django.conf import settings
 
-from metax_api.models import CatalogRecord, CatalogRecordV2, DeletedObject, Directory, File
+from metax_api.models import CatalogRecord, CatalogRecordV2, DeletedObject
 from metax_api.tests.utils import TestClassUtils, test_data_file_path
 
 
+@unittest.skipIf(settings.ENABLE_DELETED_OBJECTS_SAVING is not True, "Only run if deleted objects are saved")
 class SignalTests(TestCase, TestClassUtils):
 
     def setUp(self):
         call_command("loaddata", test_data_file_path, verbosity=0)
         self.today = date.today().strftime("%d/%m/%Y")
 
-"""    def test_deleting_catalog_record_creates_new_deleted_object(self):
+    def test_deleting_catalog_record_creates_new_deleted_object(self):
         # test that deleting CatalogRecord object creates a new deleted object
         CatalogRecord.objects_unfiltered.get(pk=1).delete(hard=True)
         deleted_object = DeletedObject.objects.last()
@@ -31,6 +33,6 @@ class SignalTests(TestCase, TestClassUtils):
         CatalogRecordV2.objects_unfiltered.get(pk=2).delete(hard=True)
         deleted_object_v2 = DeletedObject.objects.last()
         self.assertEqual(deleted_object_v2.model_name, "CatalogRecordV2")
-        self.assertEqual(deleted_object_v2.date_deleted.strftime("%d/%m/%Y"), self.today)"""
+        self.assertEqual(deleted_object_v2.date_deleted.strftime("%d/%m/%Y"), self.today)
 
 

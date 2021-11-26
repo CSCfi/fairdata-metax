@@ -5,6 +5,7 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 import logging
+import unittest
 from unittest.mock import patch
 from uuid import uuid4
 
@@ -14,10 +15,12 @@ from rest_framework.test import APITestCase
 
 from metax_api.models import ApiError
 from metax_api.tests.utils import TestClassUtils, test_data_file_path, testcase_log_console
+from django.conf import settings
 
 _logger = logging.getLogger(__name__)
 
 
+@unittest.skipIf(settings.ENABLE_API_ERROR_OBJECTS is not True, "Only run if API errors are objects")
 class ApiErrorReadBasicTests(APITestCase, TestClassUtils):
 
     """
