@@ -40,7 +40,8 @@ class OnAppStart(AppConfig):
         # because the "django apps" have not been loaded yet.
         import json
 
-        import metax_api.signals # noqa
+        if settings.ENABLE_SIGNALS:
+            import metax_api.signals # noqa
         from metax_api.services import RabbitMQService as rabbitmq
         from metax_api.services.redis_cache_service import RedisClient
 
