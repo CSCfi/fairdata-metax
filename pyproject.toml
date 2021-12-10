@@ -6,7 +6,7 @@ authors = ["Your Name <you@example.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.7"
-Django = "<3.2"
+Django = "<3.3"
 datacite = "^1.0.1"
 djangorestframework = "^3.12.4"
 gunicorn = "^20.1.0"

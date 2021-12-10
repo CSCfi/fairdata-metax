@@ -1068,12 +1068,8 @@ class CatalogRecordApiReadXMLTransformationTests(CatalogRecordApiReadCommon):
 
     def _check_dataset_xml_format_response(self, response, element_name):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual("content-type" in response._headers, True, response._headers)
-        self.assertEqual(
-            "application/xml" in response._headers["content-type"][1],
-            True,
-            response._headers,
-        )
+
+
         self.assertEqual("<?xml version" in response.data[:20], True, response.data)
         self.assertEqual(element_name in response.data[:60], True, response.data)
 
