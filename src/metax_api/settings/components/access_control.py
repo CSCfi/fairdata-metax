@@ -38,6 +38,7 @@ class Role(Enum):
     JYU = "jyu"
     REPOTRONIC = "repotronic"
     AALTO = "aalto"
+    EUDAT = "eudat"
 
     def __ge__(self, other):
         if self.__class__ is other.__class__:
@@ -76,6 +77,8 @@ api_permissions.rest.datasets.create = [
     Role.TPAS,
     Role.QVAIN,
     Role.ETSIN,
+    Role.EUDAT,
+    Role.JYU,
 ]
 api_permissions.rest.datasets.read = [Role.ALL]
 api_permissions.rest.datasets["update"] = [

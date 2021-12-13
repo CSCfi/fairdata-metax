@@ -519,4 +519,79 @@
     "catalog_record_services_edit": "metax,aalto",
     "catalog_record_services_create": "metax,aalto",
     "catalog_record_services_read": "metax,aalto"
+},
+{
+    "catalog_json": {
+        "title": {
+            "en": "Finnish Meteorological Institute catalog",
+            "fi": "Ilmatieteen laitoksen katalogi",
+            "sv": "Meteorologiska Institutet register"
+        },
+        "language": [
+            {
+                "title": {
+                    "en": "Finnish language",
+                    "fi": "Suomen kieli",
+                    "sv": "finska",
+                    "und": "Suomen kieli"
+                },
+                "identifier": "http://lexvo.org/id/iso639-3/fin"
+            },
+            {
+                "title": {
+                    "en": "English language",
+                    "fi": "Englannin kieli",
+                    "sv": "engelska",
+                    "und": "Englannin kieli"
+                },
+                "identifier": "http://lexvo.org/id/iso639-3/eng"
+            }
+        ],
+        "harvested": true,
+        "publisher": {
+            "name": {
+                "en": "Finnish Meteorological Institute",
+                "fi": "Ilmatieteen laitos",
+                "sv": "Meteorologiska Institutet"
+            },
+            "homepage": [
+                {
+                   "title": {
+                        "en": "Home - Finnish Meteorological Institute",
+                        "fi": "Etusivu - Ilmatieteen laitos",
+                        "sv": "Startsida - Meteorologiska institutet"
+                    },
+                    "identifier": "https://www.ilmatieteenlaitos.fi/"
+                }
+            ],
+            "identifier": "https://isni.org/isni/0000000122538678"
+        },
+        "identifier": "urn:nbn:fi:att:data-catalog-fmi",
+        "access_rights": {
+          "license": [
+            {
+              "identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/CC-BY-4.0"
+            }
+          ],
+          "access_type": [
+            {
+              "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open",
+              "pref_label": {
+                "en": "Open",
+                "fi": "Avoin",
+                "und": "Avoin"
+              }
+            }
+          ],
+          "description": {
+            "en": "Contains datasets of Finnish Meteorological Institute",
+            "fi": "Ilmatieteen laitoksen aineistot"
+          }
+        },
+        "dataset_versioning": false,
+        "research_dataset_schema": "att"
+      },
+      "catalog_record_services_edit": "metax,eudat",
+      "catalog_record_services_create": "metax,eudat",
+      "catalog_record_services_read": "metax,eudat"
 }]
