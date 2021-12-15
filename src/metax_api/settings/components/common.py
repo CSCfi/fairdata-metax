@@ -145,10 +145,6 @@ DATABASES = {
 DATABASES["default"]["ENGINE"] = "django.db.backends.postgresql"
 DATABASES["default"]["ATOMIC_REQUESTS"] = True
 
-# Colorize automated test console output
-RAINBOWTESTS_HIGHLIGHT_PATH = str(BASE_DIR)
-TEST_RUNNER = "rainbowtests.test.runner.RainbowDiscoverRunner"
-
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 
