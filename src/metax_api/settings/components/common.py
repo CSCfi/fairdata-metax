@@ -14,6 +14,7 @@ LEGACY_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-legacy"
 DFT_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-dft"
 REPOTRONIC_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-repotronic"
 AALTO_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-acris"
+FMI_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-fmi"
 
 END_USER_ALLOWED_DATA_CATALOGS = [
     IDA_DATA_CATALOG_IDENTIFIER,
@@ -188,7 +189,7 @@ if env("ENABLE_V1_ENDPOINTS"):
 if env("ENABLE_V2_ENDPOINTS"):
     API_VERSIONS_ENABLED.append("v2")
 
-# Variables related to api credentials
+# API credentials in development environment
 API_USERS = [
     {"password": "test-metax", "username": "metax"},
     {"password": "test-qvain", "username": "qvain"},
@@ -197,6 +198,8 @@ API_USERS = [
     {"password": "test-etsin", "username": "etsin"},
     {"password": "test-fds", "username": "fds"},
     {"password": "test-download", "username": "download"},
+    {"password": "test-eudat", "username": "eudat"},
+    {"password": "test-jyu", "username": "jyu"},
 ]
 
 SWAGGER_YAML_PATH = env('SWAGGER_YAML_PATH')
