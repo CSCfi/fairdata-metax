@@ -117,7 +117,7 @@
     "dataset_versioning": true
   },
   "service_created": "metax",
-  "catalog_record_services_create": "testuser,api_auth_user,metax",
-  "catalog_record_services_edit": "testuser,api_auth_user,metax",
-  "catalog_record_services_read": "testuser,api_auth_user,metax"
+  "catalog_record_services_create": "testuser,api_auth_user,metax,tpas",
+  "catalog_record_services_edit": "testuser,api_auth_user,metax,tpas",
+  "catalog_record_services_read": "testuser,api_auth_user,metax,tpas"
 }
