@@ -234,17 +234,6 @@ optional = false
 python-versions = "*"
 
 [[package]]
-name = "django-rainbowtests"
-version = "0.6.0"
-description = "A colorful Django Test Runner."
-category = "dev"
-optional = false
-python-versions = "*"
-
-[package.dependencies]
-django = "*"
-
-[[package]]
 name = "django-split-settings"
 version = "1.1.0"
 description = "Organize Django settings into multiple files and directories. Easily override and modify settings. Use wildcards and optional settings files."
@@ -1134,7 +1123,7 @@ swagger = ["PyYAML"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "75eef2a72ed0c8c07d248ceb0597c043bb417ddc559e60c665660101ed217acd"
+content-hash = "c0f6e79d018c633ee4c3b935d5253e27d9e155e0f2b5a33f0e9d0a67b62227a3"
 
 [metadata.files]
 alabaster = [
@@ -1264,9 +1253,6 @@ django-debug-toolbar = [
 django-environ = [
     {file = "django-environ-0.4.5.tar.gz", hash = "sha256:6c9d87660142608f63ec7d5ce5564c49b603ea8ff25da595fd6098f6dc82afde"},
     {file = "django_environ-0.4.5-py2.py3-none-any.whl", hash = "sha256:c57b3c11ec1f319d9474e3e5a79134f40174b17c7cc024bbb2fad84646b120c4"},
-]
-django-rainbowtests = [
-    {file = "django-rainbowtests-0.6.0.tar.gz", hash = "sha256:0700ee1386935822dca296d323d67b0563cb2e5012b553ebca7c9391f2298cd9"},
 ]
 django-split-settings = [
     {file = "django-split-settings-1.1.0.tar.gz", hash = "sha256:6b3aed89667a95525152026eab93a9f038ff22df6883006318b8b4a3d0ca6888"},
