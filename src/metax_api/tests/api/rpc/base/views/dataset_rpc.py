@@ -381,7 +381,6 @@ class RefreshDirectoryContent(CatalogRecordApiWriteAssignFilesCommon):
             str(new_dir.id) in cr_after._directory_data,
             "New dir id should be found in cr",
         )
-        self.assertEqual(new_dir.byte_size, self._single_file_byte_size * 2)
 
     def test_refreshing_deprecated_dataset_is_not_allowed(self):
         self._add_directory(self.cr_test_data, "/TestExperiment/Directory_2")

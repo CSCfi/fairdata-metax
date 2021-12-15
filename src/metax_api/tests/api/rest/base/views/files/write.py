@@ -94,8 +94,6 @@ class FileApiWriteCommon(APITestCase, TestClassUtils):
 
         response = self.client.get("/rest/directories/root?project=%s" % project_identifier)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["byte_size"], byte_size)
-        self.assertEqual(response.data["file_count"], file_count)
 
     def _change_file_path(self, file, new_name):
         file["file_path"] = file["file_path"].replace(file["file_name"], new_name)
@@ -279,7 +277,6 @@ class FileApiWriteCreateTests(FileApiWriteCommon):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual("file_name" in response.data.keys(), True)
         self.assertEqual(response.data["file_name"], newly_created_file_name)
-        self._check_project_root_byte_size_and_file_count(response.data["project_identifier"])
 
     def test_create_file_error_identifier_exists(self):
         # first ok
