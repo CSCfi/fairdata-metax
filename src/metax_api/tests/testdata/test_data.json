@@ -5714,6 +5714,396 @@
     },
     {
         "fields": {},
+        "model": "metax_api.editorpermissions",
+        "pk": "00000000-0000-0000-0000-000000000000"
+    },
+    {
+        "fields": {
+            "date_created": "2017-05-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-000000000000",
+            "role": "creator",
+            "user_id": "abc-user-123"
+        },
+        "model": "metax_api.editoruserpermission",
+        "pk": "00000000-0000-0000-0000-000000000001"
+    },
+    {
+        "fields": {},
+        "model": "metax_api.editorpermissions",
+        "pk": "00000000-0000-0000-0000-000000000002"
+    },
+    {
+        "fields": {
+            "date_created": "2017-05-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-000000000002",
+            "role": "creator",
+            "user_id": "abc-user-123"
+        },
+        "model": "metax_api.editoruserpermission",
+        "pk": "00000000-0000-0000-0000-000000000003"
+    },
+    {
+        "fields": {},
+        "model": "metax_api.editorpermissions",
+        "pk": "00000000-0000-0000-0000-000000000004"
+    },
+    {
+        "fields": {
+            "date_created": "2017-05-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-000000000004",
+            "role": "creator",
+            "user_id": "abc-user-123"
+        },
+        "model": "metax_api.editoruserpermission",
+        "pk": "00000000-0000-0000-0000-000000000005"
+    },
+    {
+        "fields": {},
+        "model": "metax_api.editorpermissions",
+        "pk": "00000000-0000-0000-0000-000000000006"
+    },
+    {
+        "fields": {
+            "date_created": "2017-05-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-000000000006",
+            "role": "creator",
+            "user_id": "abc-user-123"
+        },
+        "model": "metax_api.editoruserpermission",
+        "pk": "00000000-0000-0000-0000-000000000007"
+    },
+    {
+        "fields": {},
+        "model": "metax_api.editorpermissions",
+        "pk": "00000000-0000-0000-0000-000000000008"
+    },
+    {
+        "fields": {
+            "date_created": "2017-05-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-000000000008",
+            "role": "creator",
+            "user_id": "abc-user-123"
+        },
+        "model": "metax_api.editoruserpermission",
+        "pk": "00000000-0000-0000-0000-000000000009"
+    },
+    {
+        "fields": {},
+        "model": "metax_api.editorpermissions",
+        "pk": "00000000-0000-0000-0000-00000000000a"
+    },
+    {
+        "fields": {
+            "date_created": "2017-05-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-00000000000a",
+            "role": "creator",
+            "user_id": "abc-user-123"
+        },
+        "model": "metax_api.editoruserpermission",
+        "pk": "00000000-0000-0000-0000-00000000000b"
+    },
+    {
+        "fields": {},
+        "model": "metax_api.editorpermissions",
+        "pk": "00000000-0000-0000-0000-00000000000c"
+    },
+    {
+        "fields": {
+            "date_created": "2017-05-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-00000000000c",
+            "role": "creator",
+            "user_id": "abc-user-123"
+        },
+        "model": "metax_api.editoruserpermission",
+        "pk": "00000000-0000-0000-0000-00000000000d"
+    },
+    {
+        "fields": {},
+        "model": "metax_api.editorpermissions",
+        "pk": "00000000-0000-0000-0000-00000000000e"
+    },
+    {
+        "fields": {
+            "date_created": "2017-05-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-00000000000e",
+            "role": "creator",
+            "user_id": "abc-user-123"
+        },
+        "model": "metax_api.editoruserpermission",
+        "pk": "00000000-0000-0000-0000-00000000000f"
+    },
+    {
+        "fields": {},
+        "model": "metax_api.editorpermissions",
+        "pk": "00000000-0000-0000-0000-000000000010"
+    },
+    {
+        "fields": {
+            "date_created": "2017-05-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-000000000010",
+            "role": "creator",
+            "user_id": "abc-user-123"
+        },
+        "model": "metax_api.editoruserpermission",
+        "pk": "00000000-0000-0000-0000-000000000011"
+    },
+    {
+        "fields": {},
+        "model": "metax_api.editorpermissions",
+        "pk": "00000000-0000-0000-0000-000000000012"
+    },
+    {
+        "fields": {
+            "date_created": "2017-05-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-000000000012",
+            "role": "creator",
+            "user_id": "abc-user-123"
+        },
+        "model": "metax_api.editoruserpermission",
+        "pk": "00000000-0000-0000-0000-000000000013"
+    },
+    {
+        "fields": {},
+        "model": "metax_api.editorpermissions",
+        "pk": "00000000-0000-0000-0000-000000000014"
+    },
+    {
+        "fields": {
+            "date_created": "2017-05-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-000000000014",
+            "role": "creator",
+            "user_id": "abc-user-123"
+        },
+        "model": "metax_api.editoruserpermission",
+        "pk": "00000000-0000-0000-0000-000000000015"
+    },
+    {
+        "fields": {},
+        "model": "metax_api.editorpermissions",
+        "pk": "00000000-0000-0000-0000-000000000016"
+    },
+    {
+        "fields": {
+            "date_created": "2017-05-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-000000000016",
+            "role": "creator",
+            "user_id": "abc-user-123"
+        },
+        "model": "metax_api.editoruserpermission",
+        "pk": "00000000-0000-0000-0000-000000000017"
+    },
+    {
+        "fields": {},
+        "model": "metax_api.editorpermissions",
+        "pk": "00000000-0000-0000-0000-000000000018"
+    },
+    {
+        "fields": {
+            "date_created": "2017-05-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-000000000018",
+            "role": "creator",
+            "user_id": "abc-user-123"
+        },
+        "model": "metax_api.editoruserpermission",
+        "pk": "00000000-0000-0000-0000-000000000019"
+    },
+    {
+        "fields": {},
+        "model": "metax_api.editorpermissions",
+        "pk": "00000000-0000-0000-0000-00000000001a"
+    },
+    {
+        "fields": {
+            "date_created": "2017-05-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-00000000001a",
+            "role": "creator",
+            "user_id": "abc-user-123"
+        },
+        "model": "metax_api.editoruserpermission",
+        "pk": "00000000-0000-0000-0000-00000000001b"
+    },
+    {
+        "fields": {},
+        "model": "metax_api.editorpermissions",
+        "pk": "00000000-0000-0000-0000-00000000001c"
+    },
+    {
+        "fields": {
+            "date_created": "2017-05-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-00000000001c",
+            "role": "creator",
+            "user_id": "abc-user-123"
+        },
+        "model": "metax_api.editoruserpermission",
+        "pk": "00000000-0000-0000-0000-00000000001d"
+    },
+    {
+        "fields": {},
+        "model": "metax_api.editorpermissions",
+        "pk": "00000000-0000-0000-0000-00000000001e"
+    },
+    {
+        "fields": {
+            "date_created": "2017-05-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-00000000001e",
+            "role": "creator",
+            "user_id": "abc-user-123"
+        },
+        "model": "metax_api.editoruserpermission",
+        "pk": "00000000-0000-0000-0000-00000000001f"
+    },
+    {
+        "fields": {},
+        "model": "metax_api.editorpermissions",
+        "pk": "00000000-0000-0000-0000-000000000020"
+    },
+    {
+        "fields": {
+            "date_created": "2017-05-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-000000000020",
+            "role": "creator",
+            "user_id": "abc-user-123"
+        },
+        "model": "metax_api.editoruserpermission",
+        "pk": "00000000-0000-0000-0000-000000000021"
+    },
+    {
+        "fields": {},
+        "model": "metax_api.editorpermissions",
+        "pk": "00000000-0000-0000-0000-000000000022"
+    },
+    {
+        "fields": {
+            "date_created": "2017-05-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-000000000022",
+            "role": "creator",
+            "user_id": "abc-user-123"
+        },
+        "model": "metax_api.editoruserpermission",
+        "pk": "00000000-0000-0000-0000-000000000023"
+    },
+    {
+        "fields": {},
+        "model": "metax_api.editorpermissions",
+        "pk": "00000000-0000-0000-0000-000000000024"
+    },
+    {
+        "fields": {
+            "date_created": "2017-05-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-000000000024",
+            "role": "creator",
+            "user_id": "abc-user-123"
+        },
+        "model": "metax_api.editoruserpermission",
+        "pk": "00000000-0000-0000-0000-000000000025"
+    },
+    {
+        "fields": {},
+        "model": "metax_api.editorpermissions",
+        "pk": "00000000-0000-0000-0000-000000000026"
+    },
+    {
+        "fields": {
+            "date_created": "2017-05-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-000000000026",
+            "role": "creator",
+            "user_id": "abc-user-123"
+        },
+        "model": "metax_api.editoruserpermission",
+        "pk": "00000000-0000-0000-0000-000000000027"
+    },
+    {
+        "fields": {},
+        "model": "metax_api.editorpermissions",
+        "pk": "00000000-0000-0000-0000-000000000028"
+    },
+    {
+        "fields": {
+            "date_created": "2017-05-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-000000000028",
+            "role": "creator",
+            "user_id": "abc-user-123"
+        },
+        "model": "metax_api.editoruserpermission",
+        "pk": "00000000-0000-0000-0000-000000000029"
+    },
+    {
+        "fields": {},
+        "model": "metax_api.editorpermissions",
+        "pk": "00000000-0000-0000-0000-00000000002a"
+    },
+    {
+        "fields": {
+            "date_created": "2017-05-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-00000000002a",
+            "role": "creator",
+            "user_id": "abc-user-123"
+        },
+        "model": "metax_api.editoruserpermission",
+        "pk": "00000000-0000-0000-0000-00000000002b"
+    },
+    {
+        "fields": {},
+        "model": "metax_api.editorpermissions",
+        "pk": "00000000-0000-0000-0000-00000000002c"
+    },
+    {
+        "fields": {
+            "date_created": "2017-05-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-00000000002c",
+            "role": "creator",
+            "user_id": "abc-user-123"
+        },
+        "model": "metax_api.editoruserpermission",
+        "pk": "00000000-0000-0000-0000-00000000002d"
+    },
+    {
+        "fields": {},
+        "model": "metax_api.editorpermissions",
+        "pk": "00000000-0000-0000-0000-00000000002e"
+    },
+    {
+        "fields": {
+            "date_created": "2017-05-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-00000000002e",
+            "role": "creator",
+            "user_id": "abc-user-123"
+        },
+        "model": "metax_api.editoruserpermission",
+        "pk": "00000000-0000-0000-0000-00000000002f"
+    },
+    {
+        "fields": {},
+        "model": "metax_api.editorpermissions",
+        "pk": "00000000-0000-0000-0000-000000000030"
+    },
+    {
+        "fields": {
+            "date_created": "2017-05-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-000000000030",
+            "role": "creator",
+            "user_id": "abc-user-123"
+        },
+        "model": "metax_api.editoruserpermission",
+        "pk": "00000000-0000-0000-0000-000000000031"
+    },
+    {
+        "fields": {},
+        "model": "metax_api.editorpermissions",
+        "pk": "00000000-0000-0000-0000-000000000032"
+    },
+    {
+        "fields": {
+            "date_created": "2017-05-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-000000000032",
+            "role": "creator",
+            "user_id": "abc-user-123"
+        },
+        "model": "metax_api.editoruserpermission",
+        "pk": "00000000-0000-0000-0000-000000000033"
+    },
+    {
+        "fields": {},
         "model": "metax_api.alternaterecordset",
         "pk": 1
     },
@@ -5727,6 +6117,7 @@
             "dataset_version_set": 1,
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-000000000000",
             "files": [
                 1,
                 2
@@ -5882,6 +6273,7 @@
             "dataset_version_set": 2,
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-000000000002",
             "files": [
                 3,
                 4
@@ -6037,6 +6429,7 @@
             "dataset_version_set": 3,
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-000000000004",
             "files": [
                 5,
                 6
@@ -6192,6 +6585,7 @@
             "dataset_version_set": 4,
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-000000000006",
             "files": [
                 7,
                 8
@@ -6347,6 +6741,7 @@
             "dataset_version_set": 5,
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-000000000008",
             "files": [
                 9,
                 10
@@ -6502,6 +6897,7 @@
             "dataset_version_set": 6,
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-00000000000a",
             "files": [
                 11,
                 12
@@ -6657,6 +7053,7 @@
             "dataset_version_set": 7,
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-00000000000c",
             "files": [
                 13,
                 14
@@ -6812,6 +7209,7 @@
             "dataset_version_set": 8,
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-00000000000e",
             "files": [
                 15,
                 16
@@ -6952,6 +7350,7 @@
             "dataset_version_set": 9,
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-000000000010",
             "files": [
                 17,
                 18
@@ -7078,6 +7477,7 @@
             "dataset_version_set": 10,
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-000000000012",
             "files": [
                 19,
                 20
@@ -7201,6 +7601,7 @@
             "dataset_version_set": 11,
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-09-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-000000000014",
             "files": [
                 1,
                 2,
@@ -8152,6 +8553,7 @@
             "dataset_version_set": 12,
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-09-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-000000000016",
             "files": [
                 1,
                 2,
@@ -9103,6 +9505,7 @@
             "dataset_version_set": 13,
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-09-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-000000000018",
             "files": [
                 22,
                 23,
@@ -10146,6 +10549,7 @@
             "dataset_group_edit": "default-dataset-edit-group",
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-00000000001a",
             "files": [],
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9614",
             "metadata_owner_org": "abc-org-123",
@@ -10285,6 +10689,7 @@
             "dataset_group_edit": "default-dataset-edit-group",
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-00000000001c",
             "files": [],
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9615",
             "metadata_owner_org": "abc-org-123",
@@ -10424,6 +10829,7 @@
             "dataset_group_edit": "default-dataset-edit-group",
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-00000000001e",
             "files": [],
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9616",
             "metadata_owner_org": "abc-org-123",
@@ -10563,6 +10969,7 @@
             "dataset_group_edit": "default-dataset-edit-group",
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-000000000020",
             "files": [],
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9617",
             "metadata_owner_org": "abc-org-123",
@@ -10702,6 +11109,7 @@
             "dataset_group_edit": "default-dataset-edit-group",
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-000000000022",
             "files": [],
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9618",
             "metadata_owner_org": "abc-org-123",
@@ -10841,6 +11249,7 @@
             "dataset_group_edit": "default-dataset-edit-group",
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-000000000024",
             "files": [],
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9619",
             "metadata_owner_org": "abc-org-123",
@@ -10980,6 +11389,7 @@
             "dataset_group_edit": "default-dataset-edit-group",
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-000000000026",
             "files": [],
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9620",
             "metadata_owner_org": "abc-org-123",
@@ -11110,6 +11520,7 @@
             "dataset_group_edit": "default-dataset-edit-group",
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-000000000028",
             "files": [],
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9621",
             "metadata_owner_org": "abc-org-123",
@@ -11240,6 +11651,7 @@
             "dataset_group_edit": "default-dataset-edit-group",
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-00000000002a",
             "files": [],
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9622",
             "metadata_owner_org": "abc-org-123",
@@ -11370,6 +11782,7 @@
             "dataset_group_edit": "default-dataset-edit-group",
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-00000000002c",
             "files": [],
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9623",
             "metadata_owner_org": "abc-org-123",
@@ -11499,6 +11912,7 @@
             "data_catalog": 5,
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-09-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-00000000002e",
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9624",
             "metadata_owner_org": "abc-org-123",
             "metadata_provider_org": "abc-org-123",
@@ -12433,6 +12847,7 @@
             "data_catalog": 5,
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-09-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-000000000030",
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9625",
             "metadata_owner_org": "abc-org-123",
             "metadata_provider_org": "abc-org-123",
@@ -13367,6 +13782,7 @@
             "data_catalog": 5,
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-09-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-000000000032",
             "identifier": "cr955e904-e3dd-4d7e-99f1-3fed446f9626",
             "metadata_owner_org": "abc-org-123",
             "metadata_provider_org": "abc-org-123",
@@ -14304,6 +14720,7 @@
             "dataset_group_edit": "default-dataset-edit-group",
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-000000000012",
             "files": [
                 19,
                 20
@@ -14429,6 +14846,7 @@
             "dataset_group_edit": "default-dataset-edit-group",
             "date_created": "2017-05-23T10:07:22Z",
             "date_modified": "2017-06-23T10:07:22Z",
+            "editor_permissions_id": "00000000-0000-0000-0000-000000000012",
             "files": [
                 19,
                 20
