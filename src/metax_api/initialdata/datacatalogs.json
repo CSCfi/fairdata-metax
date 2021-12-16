@@ -477,7 +477,7 @@
           "identifier": "http://lexvo.org/id/iso639-3/fin"
         }
       ],
-      "harvested": false,
+      "harvested": true,
       "publisher": {
         "name": {
           "en": "Aalto ACRIS",
