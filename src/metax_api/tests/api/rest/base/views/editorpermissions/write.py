@@ -9,12 +9,13 @@
 from json import load as json_load
 import uuid
 
+import responses
 from django.core.management import call_command
 
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from metax_api.models import EditorUserPermission
+from metax_api.models import CatalogRecord, EditorUserPermission
 from metax_api.tests.utils import TestClassUtils, test_data_file_path
 
 
@@ -36,6 +37,7 @@ class EditorUserPermissionApiWriteCommon(APITestCase, TestClassUtils):
         self.editor_user_permission = self._get_whole_object_from_test_data(
             "editoruserpermission", requested_pk=str(uuid.UUID(int=1))
         )
+        self.metadata_provider_user = self.cr_from_test_data["fields"]["metadata_provider_user"]
         self.userid = self.editor_user_permission["fields"]["user_id"]
         self._use_http_authorization()
 
@@ -180,3 +182,38 @@ class EditorUserPermissionApiWriteBasicTests(EditorUserPermissionApiWriteCommon)
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual(response.data.get("removed"), False)
+
+    @responses.activate
+    def test_write_editor_permission_not_dataset_creator(self):
+        self._mock_token_validation_succeeds()
+        self._use_http_authorization(
+            method="bearer", token={"group_names": [], "CSCUserName": "not_dataset_creator"}
+        )
+        data = {"role": "editor", "user_id": "test_editor"}
+        response = self.client.post(
+            f"/rest/datasets/{self.crid}/editor_permissions/users", data, format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+
+    @responses.activate
+    def test_write_editor_permission_provider_user(self):
+        self._mock_token_validation_succeeds()
+        self._use_http_authorization(
+            method="bearer", token={"group_names": [], "CSCUserName": self.metadata_provider_user}
+        )
+        data = {"role": "editor", "user_id": "test_editor"}
+        response = self.client.post(
+            f"/rest/datasets/{self.crid}/editor_permissions/users", data, format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+    def test_write_editor_permission_list_service_with_no_write_access(self):
+        cr = CatalogRecord.objects.get(pk=self.crid)
+        cr.data_catalog.catalog_record_services_edit = ""
+        cr.data_catalog.save()
+        self._set_http_authorization("service")
+        data = {"role": "editor", "user_id": "test_editor"}
+        response = self.client.post(
+            f"/rest/datasets/{self.crid}/editor_permissions/users", data, format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

@@ -7,6 +7,7 @@
 
 from json import load as json_load
 import uuid
+import responses
 
 from django.core.management import call_command
 
@@ -30,6 +31,7 @@ class EditorUserPermissionApiReadCommon(APITestCase, TestClassUtils):
         self.crid = self.cr_from_test_data["pk"]
         self.identifier = "cr955e904-e3dd-4d7e-99f1-3fed446f96d1"
         self.permissionid = self.cr_from_test_data["fields"]["editor_permissions_id"]
+        self.metadata_provider_user = self.cr_from_test_data["fields"]["metadata_provider_user"]
         self.editor_user_permission = self._get_whole_object_from_test_data(
             "editoruserpermission", requested_pk=str(uuid.UUID(int=1))
         )
@@ -88,3 +90,21 @@ class EditorUserPermissionApiReadBasicTests(EditorUserPermissionApiReadCommon):
             "/rest/datasets/%d/editor_permissions/users/%s" % (self.crid, "invalid")
         )
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    @responses.activate
+    def test_read_editor_permission_list_by_wrong_user(self):
+        self._mock_token_validation_succeeds()
+        self._use_http_authorization(
+            method="bearer", token={"group_names": [], "CSCUserName": "not_dataset_creator"}
+        )
+        response = self.client.get(f"/rest/datasets/{self.crid}/editor_permissions/users")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    @responses.activate
+    def test_read_editor_permission_list_by_provider_user(self):
+        self._mock_token_validation_succeeds()
+        self._use_http_authorization(
+            method="bearer", token={"group_names": [], "CSCUserName": self.metadata_provider_user}
+        )
+        response = self.client.get(f"/rest/datasets/{self.crid}/editor_permissions/users")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
