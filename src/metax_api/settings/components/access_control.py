@@ -102,6 +102,7 @@ api_permissions.rest.editorpermissions.create = [
     Role.END_USERS,
     Role.TPAS,
     Role.QVAIN,
+    Role.QVAIN_LIGHT,
     Role.ETSIN,
 ]
 api_permissions.rest.editorpermissions.read = [Role.ALL]
@@ -110,6 +111,7 @@ api_permissions.rest.editorpermissions["update"] = [
     Role.END_USERS,
     Role.TPAS,
     Role.QVAIN,
+    Role.QVAIN_LIGHT,
     Role.ETSIN,
 ]
 api_permissions.rest.editorpermissions.delete = [
@@ -117,6 +119,7 @@ api_permissions.rest.editorpermissions.delete = [
     Role.END_USERS,
     Role.TPAS,
     Role.QVAIN,
+    Role.QVAIN_LIGHT,
     Role.ETSIN,
 ]
 
