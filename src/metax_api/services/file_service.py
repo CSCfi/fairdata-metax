@@ -208,7 +208,8 @@ class FileService(CommonService, ReferenceDataMixin):
                 removed = false,
                 file_deleted = NULL,
                 date_modified = CURRENT_TIMESTAMP,
-                user_modified = NULL
+                user_modified = NULL,
+                date_removed = NULL
             from (values
                 %s
             ) as results(id, service_modified, parent_directory_id)
@@ -440,8 +441,11 @@ class FileService(CommonService, ReferenceDataMixin):
         _logger.info("Marking files as removed...")
 
         sql_delete_files = """
-            update metax_api_file
-            set removed = true, file_deleted = CURRENT_TIMESTAMP, date_modified = CURRENT_TIMESTAMP
+            update metax_api_file set
+                removed = true, 
+                file_deleted = CURRENT_TIMESTAMP, 
+                date_modified = CURRENT_TIMESTAMP,
+                date_removed = CURRENT_TIMESTAMP
             where active = true and removed = false
             and id in %s"""
 
