@@ -15,6 +15,7 @@ DFT_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-dft"
 REPOTRONIC_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-repotronic"
 AALTO_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-acris"
 FMI_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-fmi"
+SD_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-sd"
 
 END_USER_ALLOWED_DATA_CATALOGS = [
     IDA_DATA_CATALOG_IDENTIFIER,
@@ -196,6 +197,7 @@ API_USERS = [
     {"password": "test-download", "username": "download"},
     {"password": "test-eudat", "username": "eudat"},
     {"password": "test-jyu", "username": "jyu"},
+    {"password": "test-sd", "username": "sd"},
 ]
 
 SWAGGER_YAML_PATH = env('SWAGGER_YAML_PATH')

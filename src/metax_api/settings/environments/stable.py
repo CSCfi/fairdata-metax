@@ -1,9 +1,9 @@
 from metax_api.settings.components.access_control import Role, api_permissions, prepare_perm_values
 from metax_api.settings.environments.staging import API_USERS  # noqa: F401
 
-api_permissions.rest.datasets.create += [Role.IDA, Role.QVAIN_LIGHT, Role.JYU, Role.REPOTRONIC, Role.AALTO, Role.EUDAT]
-api_permissions.rest.datasets["update"] += [Role.IDA, Role.QVAIN_LIGHT, Role.JYU, Role.REPOTRONIC, Role.AALTO, Role.EUDAT]
-api_permissions.rest.datasets.delete += [Role.IDA, Role.QVAIN_LIGHT, Role.JYU, Role.REPOTRONIC, Role.AALTO, Role.EUDAT]
+api_permissions.rest.datasets.create += [Role.IDA, Role.QVAIN_LIGHT, Role.JYU, Role.REPOTRONIC, Role.AALTO, Role.EUDAT, Role.SD]
+api_permissions.rest.datasets["update"] += [Role.IDA, Role.QVAIN_LIGHT, Role.JYU, Role.REPOTRONIC, Role.AALTO, Role.EUDAT, Role.SD]
+api_permissions.rest.datasets.delete += [Role.IDA, Role.QVAIN_LIGHT, Role.JYU, Role.REPOTRONIC, Role.AALTO, Role.EUDAT, Role.SD]
 
 api_permissions.rest.directories.read += [Role.IDA, Role.QVAIN_LIGHT]
 
