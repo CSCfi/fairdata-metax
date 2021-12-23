@@ -1456,11 +1456,11 @@ class CatalogRecord(Common):
         elif self.catalog_is_legacy():
             if "preferred_identifier" not in self.research_dataset:
 
-                # Repotronic catalog does not need to validate unique identifiers
-                # Raise validation error when not repotronic catalog
+                # Reportronic catalog does not need to validate unique identifiers
+                # Raise validation error when not reportronic catalog
                 if (
                     self.data_catalog.catalog_json["identifier"]
-                    != settings.REPOTRONIC_DATA_CATALOG_IDENTIFIER
+                    != settings.REPORTRONIC_DATA_CATALOG_IDENTIFIER
                 ):
                     raise ValidationError(
                         {

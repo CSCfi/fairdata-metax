@@ -12,7 +12,7 @@ ATT_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-att"
 PAS_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-pas"
 LEGACY_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-legacy"
 DFT_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-dft"
-REPOTRONIC_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-repotronic"
+REPORTRONIC_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-reportronic"
 AALTO_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-acris"
 FMI_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-fmi"
 
@@ -27,7 +27,7 @@ END_USER_ALLOWED_DATA_CATALOGS = [
 # catalogs where uniqueness of dataset pids is not enforced.
 LEGACY_CATALOGS = [
     LEGACY_DATA_CATALOG_IDENTIFIER,
-    REPOTRONIC_DATA_CATALOG_IDENTIFIER,
+    REPORTRONIC_DATA_CATALOG_IDENTIFIER,
 ]
 
 VALIDATE_TOKEN_URL = env("VALIDATE_TOKEN_URL")
