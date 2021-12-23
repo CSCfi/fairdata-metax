@@ -523,9 +523,9 @@
 {
     "catalog_json": {
         "title": {
-            "en": "Finnish Meteorological Institute catalog",
-            "fi": "Ilmatieteen laitoksen katalogi",
-            "sv": "Meteorologiska Institutet register"
+            "en": "Finnish Meteorological Institute EUDAT B2SHARE catalog",
+            "fi": "Ilmatieteen laitoksen EUDAT B2SHARE -katalogi",
+            "sv": "Meteorologiska Institutet EUDAT B2SHARE register"
         },
         "language": [
             {
@@ -584,8 +584,8 @@
             }
           ],
           "description": {
-            "en": "Contains datasets of Finnish Meteorological Institute",
-            "fi": "Ilmatieteen laitoksen aineistot"
+            "en": "Contains datasets of Finnish Meteorological Institute harvested from FMI's EUDAT B2SHARE instance",
+            "fi": "Sisältää aineistoja, jotka on kerätty Ilmatieteen laitoksen EUDAT B2SHARE -instanssista"
           }
         },
         "dataset_versioning": false,
