@@ -40,6 +40,7 @@ class Role(Enum):
     REPORTRONIC = "reportronic"
     AALTO = "aalto"
     EUDAT = "eudat"
+    SD = "sd"
 
     def __ge__(self, other):
         if self.__class__ is other.__class__:

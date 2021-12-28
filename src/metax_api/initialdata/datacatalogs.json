@@ -523,9 +523,9 @@
 {
     "catalog_json": {
         "title": {
-            "en": "Finnish Meteorological Institute catalog",
-            "fi": "Ilmatieteen laitoksen katalogi",
-            "sv": "Meteorologiska Institutet register"
+            "en": "Finnish Meteorological Institute EUDAT B2SHARE catalog",
+            "fi": "Ilmatieteen laitoksen EUDAT B2SHARE -katalogi",
+            "sv": "Meteorologiska Institutet EUDAT B2SHARE register"
         },
         "language": [
             {
@@ -584,8 +584,8 @@
             }
           ],
           "description": {
-            "en": "Contains datasets of Finnish Meteorological Institute",
-            "fi": "Ilmatieteen laitoksen aineistot"
+            "en": "Contains datasets of Finnish Meteorological Institute harvested from FMI's EUDAT B2SHARE instance",
+            "fi": "Sisältää aineistoja, jotka on kerätty Ilmatieteen laitoksen EUDAT B2SHARE -instanssista"
           }
         },
         "dataset_versioning": false,
@@ -594,4 +594,64 @@
       "catalog_record_services_edit": "metax,eudat",
       "catalog_record_services_create": "metax,eudat",
       "catalog_record_services_read": "metax,eudat"
+},
+{
+    "catalog_json": {
+        "title": {
+            "en": "CSC SD services datasets",
+            "fi": "CSC:n Arkaluonteisen datan palveluiden aineistokatalogi",
+        },
+        "language": [
+            {
+                "title": {
+                    "en": "English language",
+                    "fi": "Englannin kieli",
+                    "sv": "engelska",
+                    "und": "Englannin kieli"
+                },
+                "identifier": "http://lexvo.org/id/iso639-3/eng"
+            }
+        ],
+        "harvested": true,
+        "publisher": {
+            "name": {
+                "en": "CSC Sensitive Data Services for Research",
+            },
+            "homepage": [
+                {
+                   "title": {
+                        "en": "Sensitive Data Services for Research - Services for Research - CSC Company Site",
+                    },
+                    "identifier": "https://research.csc.fi/sensitive-data-services-for-research"
+                }
+            ]
+        },
+        "identifier": "urn:nbn:fi:att:data-catalog-sd",
+        "access_rights": {
+          "license": [
+            {
+              "identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/CC-BY-4.0"
+            }
+          ],
+          "access_type": [
+            {
+              "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open",
+              "pref_label": {
+                "en": "Open",
+                "fi": "Avoin",
+                "und": "Avoin"
+              }
+            }
+          ],
+          "description": {
+            "en": "Datasets stored in CSC SD services",
+            "fi": "Sisältää aineistoja CSC:n SD-palvelusta"
+          }
+        },
+        "dataset_versioning": false,
+        "research_dataset_schema": "att"
+      },
+      "catalog_record_services_edit": "metax,sd",
+      "catalog_record_services_create": "metax,sd",
+      "catalog_record_services_read": "metax,sd"
 }]
