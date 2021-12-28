@@ -615,12 +615,12 @@
         "harvested": true,
         "publisher": {
             "name": {
-                "en": "CSC Sensitive Data Services for Research",
+                "en": "CSC Sensitive Data Services for Research"
             },
             "homepage": [
                 {
                    "title": {
-                        "en": "Sensitive Data Services for Research - Services for Research - CSC Company Site",
+                        "en": "Sensitive Data Services for Research - Services for Research - CSC Company Site"
                     },
                     "identifier": "https://research.csc.fi/sensitive-data-services-for-research"
                 }
