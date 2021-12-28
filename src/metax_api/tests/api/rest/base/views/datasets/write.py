@@ -1074,10 +1074,10 @@ class CatalogRecordApiWriteUpdateTests(CatalogRecordApiWriteCommon):
         self.assertTrue(cr_depr.deprecated)
         # self.assertEqual(cr_depr.date_modified, cr_depr.date_deprecated, 'date_modified should be updated')
 
-    def test_catalog_record_create_repotronic_dataset(self):
+    def test_catalog_record_create_reportronic_dataset(self):
 
-        # Create the repotronic catalog
-        dc_id = django_settings.REPOTRONIC_DATA_CATALOG_IDENTIFIER
+        # Create the reportronic catalog
+        dc_id = django_settings.REPORTRONIC_DATA_CATALOG_IDENTIFIER
         blueprint_dc = DataCatalog.objects.get(pk=1)
         catalog_json = blueprint_dc.catalog_json
         catalog_json["identifier"] = dc_id

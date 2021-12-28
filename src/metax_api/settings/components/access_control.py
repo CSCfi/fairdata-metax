@@ -37,7 +37,7 @@ class Role(Enum):
     API_AUTH_USER = "api_auth_user"
     EXTERNAL = "external"
     JYU = "jyu"
-    REPOTRONIC = "repotronic"
+    REPORTRONIC = "reportronic"
     AALTO = "aalto"
     EUDAT = "eudat"
     SD = "sd"

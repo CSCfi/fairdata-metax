@@ -422,8 +422,8 @@
 {
     "catalog_json": {
       "title": {
-        "en": "Repotronic catalog",
-        "fi": "Repotronic katalogi"
+        "en": "Reportronic catalog",
+        "fi": "Reportronic katalogi"
       },
       "language": [
         {
@@ -433,11 +433,11 @@
       "harvested": false,
       "publisher": {
         "name": {
-          "en": "Repotronic",
-          "fi": "Repotronic"
+          "en": "Reportronic",
+          "fi": "Reportronic"
         }
       },
-      "identifier": "urn:nbn:fi:att:data-catalog-repotronic",
+      "identifier": "urn:nbn:fi:att:data-catalog-reportronic",
       "access_rights": {
         "license": [
           {
@@ -455,16 +455,16 @@
           }
         ],
         "description": {
-          "en": "Contains datasets from Repotronic service",
-          "fi": "Sisältää aineistoja Repotronic-palvelusta"
+          "en": "Contains datasets from Reportronic service",
+          "fi": "Sisältää aineistoja Reportronic-palvelusta"
         }
       },
       "dataset_versioning": false,
       "research_dataset_schema": "att"
     },
-    "catalog_record_services_edit": "metax,repotronic",
-    "catalog_record_services_create": "metax,repotronic",
-    "catalog_record_services_read": "metax,repotronic"
+    "catalog_record_services_edit": "metax,reportronic",
+    "catalog_record_services_create": "metax,reportronic",
+    "catalog_record_services_read": "metax,reportronic"
 },
 {
     "catalog_json": {
