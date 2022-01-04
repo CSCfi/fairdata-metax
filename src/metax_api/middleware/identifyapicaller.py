@@ -108,7 +108,7 @@ class _IdentifyApiCaller:
                 "Unauthenticated access attempt from ip: %s. Authorization header missing"
                 % request.META["REMOTE_ADDR"]
             )
-            raise Http403
+            raise Http403({"detail": ["Access denied."]})
 
         try:
             auth_method, auth_b64 = http_auth_header.split(" ")
@@ -156,10 +156,10 @@ class _IdentifyApiCaller:
 
         if not user:
             _logger.warning("Failed authnz for user %s: user not found" % username)
-            raise Http403
+            raise Http403({"detail": ["Access denied."]})
         if apikey != user["password"]:
             _logger.warning("Failed authnz for user %s: password mismatch" % username)
-            raise Http403
+            raise Http403({"detail": ["Access denied."]})
 
         request.user.username = username
         request.user.is_service = True
@@ -178,7 +178,7 @@ class _IdentifyApiCaller:
 
         if response.status_code != 200:
             _logger.warning("Bearer token validation failed")
-            raise Http403
+            raise Http403({"detail": ["Access denied."]})
 
         try:
             token = self._extract_id_token(auth_b64)
@@ -186,13 +186,13 @@ class _IdentifyApiCaller:
             # the above method should never fail, as this code should not be
             # reachable if the token validation had already failed.
             _logger.exception("Failed to extract token from id_token string")
-            raise Http403
+            raise Http403({"detail": ["Access denied."]})
 
         if len(token.get("CSCUserName", "")) > 0:
             request.user.username = token["CSCUserName"]
         else:
             _logger.warning("id_token does not contain valid user id: fairdataid or cscusername")
-            raise Http403
+            raise Http403({"detail": ["Access denied."]})
 
         request.user.is_service = False
         request.user.token = token
