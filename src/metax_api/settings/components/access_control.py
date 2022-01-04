@@ -186,6 +186,8 @@ api_permissions.rpc.statistics.end_user_datasets_cumulative.use = [Role.ALL]
 api_permissions.rpc.statistics.harvested_datasets_cumulative.use = [Role.ALL]
 api_permissions.rpc.statistics.organization_datasets_cumulative.use = [Role.ALL]
 api_permissions.rpc.statistics.unused_files.use = [Role.ALL]
+api_permissions.rpc.statistics.projects_summary.use = [Role.ALL]
+api_permissions.rpc.statistics.organizations_summary.use = [Role.ALL]
 
 
 def prepare_perm_values(d):

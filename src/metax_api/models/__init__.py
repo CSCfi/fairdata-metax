@@ -16,4 +16,6 @@ from .directory import Directory
 from .file import File
 from .file_storage import FileStorage
 from .metax_user import MetaxUser
+from .organization_statistics import OrganizationStatistics
+from .project_statistics import ProjectStatistics
 from .xml_metadata import XmlMetadata

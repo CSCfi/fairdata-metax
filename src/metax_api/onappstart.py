@@ -15,6 +15,7 @@ from icecream import ic
 
 from metax_api.utils import ReferenceDataLoader, executing_test_case, convert_yaml_to_html
 
+
 _logger = logging.getLogger(__name__)
 
 
@@ -108,5 +109,13 @@ class OnAppStart(AppConfig):
         except Exception as e:
             _logger.error(e)
             _logger.error("Unable to convert swagger documentation")
+
+        # from metax_api.tasks.statistics import update_statistic_summary
+
+        # try:
+        #     update_statistics_summary.start()
+        # except Exception as e:
+        #     _logger.error(e)
+        #     _logger.error("Unable to start statistics summary updater")
 
         _logger.info("Metax API startup tasks finished")
