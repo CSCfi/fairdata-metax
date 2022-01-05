@@ -19,5 +19,6 @@ if REMS["ENABLED"]:
         REMS["REPORTER_USER"] = env("REMS_REPORTER_USER")
         REMS["AUTO_APPROVER"] = env("REMS_AUTO_APPROVER")
         REMS["FORM_ID"] = int(env("REMS_FORM_ID"))
+        REMS["ORGANIZATION"] = env("REMS_ORGANIZATION")
     except ImproperlyConfigured as e:
         logger.warning(e)

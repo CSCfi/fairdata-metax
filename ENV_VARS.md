@@ -56,6 +56,7 @@ copy .env.template to .env and fill the required values from below table. Requir
 | REMS_FORM_ID                            | no       |                                                                                       | Required if REMS is enabled                                                                                |
 | REMS_METAX_USER                         | no       |                                                                                       | Required if REMS is enabled                                                                                |
 | REMS_REPORTER_USER                      | no       |                                                                                       | Required if REMS is enabled                                                                                |
+| REMS_ORGANIZATION                       | no       |                                                                                       | Required if REMS is enabled                                                                                |
 | SERVER_DOMAIN_NAME                      | no       | metax.fd-dev.csc.fi                                                                   |
 | ENABLE_V1_ENDPOINTS                     | no       | True
 | ENABLE_V2_ENDPOINTS                     | no       | True
