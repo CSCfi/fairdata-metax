@@ -11,12 +11,12 @@ from django.core.validators import EMPTY_VALUES
 
 from django.shortcuts import get_object_or_404
 from rest_framework import status
-
 from rest_framework.response import Response
 
+from metax_api.exceptions import Http403
 from metax_api.models import CatalogRecord
 from metax_api.models.catalog_record import PermissionRole, EditorUserPermission
-from metax_api.permissions import ServicePermissions
+from metax_api.permissions import ServicePermissions, EndUserPermissions
 from metax_api.services import CommonService
 
 from ..serializers import EditorPermissionsSerializer
@@ -27,17 +27,40 @@ _logger = logging.getLogger(__name__)
 
 class EditorPermissionViewSet(CommonViewSet):
     lookup_field = "user_id"
-    permission_classes = [ServicePermissions,]
+    permission_classes = [
+        ServicePermissions,
+        EndUserPermissions,
+    ]
     serializer_class = EditorPermissionsSerializer
 
     def __init__(self, *args, **kwargs):
         super(EditorPermissionViewSet, self).__init__(*args, **kwargs)
 
+    def _user_has_access_to_permissions(self, cr):
+        """
+        Allow only services and dataset owner access permissions.
+        """
+        if self.request.user.is_service:
+            if self.request.method == "GET":
+                return True
+            # for updating perms, require edit access to catalog records
+            return cr._check_catalog_permissions(
+                cr.data_catalog.catalog_record_group_edit,
+                cr.data_catalog.catalog_record_services_edit,
+                self.request,
+            )
+        if cr.user_is_owner(self.request):
+            return True
+        # unknown user
+        return False
+
     def get_queryset(self):
-        if CommonService.is_primary_key(self.kwargs['cr_identifier']):
-            cr = get_object_or_404(CatalogRecord, pk=int(self.kwargs['cr_identifier']))
+        if CommonService.is_primary_key(self.kwargs["cr_identifier"]):
+            cr = get_object_or_404(CatalogRecord, pk=int(self.kwargs["cr_identifier"]))
         else:
-            cr = get_object_or_404(CatalogRecord, identifier=self.kwargs['cr_identifier'])
+            cr = get_object_or_404(CatalogRecord, identifier=self.kwargs["cr_identifier"])
+        if not self._user_has_access_to_permissions(cr):
+            raise Http403({"detail": ["You do not have access to permissions of this dataset."]})
         return cr.editor_permissions.users
 
     def list(self, request, *args, **kwargs):
