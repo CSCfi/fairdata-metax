@@ -2100,6 +2100,25 @@ paths:
           description: Not found
       tags:
         - Dataset RPC
+  /rpc/v2/datasets/flush_user_data:
+    post:
+      summary: Flushes user's datasets
+      description: Usable by ida, tpas and metax users. Permanently deletes datasets created by a certain user. Only for non-production use.
+      parameters:
+        - name: metadata_provider_user
+          in: query
+          description: Identifies the user whose datasets will be flushed.
+          required: true
+          type: string
+      responses:
+        '204':
+          description: Successful operation, returns no content.
+        '400':
+          description: Required parameter was missing or API was called in production environment. Response includes details.
+        '404':
+          description: No datasets were found for requested user.
+      tags:
+        - Dataset RPC
   /rpc/v2/statistics/count_datasets:
     get:
       summary: Get the total number of datasets and file sizes.
@@ -2270,6 +2289,25 @@ paths:
           description: Successful operation, returns the number of deleted files.
         '400':
           description: Unsuccesful operation when project identifier is missing.
+      tags:
+        - File RPC
+  /rpc/v2/files/flush_project:
+    post:
+      summary: Flushes given project from the database.
+      description: Usable by ida, tpas and metax users. Permanently deletes given project's files and directories. Only for non-production use.
+      parameters:
+        - name: project_identifier
+          in: query
+          description: Identifies the project whose files and directories will be flushed.
+          required: true
+          type: string
+      responses:
+        '204':
+          description: Successful operation, returns no content.
+        '400':
+          description: Required parameter was missing or API was called in production environment. Response includes details.
+        '404':
+          description: No files or directories were found for requested project.
       tags:
         - File RPC
 
