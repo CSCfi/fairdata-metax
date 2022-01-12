@@ -652,8 +652,9 @@ class CatalogRecord(Common):
             # can see sensitive fields
             return True
         else:
-            # unknown user
-            return False
+            users = self.editor_permissions.users
+            ids = users.all().values_list('user_id', flat=True)
+            return request.user.username in ids
 
     def _check_catalog_permissions(self, catalog_groups, catalog_services, request=None):
         """
