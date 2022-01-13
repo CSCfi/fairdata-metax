@@ -28,6 +28,8 @@ class DataCatalogSerializer(CommonSerializer):
             "catalog_record_services_create",
             "catalog_record_group_read",
             "catalog_record_services_read",
+            "publish_to_ttv",
+            "publish_to_etsin",
         ) + CommonSerializer.Meta.fields
 
         extra_kwargs = CommonSerializer.Meta.extra_kwargs
