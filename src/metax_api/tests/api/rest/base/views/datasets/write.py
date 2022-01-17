@@ -4726,6 +4726,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         for entity in ["user", "workflow", "license", "resource", "catalogue-item"]:
             self._mock_rems_write_access_succeeds("POST", entity, "create")
 
+        self._mock_rems_read_access_organization_succeeds()
         self._mock_rems_read_access_succeeds("license")
 
         # mock successful rems access for deletion. Add fails later
@@ -4777,7 +4778,44 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
             status=200,
         )
 
+    def _mock_rems_read_access_organization_succeeds(self):
+        resp = {
+                    "archived": False,
+                    "organization/id": django_settings.REMS["ORGANIZATION"],
+                    "organization/short-name": {
+                        "fi": "Test org",
+                        "en": "Test org",
+                        "sv": "Test org"
+                    },
+                    "organization/review-emails": [],
+                    "enabled": True,
+                    "organization/owners": [],
+                    "organization/modifier": {
+                        "userid": "RDowner@funet.fi",
+                        "name": "RDowner REMSDEMO",
+                        "email": "RDowner.test@test_example.org"
+                    },
+                    "organization/last-modified": "2022-01-05T00:01:44.034Z",
+                    "organization/name": {
+                        "fi": "Test organization",
+                        "en": "Test organization",
+                        "sv": "Test organization"
+                    }
+                }
+        responses.add(
+            responses.GET,
+            f"{django_settings.REMS['BASE_URL']}/organizations/{django_settings.REMS['ORGANIZATION']}",
+            json=resp,
+            status=200,
+        )
+
     def _mock_rems_read_access_succeeds(self, entity):
+
+        organization = {
+            "organization/id": django_settings.REMS["ORGANIZATION"],
+            "organization/short-name": {"fi": "Test org", "en": "Test org", "sv": "Test org"},
+            "organization/name": {"fi": "Test organization", "en": "Test organization", "sv": "Test organization"},
+        }
         if entity == "license":
             resp = [
                 {
@@ -4785,6 +4823,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
                     "licensetype": "link",
                     "enabled": True,
                     "archived": False,
+                    "organization": organization,
                     "localizations": {
                         "fi": {
                             "title": self.rf["reference_data"]["license"][0]["label"]["fi"],
@@ -4801,6 +4840,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
                     "licensetype": "link",
                     "enabled": True,
                     "archived": False,
+                    "organization": organization,
                     "localizations": {
                         "en": {
                             "title": self.rf["reference_data"]["license"][1]["label"]["en"],
@@ -4814,6 +4854,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
             resp = [
                 {
                     "archived": False,
+                    "organization": organization,
                     "localizations": {
                         "en": {
                             "id": 18,
