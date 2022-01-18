@@ -333,7 +333,7 @@ class StatisticService:
         return grouped
 
     @classmethod
-    def total_organization_datasets(cls, from_date, to_date, metadata_owner_org=None):
+    def total_organization_datasets(cls, from_date, to_date, metadata_owner_org=None, latest=True, legacy=None, removed=None):
         """
         Retrieve dataset count and byte size per month and monthly cumulative for all organizations,
         or a given single organization, grouped by catalog.
@@ -354,12 +354,12 @@ class StatisticService:
 
         results = {}
         for org in metadata_owner_orgs:
-            results[org] = cls._total_organization_datasets(from_date, to_date, org)
+            results[org] = cls._total_organization_datasets(from_date, to_date, org, latest, legacy, removed)
 
         return results
 
     @classmethod
-    def _total_organization_datasets(cls, from_date, to_date, metadata_owner_org):
+    def _total_organization_datasets(cls, from_date, to_date, metadata_owner_org, latest, legacy, removed):
         sql = """
             WITH cte AS (
                 SELECT
@@ -370,6 +370,7 @@ class StatisticService:
                 where dc.id = %s
                 and state = 'published'
                 and cr.metadata_owner_org = %s
+                OPTIONAL_WHERE_FILTERS
                 GROUP BY mon
             )
             SELECT
@@ -391,11 +392,36 @@ class StatisticService:
                 where dc.id = %s
                 and state = 'published'
                 and cr.metadata_owner_org = %s
+                OPTIONAL_WHERE_FILTERS
                 GROUP BY mon
             ) cr USING (mon)
             GROUP BY mon, c.mon_ida_byte_size, count
             ORDER BY mon;
         """
+
+        filter_sql = []
+        filter_args = []
+
+        if latest:
+            filter_sql.append("and next_dataset_version_id is null")
+
+        if removed is not None:
+            filter_sql.append("and cr.removed = %s")
+            filter_args.append(removed)
+
+        if legacy is not None:
+            filter_sql.append(
+                "".join(
+                    [
+                        "and dc.catalog_json->>'identifier'",
+                        " = " if legacy else " != ",
+                        "any(%s)",
+                    ]
+                )
+            )
+            filter_args.append(settings.LEGACY_CATALOGS)
+
+        sql = sql.replace("OPTIONAL_WHERE_FILTERS", "\n".join(filter_sql))
 
         catalogs = DataCatalog.objects.filter(
             catalog_json__research_dataset_schema__in=["ida", "att"]
@@ -406,17 +432,8 @@ class StatisticService:
 
         with connection.cursor() as cr:
             for dc in catalogs:
-                cr.execute(
-                    sql,
-                    [
-                        dc["id"],
-                        metadata_owner_org,
-                        from_date,
-                        to_date,
-                        dc["id"],
-                        metadata_owner_org,
-                    ],
-                )
+                sql_args = [dc["id"], metadata_owner_org] + filter_args + [from_date, to_date, dc["id"], metadata_owner_org] + filter_args
+                cr.execute(sql, sql_args)
                 results = [
                     dict(zip([col[0] for col in cr.description], row)) for row in cr.fetchall()
                 ]

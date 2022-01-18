@@ -1974,6 +1974,9 @@ paths:
         - $ref: "#/parameters/from_date"
         - $ref: "#/parameters/to_date"
         - $ref: "#/parameters/metadata_owner_org_filter"
+        - $ref: "#/parameters/latest_filter"
+        - $ref: "#/parameters/removed_filter"
+        - $ref: "#/parameters/legacy_filter"
       responses:
         '200':
           description: Successful operation.
