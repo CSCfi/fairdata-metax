@@ -52,7 +52,7 @@ services:
     image: rabbitmq:3-management
     hostname: metax-rabbitmq
     ports:
-      - 15672:15672
+      - 8050:15672
     volumes:
       - metax-rabbitmq:/var/lib/rabbitmq
 
