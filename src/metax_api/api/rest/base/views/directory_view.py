@@ -163,7 +163,7 @@ class DirectoryViewSet(CommonViewSet):
         correct mistakes in real data.
         """
         if request.user.username != "metax":
-            raise Http403
+            raise Http403({"detail": ["Access denied."]})
 
         for p in (
             Directory.objects.all()

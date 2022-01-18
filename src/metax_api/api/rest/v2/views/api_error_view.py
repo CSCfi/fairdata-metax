@@ -29,7 +29,7 @@ class ApiErrorViewSetV2(CommonViewSet):
 
     def initial(self, request, *args, **kwargs):
         if request.user.username != "metax":
-            raise Http403
+            raise Http403({"detail": ["Access denied."]})
         return super().initial(request, *args, **kwargs)
 
     @action(detail=False, methods=["post"], url_path="flush")
