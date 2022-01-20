@@ -413,9 +413,9 @@ class StatisticService:
             filter_sql.append(
                 "".join(
                     [
-                        "and dc.catalog_json->>'identifier'",
-                        " = " if legacy else " != ",
-                        "any(%s)",
+                        "AND ",
+                        "" if legacy else "NOT ",
+                        "dc.catalog_json->>'identifier' = ANY(%s)",
                     ]
                 )
             )
