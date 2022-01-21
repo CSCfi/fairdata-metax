@@ -1315,6 +1315,12 @@ class CatalogRecord(Common):
         """
         return hasattr(self, "preservation_dataset_origin_version")
 
+    def catalog_publishes_to_etsin(self):
+        return self.data_catalog.publish_to_etsin
+
+    def catalog_publishes_to_ttv(self):
+        return self.data_catalog.publish_to_ttv
+
     def catalog_versions_datasets(self):
         return self.data_catalog.catalog_json.get("dataset_versioning", False) is True
 
@@ -3158,11 +3164,6 @@ class RabbitMQPublishRecord:
         """
         from metax_api.services import RabbitMQService as rabbitmq
 
-        _logger.info(
-            "Publishing CatalogRecord %s to RabbitMQ... routing_key: %s"
-            % (self.cr.identifier, self.routing_key)
-        )
-
         if self.routing_key == "delete":
             cr_json = {"identifier": self.cr.identifier}
         else:
@@ -3171,15 +3172,27 @@ class RabbitMQPublishRecord:
             cr_json["data_catalog"] = {"catalog_json": self.cr.data_catalog.catalog_json}
 
         try:
-            for exchange in settings.RABBITMQ["EXCHANGES"]:
-                do_publish = True
-                if self.cr.catalog_is_legacy():
-                    do_publish = False
+            if self.cr.catalog_publishes_to_etsin():
 
-                if do_publish:
-                    rabbitmq.publish(
-                        cr_json, routing_key=self.routing_key, exchange=exchange["NAME"]
-                    )
+                _logger.info(
+                    "Publishing CatalogRecord %s to RabbitMQ... exchange: datasets, routing_key: %s"
+                    % (self.cr.identifier, self.routing_key)
+                )
+
+                rabbitmq.publish(
+                    cr_json, routing_key=self.routing_key, exchange="datasets"
+                )
+            if self.cr.catalog_publishes_to_ttv():
+
+                _logger.info(
+                    "Publishing CatalogRecord %s to RabbitMQ... exchange: ttv-datasets, routing_key: %s"
+                    % (self.cr.identifier, self.routing_key)
+                )
+
+                rabbitmq.publish(
+                    cr_json, routing_key=self.routing_key, exchange="ttv-datasets"
+                )
+
         except:
             # note: if we'd like to let the request be a success even if this operation fails,
             # we could simply not raise an exception here.
