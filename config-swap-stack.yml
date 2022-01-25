@@ -28,7 +28,7 @@ services:
       - metax-redis:/data
 
   metax-db:
-    image: postgres:9
+    image: postgres:12
     hostname: metax-db
     environment:
       POSTGRES_USER: metax_test
