@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('metax_api', '0044_change_aalto_catalog_to_harvested'),
+        ('metax_api', '0045_add_publish_fields_to_catalogs'),
     ]
 
     operations = [
