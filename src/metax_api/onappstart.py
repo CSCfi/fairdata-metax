@@ -110,12 +110,4 @@ class OnAppStart(AppConfig):
             _logger.error(e)
             _logger.error("Unable to convert swagger documentation")
 
-        # from metax_api.tasks.statistics import update_statistic_summary
-
-        # try:
-        #     update_statistics_summary.start()
-        # except Exception as e:
-        #     _logger.error(e)
-        #     _logger.error("Unable to start statistics summary updater")
-
         _logger.info("Metax API startup tasks finished")

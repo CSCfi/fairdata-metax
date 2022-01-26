@@ -636,26 +636,20 @@ class StatisticService:
 
     @classmethod
     def projects_summary(cls, projects):
-        _logger.info(f"projects_summary: {projects}")
         stats_query = ProjectStatistics.objects.all()
         if not projects is None:
             stats_query = stats_query.filter(project_identifier__in=projects)
-        _logger.info(f"stats_query: {stats_query.values()}")
         summary = stats_query.values()
-        _logger.info(f"summary: {summary}")
         if len(summary) == 0:
             summary = f"No projects found with project_identifier: {projects}"
         return summary
 
     @classmethod
     def organizations_summary(cls, organizations):
-        _logger.info(f"organizations_summary: {organizations}")
         stats_query = OrganizationStatistics.objects.all()
         if not organizations is None:
             stats_query = stats_query.filter(organization__in=organizations)
-        _logger.info(f"stats_query: {stats_query.values()}")
         summary = stats_query.values()
-        _logger.info(f"summary: {summary}")
         if len(summary) == 0:
             summary = f"No organizations found with organization_identifier: {organizations}"
         return summary

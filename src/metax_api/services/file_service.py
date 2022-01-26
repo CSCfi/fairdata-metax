@@ -243,6 +243,8 @@ class FileService(CommonService, ReferenceDataMixin):
         keysonly= for dataset return dataset ids that have files, for files return file ids that belong
         to some dataset
 
+        get_pids: get preferred identifiers instead of identifiers. Only applicable, if params = "noparams"
+
         Parameter identifiers can be a list of pk's (integers), or file/dataset identifiers (strings).
         """
         _logger.info("Retrieving detailed list of %s" % params)
@@ -253,7 +255,7 @@ class FileService(CommonService, ReferenceDataMixin):
 
         _logger.info(
             "Searching return for the following %s (printing first 10):\n%s"
-            % (params, "\n".join(str(id) for id in ids[:10]))
+            % (params, ", ".join(str(id) for id in ids[:10]))
         )
 
         noparams = """
