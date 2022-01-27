@@ -112,12 +112,6 @@ class Directory(Common):
         sub_dirs = (
             self.child_directories.all()
             .only("byte_size", "parent_directory_id")
-            .prefetch_related(
-                Prefetch(
-                    "files",
-                    queryset=File.objects.only("id", "byte_size", "parent_directory_id"),
-                )
-            )
         )
 
         if sub_dirs:
@@ -129,8 +123,9 @@ class Directory(Common):
             self.file_count = sum(d.file_count for d in sub_dirs)
 
         # note: never actually saved using .save()
-        self.byte_size += sum(f.byte_size for f in self.files.all()) or 0
-        self.file_count += len(self.files.all()) or 0
+        file_aggregates = self.files.aggregate(byte_size=Sum("byte_size"), count=Count("*"))
+        self.byte_size += file_aggregates['byte_size'] or 0
+        self.file_count += file_aggregates['count'] or 0
 
         update_statements.append("(%d, %d, %d)" % (self.byte_size, self.file_count, self.id))
 
