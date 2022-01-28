@@ -74,20 +74,21 @@ class Directory(Common):
         annotated_root_directory = self._get_project_directories_with_own_sizes()
         annotated_root_directory._calculate_byte_size_and_file_count(update_statements)
 
-        sql_update_all_directories = """
-            update metax_api_directory as d set
-                byte_size = results.byte_size,
-                file_count = results.file_count
-            from (values
-                %s
-            ) as results(byte_size, file_count, id)
-            where results.id = d.id;
-            """ % ",".join(
-            update_statements
-        )
+        if len(update_statements) > 0:
+            sql_update_all_directories = """
+                update metax_api_directory as d set
+                    byte_size = results.byte_size,
+                    file_count = results.file_count
+                from (values
+                    %s
+                ) as results(byte_size, file_count, id)
+                where results.id = d.id;
+                """ % ",".join(
+                update_statements
+            )
 
-        with connection.cursor() as cursor:
-            cursor.execute(sql_update_all_directories)
+            with connection.cursor() as cursor:
+                cursor.execute(sql_update_all_directories)
 
         _logger.info(
             "Project %s directory tree calculations complete. Total byte_size: "
@@ -109,7 +110,7 @@ class Directory(Common):
         """
         project_directories = (
             Directory.objects.filter(project_identifier=self.project_identifier)
-            .only("byte_size", "parent_directory_id")
+            .only("file_count", "byte_size", "parent_directory_id")
             .annotate(
                 own_byte_size=Sum("files__byte_size", filter=Q(files__removed=False)),
                 own_file_count=Count("files", filter=Q(files__removed=False)),
@@ -131,6 +132,8 @@ class Directory(Common):
         Recursively traverse the entire directory tree and update total byte size and file count
         for each directory. Accumulates a list of triplets for a big sql-update statement.
         """
+        old_byte_size = self.byte_size
+        old_file_count = self.file_count
         self.byte_size = 0
         self.file_count = 0
 
@@ -146,7 +149,9 @@ class Directory(Common):
         self.byte_size += self.own_byte_size or 0
         self.file_count += self.own_file_count or 0
 
-        update_statements.append("(%d, %d, %d)" % (self.byte_size, self.file_count, self.id))
+        # add updated values if changed
+        if self.byte_size != old_byte_size or self.file_count != old_file_count:
+            update_statements.append("(%d, %d, %d)" % (self.byte_size, self.file_count, self.id))
 
     def calculate_byte_size_and_file_count_for_cr(self, cr_id, directory_data):
         """
