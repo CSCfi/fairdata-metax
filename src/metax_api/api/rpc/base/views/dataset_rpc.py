@@ -9,6 +9,7 @@ import logging
 from json import load
 
 from django.conf import settings as django_settings
+from django.db import connection
 from django.http import Http404
 from rest_framework import status
 from rest_framework.decorators import action
@@ -198,3 +199,44 @@ class DatasetRPC(CommonRPC):
 
         super(CatalogRecord, cr).save(update_fields=["preservation_identifier"])
         DataciteDOIUpdate(cr, cr.preservation_identifier, action)()
+
+    @action(detail=False, methods=["post"], url_path="flush_user_data")
+    def flush_user_data(self, request):
+        """
+        Permanently delete datasets created by a certain user.
+
+        WARNING! Not meant for active production use!!
+        """
+        if django_settings.ENV == "production":
+            raise Http400({"detail": ["API currently allowed only in test environments"]})
+
+        if "metadata_provider_user" not in request.query_params:
+            raise Http400({"detail": ["metadata_provider_user is a required query parameter"]})
+
+        user = request.query_params["metadata_provider_user"]
+
+        sql_delete_cr_files = """
+            delete from metax_api_catalogrecord_files
+            where catalogrecord_id in (
+                select id from metax_api_catalogrecord where metadata_provider_user = %s
+            )
+        """
+
+        sql_delete_datasets = """
+            delete from metax_api_catalogrecord where metadata_provider_user = %s
+        """
+
+        _logger.info(
+            "Flushing datasets for user %s on the request of user: %s" % (user, request.user.username)
+        )
+
+        with connection.cursor() as cr:
+            cr.execute(sql_delete_cr_files, [user])
+            cr.execute(sql_delete_datasets, [user])
+            if cr.rowcount == 0:
+                _logger.info("No datasets found for user %s" % user)
+                return Response(user, status=status.HTTP_404_NOT_FOUND)
+
+        _logger.info("Permanently deleted all datasets created by user %s" % user)
+
+        return Response(data=None, status=status.HTTP_204_NO_CONTENT)

@@ -6,11 +6,16 @@ from metax_api.settings.components import BASE_DIR
 DEBUG = env("DEBUG")
 SECRET_KEY = env("DJANGO_SECRET_KEY")
 ADDITIONAL_USER_PROJECTS_PATH = env("ADDITIONAL_USER_PROJECTS_PATH")
+
 IDA_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-ida"
 ATT_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-att"
 PAS_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-pas"
 LEGACY_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-legacy"
 DFT_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-dft"
+REPORTRONIC_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-reportronic"
+AALTO_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-acris"
+FMI_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-fmi"
+SD_DATA_CATALOG_IDENTIFIER = "urn:nbn:fi:att:data-catalog-sd"
 
 END_USER_ALLOWED_DATA_CATALOGS = [
     IDA_DATA_CATALOG_IDENTIFIER,
@@ -23,10 +28,17 @@ END_USER_ALLOWED_DATA_CATALOGS = [
 # catalogs where uniqueness of dataset pids is not enforced.
 LEGACY_CATALOGS = [
     LEGACY_DATA_CATALOG_IDENTIFIER,
+    REPORTRONIC_DATA_CATALOG_IDENTIFIER,
 ]
+
 VALIDATE_TOKEN_URL = env("VALIDATE_TOKEN_URL")
 CHECKSUM_ALGORITHMS = ["SHA-256", "MD5", "SHA-512"]
 ERROR_FILES_PATH = env("ERROR_FILES_PATH")
+
+ENABLE_DELETED_OBJECTS_SAVING = env("ENABLE_DELETED_OBJECTS_SAVING")
+ENABLE_SIGNALS = env("ENABLE_SIGNALS")
+ENABLE_API_ERROR_OBJECTS = env("ENABLE_API_ERROR_OBJECTS")
+
 
 # Allow only specific hosts to access the app
 ALLOWED_HOSTS = ["localhost", "127.0.0.1", "[::1]"]
@@ -134,10 +146,6 @@ DATABASES = {
 DATABASES["default"]["ENGINE"] = "django.db.backends.postgresql"
 DATABASES["default"]["ATOMIC_REQUESTS"] = True
 
-# Colorize automated test console output
-RAINBOWTESTS_HIGHLIGHT_PATH = str(BASE_DIR)
-TEST_RUNNER = "rainbowtests.test.runner.RainbowDiscoverRunner"
-
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 
@@ -178,7 +186,7 @@ if env("ENABLE_V1_ENDPOINTS"):
 if env("ENABLE_V2_ENDPOINTS"):
     API_VERSIONS_ENABLED.append("v2")
 
-# Variables related to api credentials
+# API credentials in development environment
 API_USERS = [
     {"password": "test-metax", "username": "metax"},
     {"password": "test-qvain", "username": "qvain"},
@@ -187,6 +195,9 @@ API_USERS = [
     {"password": "test-etsin", "username": "etsin"},
     {"password": "test-fds", "username": "fds"},
     {"password": "test-download", "username": "download"},
+    {"password": "test-eudat", "username": "eudat"},
+    {"password": "test-jyu", "username": "jyu"},
+    {"password": "test-sd", "username": "sd"},
 ]
 
 SWAGGER_YAML_PATH = env('SWAGGER_YAML_PATH')

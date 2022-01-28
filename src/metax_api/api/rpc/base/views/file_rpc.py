@@ -33,7 +33,7 @@ class FileRPC(CommonRPC):
         return FileService.delete_project(request.query_params["project_identifier"])
 
     @action(detail=False, methods=["post"], url_path="flush_project")
-    def flush_project(self, request):  # pragma: no cover
+    def flush_project(self, request):
         """
         Permanently delete an entire project's files and directories.
 
@@ -70,6 +70,9 @@ class FileRPC(CommonRPC):
             cr.execute(sql_delete_cr_files, [project])
             cr.execute(sql_delete_files, [project])
             cr.execute(sql_delete_directories, [project])
+            if cr.rowcount == 0:
+                _logger.info("No files or directories found for project %s" % project)
+                return Response(project, status=status.HTTP_404_NOT_FOUND)
 
         _logger.info("Permanently deleted all files and directories from project %s" % project)
 

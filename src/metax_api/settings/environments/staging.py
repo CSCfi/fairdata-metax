@@ -31,6 +31,7 @@ api_permissions.rest.filestorages["update"] = [Role.ALL]
 api_permissions.rest.filestorages.delete = [Role.ALL]
 
 api_permissions.rpc.datasets.set_preservation_identifier.use = [Role.ALL]
+api_permissions.rpc.datasets.flush_user_data.use = [Role.ALL]
 
 api_permissions.rpc.files.delete_project.use = [Role.ALL]
 api_permissions.rpc.files.flush_project.use = [Role.ALL]

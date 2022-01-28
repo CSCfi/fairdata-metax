@@ -208,7 +208,8 @@ class FileService(CommonService, ReferenceDataMixin):
                 removed = false,
                 file_deleted = NULL,
                 date_modified = CURRENT_TIMESTAMP,
-                user_modified = NULL
+                user_modified = NULL,
+                date_removed = NULL
             from (values
                 %s
             ) as results(id, service_modified, parent_directory_id)
@@ -225,8 +226,6 @@ class FileService(CommonService, ReferenceDataMixin):
             affected_rows = cr.rowcount
 
         _logger.info("Restored %d files in project %s" % (affected_rows, project_identifier))
-
-        cls.calculate_project_directory_byte_sizes_and_file_counts(project_identifier)
 
         return Response({"restored_files_count": affected_rows}, status=status.HTTP_200_OK)
 
@@ -335,7 +334,6 @@ class FileService(CommonService, ReferenceDataMixin):
 
         deleted_files_count, project_identifier = cls._mark_files_as_deleted([file.id])
         cls._delete_empy_dir_chain_above(file.parent_directory)
-        cls.calculate_project_directory_byte_sizes_and_file_counts(file.project_identifier)
         cls._mark_datasets_as_deprecated([file.id])
 
         CallableService.add_post_request_callable(
@@ -379,7 +377,6 @@ class FileService(CommonService, ReferenceDataMixin):
         deleted_files_count, project_identifier = cls._mark_files_as_deleted(file_ids)
 
         cls._find_and_delete_empty_directories(project_identifier)
-        cls.calculate_project_directory_byte_sizes_and_file_counts(project_identifier)
         cls._mark_datasets_as_deprecated(file_ids)
 
         file = File.objects_unfiltered.get(pk=file_ids[0])
@@ -421,7 +418,6 @@ class FileService(CommonService, ReferenceDataMixin):
         if file_ids:
             deleted_files_count = cls._mark_files_as_deleted(file_ids)[0]
             cls._find_and_delete_empty_directories(project_id)
-            cls.calculate_project_directory_byte_sizes_and_file_counts(project_id)
             cls._mark_datasets_as_deprecated(file_ids)
         else:
             _logger.info("Project %s contained no files" % project_id)
@@ -440,8 +436,11 @@ class FileService(CommonService, ReferenceDataMixin):
         _logger.info("Marking files as removed...")
 
         sql_delete_files = """
-            update metax_api_file
-            set removed = true, file_deleted = CURRENT_TIMESTAMP, date_modified = CURRENT_TIMESTAMP
+            update metax_api_file set
+                removed = true, 
+                file_deleted = CURRENT_TIMESTAMP, 
+                date_modified = CURRENT_TIMESTAMP,
+                date_removed = CURRENT_TIMESTAMP
             where active = true and removed = false
             and id in %s"""
 
@@ -1174,10 +1173,6 @@ class FileService(CommonService, ReferenceDataMixin):
             common_info, initial_data_with_dirs[0], serializer_class, **kwargs
         )
 
-        cls.calculate_project_directory_byte_sizes_and_file_counts(
-            initial_data["project_identifier"]
-        )
-
         CallableService.add_post_request_callable(
             DelayedLog(
                 event="files_created",
@@ -1233,10 +1228,6 @@ class FileService(CommonService, ReferenceDataMixin):
         _logger.info("Creating files...")
 
         cls._create_files(common_info, file_list_with_dirs, results, serializer_class, **kwargs)
-
-        cls.calculate_project_directory_byte_sizes_and_file_counts(
-            initial_data_list[0]["project_identifier"]
-        )
 
         CallableService.add_post_request_callable(
             DelayedLog(

@@ -10,6 +10,7 @@ from .contract_view import ContractViewSet
 from .data_catalog_view import DataCatalogViewSet
 from .dataset_view import DatasetViewSet
 from .directory_view import DirectoryViewSet
+from .editor_permissions_view import EditorPermissionViewSet
 from .file_storage_view import FileStorageViewSet
 from .file_view import FileViewSet
 from .schema_view import SchemaViewSet

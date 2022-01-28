@@ -10,6 +10,7 @@ from json import dump
 
 from django.conf import settings
 from django.http import Http404
+
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -270,7 +271,7 @@ class DatasetViewSet(CommonViewSet):
     @action(detail=True, methods=["get"], url_path="redis")
     def redis_test(self, request, pk=None):  # pragma: no cover
         if request.user.username != "metax":
-            raise Http403()
+            raise Http403({"detail": ["Access denied."]})
         try:
             cached = self.cache.get("cr-1211%s" % pk)
         except:
@@ -295,7 +296,7 @@ class DatasetViewSet(CommonViewSet):
     @action(detail=True, methods=["get"], url_path="rabbitmq")
     def rabbitmq_test(self, request, pk=None):  # pragma: no cover
         if request.user.username != "metax":
-            raise Http403()
+            raise Http403({"detail": ["Access denied."]})
         rabbitmq.publish({"msg": "hello create"}, routing_key="create", exchange="datasets")
         rabbitmq.publish({"msg": "hello update"}, routing_key="update", exchange="datasets")
         return Response(data={}, status=status.HTTP_200_OK)
@@ -311,7 +312,7 @@ class DatasetViewSet(CommonViewSet):
         :return:
         """
         if request.user.username != "metax":
-            raise Http403()
+            raise Http403({"detail": ["Access denied."]})
         # Get all IDs for ida data catalogs
         ida_catalog_ids = []
         for dc in DataCatalog.objects.filter(
@@ -340,7 +341,7 @@ class DatasetViewSet(CommonViewSet):
         :return:
         """
         if request.user.username != "metax":
-            raise Http403()
+            raise Http403({"detail": ["Access denied."]})
 
         if "id" in request.query_params:
             # in order to update one record only, use query param ?id=integer. useful for testcases
@@ -389,7 +390,7 @@ class DatasetViewSet(CommonViewSet):
             with open("/home/metax-user/flush_password", "w") as f:
                 dump(request.data, f)
         else:
-            raise Http403
+            raise Http403({"detail": ["Access denied."]})
         _logger.debug("FLUSH password set")
         return Response(data=None, status=status.HTTP_204_NO_CONTENT)
 
@@ -421,4 +422,4 @@ class DatasetViewSet(CommonViewSet):
 
                     _logger.debug("FLUSH called by %s" % request.user.username)
                     return Response(data=None, status=status.HTTP_204_NO_CONTENT)
-        return Response(data=None, status=status.HTTP_403_FORBIDDEN)
+        return Response({"error": "Access denied"}, status=status.HTTP_403_FORBIDDEN)

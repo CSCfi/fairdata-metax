@@ -13,6 +13,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from metax_api.models import CatalogRecordV2, DataCatalog
+from metax_api.services import RabbitMQService
 from metax_api.tests.utils import TestClassUtils, test_data_file_path
 
 CR = CatalogRecordV2
@@ -655,3 +656,72 @@ class CatalogRecordExternalServicesAccess(CatalogRecordApiWriteCommon):
         response = self.client.post("/rest/v2/datasets", self.cr_test_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+
+class CatalogRecordRabbitMQPublish(CatalogRecordApiWriteCommon):
+    """
+    Testing if RabbitMQ messages are published to correct exchanges with correct routing keys 
+    when creating, updating, or deleting a catalog record.
+    Uses a dummy RabbitMQService.
+    """
+
+    def setUp(self):
+        super().setUp()
+
+    def _check_rabbitmq_queue(self, routing_key, publish_to_etsin, publish_to_ttv):
+        """
+        Checks if a message with a given routing key exists in the correct exchange
+        in the dummy RabbitMQService queue
+        """
+        messages_str = ''.join(str(message) for message in RabbitMQService.messages)
+        assert_str_etsin = f"'routing_key': '{routing_key}', 'exchange': 'datasets'"
+        assert_str_ttv = f"'routing_key': '{routing_key}', 'exchange': 'ttv-datasets'"
+
+        self.assertEqual(assert_str_etsin in messages_str, publish_to_etsin)
+        self.assertEqual(assert_str_ttv in messages_str, publish_to_ttv)
+
+
+
+    def test_rabbitmq_publish(self):
+        """
+        Creates four different data catalogs and creates, updates, and deletes
+        catalog records in them. Checks that RabbitMQ messages are published
+        in correct exchanges with correct routing keys.
+        """
+        param_list = [(True, True), (True, False), (False, True), (False, False)]
+        for publish_to_etsin, publish_to_ttv in param_list:
+            with self.subTest():
+                
+                # Create the data catalog
+                dc = self._get_object_from_test_data("datacatalog", 4)
+                dc_id = f"urn:nbn:fi:att:data-catalog-att-{publish_to_etsin}-{publish_to_ttv}"
+                dc["catalog_json"]["identifier"] = dc_id
+                dc["publish_to_etsin"] = publish_to_etsin
+                dc["publish_to_ttv"] = publish_to_ttv
+                dc = self.client.post("/rest/v2/datacatalogs", dc, format="json").data
+
+                # Create the catalog record
+                cr = self._get_new_full_test_att_cr_data()
+                cr["data_catalog"] = dc
+
+                cr = self.client.post("/rest/v2/datasets", cr, format="json").data
+                self._check_rabbitmq_queue("create", publish_to_etsin, publish_to_ttv)
+
+                # Empty the queue
+                RabbitMQService.messages = []
+
+                # Update the catalog record
+                cr["research_dataset"]["description"] = {
+                    "en": "Updating the description"
+                }
+
+                response = self.client.put(f"/rest/v2/datasets/{cr['id']}", cr, format="json")
+                self._check_rabbitmq_queue("update", publish_to_etsin, publish_to_ttv)
+
+                RabbitMQService.messages = []
+
+                # Delete the catalog record
+                response = self.client.delete(f"/rest/v2/datasets/{cr['id']}")
+                self._check_rabbitmq_queue("delete", publish_to_etsin, publish_to_ttv)
+
+                RabbitMQService.messages = []
+

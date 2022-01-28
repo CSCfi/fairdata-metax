@@ -38,8 +38,9 @@ class StreamHttpResponse(object):
             and self._check_query_param(request, "stream")
         ):
             resp = StreamingHttpResponse(self._stream_response(response))
-            resp._headers["content-type"] = ("Content-Type", "application/json")
-            resp._headers["x-count"] = ("X-Count", str(len(response.data)))
+            resp.headers["content-type"] = ("Content-Type", "application/json")
+
+            resp.headers["x-count"] = ("X-Count", str(len(response.data)))
             return resp
 
         return response

@@ -71,9 +71,11 @@
         "research_dataset_schema": "ida",
         "logo": "fairdata_tree_logo.svg"
     },
-        "catalog_record_services_edit": "ida,metax,qvain,qvain-light,tpas",
-        "catalog_record_services_create": "ida,metax,qvain,qvain-light,tpas",
-        "catalog_record_services_read": "ida,metax,qvain,qvain-light,etsin,tpas,download"
+    "catalog_record_services_edit": "ida,metax,qvain,qvain-light,tpas",
+    "catalog_record_services_create": "ida,metax,qvain,qvain-light,tpas",
+    "catalog_record_services_read": "ida,metax,qvain,qvain-light,etsin,tpas,download",
+    "publish_to_etsin": true,
+    "publish_to_ttv": true
 },
 {
     "catalog_json": {
@@ -148,9 +150,11 @@
         "research_dataset_schema": "att",
         "logo": "fairdata_tree_logo.svg"
     },
-        "catalog_record_services_edit": "ida,metax,qvain,qvain-light,tpas",
-        "catalog_record_services_create": "ida,metax,qvain,qvain-light,tpas",
-        "catalog_record_services_read": "ida,metax,qvain,qvain-light,etsin,tpas,download"
+    "catalog_record_services_edit": "ida,metax,qvain,qvain-light,tpas",
+    "catalog_record_services_create": "ida,metax,qvain,qvain-light,tpas",
+    "catalog_record_services_read": "ida,metax,qvain,qvain-light,etsin,tpas,download",
+    "publish_to_etsin": true,
+    "publish_to_ttv": true
 },
 {
     "catalog_json": {
@@ -226,11 +230,13 @@
         "research_dataset_schema": "ida",
         "logo": "fairdata_tree_logo.svg"
     },
-        "catalog_record_group_edit": "pas_edit",
-        "catalog_record_group_create": "pas_create",
-        "catalog_record_services_edit": "metax,tpas",
-        "catalog_record_services_create": "metax,tpas",
-        "catalog_record_services_read": "metax,tpas,download"
+    "catalog_record_group_edit": "pas_edit",
+    "catalog_record_group_create": "pas_create",
+    "catalog_record_services_edit": "metax,tpas",
+    "catalog_record_services_create": "metax,tpas",
+    "catalog_record_services_read": "metax,tpas,download",
+    "publish_to_etsin": true,
+    "publish_to_ttv": true
 },
 {
     "catalog_json": {
@@ -298,7 +304,9 @@
     },
     "catalog_record_services_edit": "metax,qvain,qvain-light,tpas",
     "catalog_record_services_create": "metax,qvain,qvain-light,tpas",
-    "catalog_record_services_read": "metax,qvain,qvain-light,tpas,download"
+    "catalog_record_services_read": "metax,qvain,qvain-light,tpas,download",
+    "publish_to_etsin": false,
+    "publish_to_ttv": false
 },
 {
     "catalog_json": {
@@ -354,9 +362,11 @@
         "dataset_versioning": false,
         "research_dataset_schema": "dft"
       },
-        "catalog_record_services_edit": "metax,qvain,qvain-light,tpas, ida, testuser, api_auth_user",
-        "catalog_record_services_create": "metax,qvain,qvain-light,tpas, ida, testuser, api_auth_user",
-        "catalog_record_services_read": "metax,qvain,qvain-light,etsin,tpas, ida, testuser, api_auth_user,download"
+    "catalog_record_services_edit": "metax,qvain,qvain-light,tpas, ida, testuser, api_auth_user",
+    "catalog_record_services_create": "metax,qvain,qvain-light,tpas, ida, testuser, api_auth_user",
+    "catalog_record_services_read": "metax,qvain,qvain-light,etsin,tpas, ida, testuser, api_auth_user,download",
+    "publish_to_etsin": true,
+    "publish_to_ttv": true
 },
 {
 	"catalog_json": {
@@ -417,5 +427,251 @@
 	},
 	"catalog_record_services_edit": "metax,jyu",
 	"catalog_record_services_create": "metax,jyu",
-	"catalog_record_services_read": "metax,jyu,download"
+	"catalog_record_services_read": "metax,jyu,download",
+    "publish_to_etsin": true,
+    "publish_to_ttv": true
+},
+{
+    "catalog_json": {
+      "title": {
+        "en": "Reportronic catalog",
+        "fi": "Reportronic katalogi"
+      },
+      "language": [
+        {
+          "identifier": "http://lexvo.org/id/iso639-3/fin"
+        }
+      ],
+      "harvested": false,
+      "publisher": {
+        "name": {
+          "en": "Reportronic",
+          "fi": "Reportronic"
+        }
+      },
+      "identifier": "urn:nbn:fi:att:data-catalog-reportronic",
+      "access_rights": {
+        "license": [
+          {
+            "identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/CC-BY-4.0"
+          }
+        ],
+        "access_type": [
+          {
+            "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open",
+            "pref_label": {
+              "en": "Open",
+              "fi": "Avoin",
+              "und": "Avoin"
+            }
+          }
+        ],
+        "description": {
+          "en": "Contains datasets from Reportronic service",
+          "fi": "Sisältää aineistoja Reportronic-palvelusta"
+        }
+      },
+      "dataset_versioning": false,
+      "research_dataset_schema": "att"
+    },
+    "catalog_record_services_edit": "metax,reportronic",
+    "catalog_record_services_create": "metax,reportronic",
+    "catalog_record_services_read": "metax,reportronic",
+    "publish_to_etsin": false,
+    "publish_to_ttv": true
+},
+{
+    "catalog_json": {
+      "title": {
+        "en": "ACRIS catalog",
+        "fi": "ACRIS katalogi"
+      },
+      "language": [
+        {
+          "identifier": "http://lexvo.org/id/iso639-3/fin"
+        }
+      ],
+      "harvested": true,
+      "publisher": {
+        "name": {
+          "en": "Aalto ACRIS",
+          "fi": "Aalto ACRIS"
+        },
+        "homepage": [{
+          "title": {
+              "en": "https://research.aalto.fi",
+              "fi": "https://research.aalto.fi"
+          },
+          "identifier": "https://research.aalto.fi"
+			}]
+      },
+      "identifier": "urn:nbn:fi:att:data-catalog-acris",
+      "access_rights": {
+        "license": [
+          {
+            "identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/CC-BY-4.0"
+          }
+        ],
+        "access_type": [
+          {
+            "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open",
+            "pref_label": {
+              "en": "Open",
+              "fi": "Avoin",
+              "und": "Avoin"
+            }
+          }
+        ],
+        "description": {
+          "en": "Contains datasets from Aalto University's ACRIS system",
+          "fi": "Sisältää aineistoja Aalto yliopiston ACRIS-järjestelmästä"
+        }
+      },
+      "dataset_versioning": false,
+      "research_dataset_schema": "att"
+    },
+    "catalog_record_services_edit": "metax,aalto",
+    "catalog_record_services_create": "metax,aalto",
+    "catalog_record_services_read": "metax,aalto",
+    "publish_to_etsin": true,
+    "publish_to_ttv": true
+},
+{
+    "catalog_json": {
+        "title": {
+            "en": "Finnish Meteorological Institute EUDAT B2SHARE catalog",
+            "fi": "Ilmatieteen laitoksen EUDAT B2SHARE -katalogi",
+            "sv": "Meteorologiska Institutet EUDAT B2SHARE register"
+        },
+        "language": [
+            {
+                "title": {
+                    "en": "Finnish language",
+                    "fi": "Suomen kieli",
+                    "sv": "finska",
+                    "und": "Suomen kieli"
+                },
+                "identifier": "http://lexvo.org/id/iso639-3/fin"
+            },
+            {
+                "title": {
+                    "en": "English language",
+                    "fi": "Englannin kieli",
+                    "sv": "engelska",
+                    "und": "Englannin kieli"
+                },
+                "identifier": "http://lexvo.org/id/iso639-3/eng"
+            }
+        ],
+        "harvested": true,
+        "publisher": {
+            "name": {
+                "en": "Finnish Meteorological Institute",
+                "fi": "Ilmatieteen laitos",
+                "sv": "Meteorologiska Institutet"
+            },
+            "homepage": [
+                {
+                   "title": {
+                        "en": "Home - Finnish Meteorological Institute",
+                        "fi": "Etusivu - Ilmatieteen laitos",
+                        "sv": "Startsida - Meteorologiska institutet"
+                    },
+                    "identifier": "https://www.ilmatieteenlaitos.fi/"
+                }
+            ],
+            "identifier": "https://isni.org/isni/0000000122538678"
+        },
+        "identifier": "urn:nbn:fi:att:data-catalog-fmi",
+        "access_rights": {
+          "license": [
+            {
+              "identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/CC-BY-4.0"
+            }
+          ],
+          "access_type": [
+            {
+              "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open",
+              "pref_label": {
+                "en": "Open",
+                "fi": "Avoin",
+                "und": "Avoin"
+              }
+            }
+          ],
+          "description": {
+            "en": "Contains datasets of Finnish Meteorological Institute harvested from FMI's EUDAT B2SHARE instance",
+            "fi": "Sisältää aineistoja, jotka on kerätty Ilmatieteen laitoksen EUDAT B2SHARE -instanssista"
+          }
+        },
+        "dataset_versioning": false,
+        "research_dataset_schema": "att"
+      },
+      "catalog_record_services_edit": "metax,eudat",
+      "catalog_record_services_create": "metax,eudat",
+      "catalog_record_services_read": "metax,eudat",
+      "publish_to_etsin": true,
+      "publish_to_ttv": true
+},
+{
+    "catalog_json": {
+        "title": {
+            "en": "CSC SD services datasets",
+            "fi": "CSC:n Arkaluonteisen datan palveluiden aineistokatalogi"
+        },
+        "language": [
+            {
+                "title": {
+                    "en": "English language",
+                    "fi": "Englannin kieli",
+                    "sv": "engelska",
+                    "und": "Englannin kieli"
+                },
+                "identifier": "http://lexvo.org/id/iso639-3/eng"
+            }
+        ],
+        "harvested": true,
+        "publisher": {
+            "name": {
+                "en": "CSC Sensitive Data Services for Research"
+            },
+            "homepage": [
+                {
+                   "title": {
+                        "en": "Sensitive Data Services for Research - Services for Research - CSC Company Site"
+                    },
+                    "identifier": "https://research.csc.fi/sensitive-data-services-for-research"
+                }
+            ]
+        },
+        "identifier": "urn:nbn:fi:att:data-catalog-sd",
+        "access_rights": {
+          "license": [
+            {
+              "identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/CC-BY-4.0"
+            }
+          ],
+          "access_type": [
+            {
+              "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open",
+              "pref_label": {
+                "en": "Open",
+                "fi": "Avoin",
+                "und": "Avoin"
+              }
+            }
+          ],
+          "description": {
+            "en": "Datasets stored in CSC SD services",
+            "fi": "Sisältää aineistoja CSC:n SD-palvelusta"
+          }
+        },
+        "dataset_versioning": false,
+        "research_dataset_schema": "att"
+      },
+      "catalog_record_services_edit": "metax,sd",
+      "catalog_record_services_create": "metax,sd",
+      "catalog_record_services_read": "metax,sd",
+      "publish_to_etsin": true,
+      "publish_to_ttv": true
 }]

@@ -58,3 +58,19 @@ api_permissions.rest.filestorages.delete += [Role.TEST_USER]
 api_permissions.rpc.files.delete_project.use += [Role.TEST_USER]
 
 API_ACCESS = prepare_perm_values(api_permissions.to_dict())
+
+from metax_api.settings.components.rems import REMS
+
+REMS.update(
+    {
+        "ENABLED": True,
+        "API_KEY": "key",
+        "BASE_URL": "https://mock-rems/api",
+        "ETSIN_URL_TEMPLATE": "https://etsin.fd-dev.csc.fi/dataset/%s",
+        "METAX_USER": "rems-metax@example.com",
+        "REPORTER_USER": "rems-reporter@example.com",
+        "AUTO_APPROVER": "not-used",
+        "FORM_ID": 1,
+        "ORGANIZATION": "rems-test-org",
+    }
+)

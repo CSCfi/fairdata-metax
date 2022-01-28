@@ -932,3 +932,61 @@ class StatisticRPCforDrafts(StatisticRPCCommon, CatalogRecordApiWriteCommon):
 
         # ensure the totals are calculated without drafts
         self.assertNotEqual(total_1, total_2, "Count be reduced by one after setting id=1 as draft")
+
+
+class StatisticRPCforOrganizationDatasetsCumulative(StatisticRPCCommon, CatalogRecordApiWriteCommon):
+    """
+    Test suite for organization_datasets_cumulative. Test only optional parameters removed, legacy and latest for now.
+    """
+
+    url = "/rpc/statistics/organization_datasets_cumulative"
+    dateparam_all = "from_date=2018-06-01&to_date=2018-06-30"
+
+    def test_organization_datasets_cumulative_removed(self):
+        # initially there are 2 datasets
+        response = self.client.get(f"{self.url}?{self.dateparam_all}").data
+        self.assertEqual(response["org_2"]["urn:nbn:fi:att:2955e904-e3dd-4d7e-99f1-3fed446f96d1"][0]["count"], 2)
+
+        # removed=true should return 0 datasets since none have been removed
+        response = self.client.get(f"{self.url}?{self.dateparam_all}&removed=true").data
+        self.assertEqual(response["org_2"]["urn:nbn:fi:att:2955e904-e3dd-4d7e-99f1-3fed446f96d1"][0]["count"], 0)
+
+        # remove one dataset from June, so one dataset should be left
+        self._set_removed_dataset(id=8)
+        response = self.client.get(f"{self.url}?{self.dateparam_all}&removed=false").data
+        self.assertEqual(response["org_2"]["urn:nbn:fi:att:2955e904-e3dd-4d7e-99f1-3fed446f96d1"][0]["count"], 1)
+
+        # removed=true should return 1 removed dataset now
+        response = self.client.get(f"{self.url}?{self.dateparam_all}&removed=true").data
+        self.assertEqual(response["org_2"]["urn:nbn:fi:att:2955e904-e3dd-4d7e-99f1-3fed446f96d1"][0]["count"], 1)
+
+    def test_organization_datasets_cumulative_legacy(self):
+        # let's create 2 legacy datasets for 2018-06
+        leg_cr = (
+            self._create_legacy_dataset()
+        )
+        self._set_dataset_creation_date(leg_cr, "2018-06-13")
+        leg_cr2 = (
+            self._create_legacy_dataset()
+        )
+        self._set_dataset_creation_date(leg_cr2, "2018-06-13")
+
+        response = self.client.get(f"{self.url}?{self.dateparam_all}&legacy=true").data
+        self.assertEqual(response["some_org_id"]["urn:nbn:fi:att:data-catalog-legacy"][0]["count"], 2)
+
+        # check that legacy=false returns 0 datasets
+        response = self.client.get(f"{self.url}?{self.dateparam_all}&legacy=false").data
+        self.assertEqual(response["some_org_id"]["urn:nbn:fi:att:data-catalog-legacy"][0]["count"], 0)
+
+    def test_organization_datasets_cumulative_latest(self):
+        # let's create 2 versions of a dataset for 2018-06
+        first_version = self._create_new_dataset_version()
+        self._set_dataset_creation_date(first_version, "2018-06-13")
+        second_version = self._create_new_dataset_version()
+        self._set_dataset_creation_date(second_version, "2018-06-13")
+        response = self.client.get(f"{self.url}?{self.dateparam_all}&latest=false").data # returns all
+        self.assertEqual(response["org_1"]["urn:nbn:fi:att:2955e904-e3dd-4d7e-99f1-3fed446f96d1"][0]["count"], 2)
+
+        # latest=true should only return the latest version
+        response = self.client.get(f"{self.url}?{self.dateparam_all}&latest=true").data
+        self.assertEqual(response["org_1"]["urn:nbn:fi:att:2955e904-e3dd-4d7e-99f1-3fed446f96d1"][0]["count"], 1)

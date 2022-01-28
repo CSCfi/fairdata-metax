@@ -6,17 +6,21 @@
 # :license: MIT
 
 import logging
+import uuid
 from collections import defaultdict
 from copy import deepcopy
+from datetime import datetime, timedelta
 
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.db import connection, models, transaction
 from django.db.models import JSONField, Q, Sum
 from django.http import Http404
+from django.utils.crypto import get_random_string
 from rest_framework.serializers import ValidationError
 
 from metax_api.exceptions import Http400, Http403, Http503
+from metax_api.tasks.refdata.refdata_indexer import service
 from metax_api.utils import (
     DelayedLog,
     IdentifierType,
@@ -56,6 +60,61 @@ IDA_CATALOG = settings.IDA_DATA_CATALOG_IDENTIFIER
 ATT_CATALOG = settings.ATT_DATA_CATALOG_IDENTIFIER
 PAS_CATALOG = settings.PAS_DATA_CATALOG_IDENTIFIER
 DFT_CATALOG = settings.DFT_DATA_CATALOG_IDENTIFIER
+
+
+class EditorPermissions(models.Model):
+    """
+    Shared permissions between linked copies of same dataset.
+
+    Attaches a set of EditorUserPermission objects to a set of CatalogRecords.
+    """
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
+
+class PermissionRole(models.TextChoices):
+    """Permission role for EditorPermission."""
+
+    CREATOR = "creator"
+    EDITOR = "editor"
+
+
+class EditorUserPermission(Common):
+    """Table for attaching user roles to an EditorPermissions object."""
+
+    # Override inherited integer based id with uuid
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
+    # MODEL FIELD DEFINITIONS #
+    editor_permissions = models.ForeignKey(
+        EditorPermissions, related_name="users", on_delete=models.CASCADE
+    )
+    user_id = models.CharField(max_length=200)
+    role = models.CharField(max_length=16, choices=PermissionRole.choices)
+
+    class Meta:
+        indexes = [
+            models.Index(
+                fields=[
+                    "user_id",
+                ]
+            ),
+        ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["editor_permissions", "user_id"], name="unique_dataset_user_permission"
+            ),
+            models.CheckConstraint(check=~models.Q(user_id=""), name="require_user_id"),
+            models.CheckConstraint(
+                check=models.Q(role__in=PermissionRole.values), name="require_role"
+            ),
+        ]
+
+    def __repr__(self):
+        return f"<UserPermission user:{self.user_id} role:{self.role} editor_permissions:{self.editor_permissions_id} >"
+
+    def delete(self, *args, **kwargs):
+        super().remove(*args, **kwargs)
 
 
 class DiscardRecord(Exception):
@@ -443,6 +502,10 @@ class CatalogRecord(Common):
         null=True,
         default=dict,
         help_text="Saves api related info about the dataset. E.g. api version",
+    )
+
+    editor_permissions = models.ForeignKey(
+        EditorPermissions, related_name="catalog_records", null=False, on_delete=models.PROTECT
     )
 
     # END OF MODEL FIELD DEFINITIONS #
@@ -1252,6 +1315,12 @@ class CatalogRecord(Common):
         """
         return hasattr(self, "preservation_dataset_origin_version")
 
+    def catalog_publishes_to_etsin(self):
+        return self.data_catalog.publish_to_etsin
+
+    def catalog_publishes_to_ttv(self):
+        return self.data_catalog.publish_to_ttv
+
     def catalog_versions_datasets(self):
         return self.data_catalog.catalog_json.get("dataset_versioning", False) is True
 
@@ -1392,16 +1461,24 @@ class CatalogRecord(Common):
 
         elif self.catalog_is_legacy():
             if "preferred_identifier" not in self.research_dataset:
-                raise ValidationError(
-                    {
-                        "detail": [
-                            "Selected catalog %s is a legacy catalog. Preferred identifiers are not "
-                            "automatically generated for datasets stored in legacy catalogs, nor is "
-                            "their uniqueness enforced. Please provide a value for dataset field "
-                            "preferred_identifier." % self.data_catalog.catalog_json["identifier"]
-                        ]
-                    }
-                )
+
+                # Reportronic catalog does not need to validate unique identifiers
+                # Raise validation error when not reportronic catalog
+                if (
+                    self.data_catalog.catalog_json["identifier"]
+                    != settings.REPORTRONIC_DATA_CATALOG_IDENTIFIER
+                ):
+                    raise ValidationError(
+                        {
+                            "detail": [
+                                "Selected catalog %s is a legacy catalog. Preferred identifiers are not "
+                                "automatically generated for datasets stored in legacy catalogs, nor is "
+                                "their uniqueness enforced. Please provide a value for dataset field "
+                                "preferred_identifier."
+                                % self.data_catalog.catalog_json["identifier"]
+                            ]
+                        }
+                    )
             _logger.info(
                 "Catalog %s is a legacy catalog - not generating pid"
                 % self.data_catalog.catalog_json["identifier"]
@@ -1442,7 +1519,10 @@ class CatalogRecord(Common):
         if "remote_resources" in self.research_dataset:
             self._calculate_total_remote_resources_byte_size()
 
-        if not ("files" in self.research_dataset or "directories" in self.research_dataset) and "total_files_byte_size" in self.research_dataset:
+        if (
+            not ("files" in self.research_dataset or "directories" in self.research_dataset)
+            and "total_files_byte_size" in self.research_dataset
+        ):
             self.research_dataset.pop("total_files_byte_size")
 
         if self.cumulative_state == self.CUMULATIVE_STATE_CLOSED:
@@ -1457,6 +1537,12 @@ class CatalogRecord(Common):
         self._generate_issued_date()
 
         self._set_api_version()
+
+        # only new datasets need new EditorPermissions, copies already have one
+        if not self.editor_permissions_id:
+            self._add_editor_permissions()
+            if self.metadata_provider_user:
+                self._add_creator_editor_user_permission()
 
     def _post_create_operations(self):
         if "files" in self.research_dataset or "directories" in self.research_dataset:
@@ -1491,7 +1577,7 @@ class CatalogRecord(Common):
                 or self.use_doi_for_published is True
             ):
                 self._validate_cr_against_datacite_schema()
-            if is_metax_generated_doi_identifier(self.research_dataset["preferred_identifier"]):
+            if is_metax_generated_doi_identifier(self.research_dataset.get("preferred_identifier")):
                 self.add_post_request_callable(
                     DataciteDOIUpdate(self, self.research_dataset["preferred_identifier"], "create")
                 )
@@ -3033,6 +3119,27 @@ class CatalogRecord(Common):
         if DEBUG:
             _logger.debug("Added %d files to dataset %s" % (n_files_copied, self._new_version.id))
 
+    def _add_editor_permissions(self):
+        permissions = EditorPermissions.objects.create()
+        self.editor_permissions = permissions
+
+    def _add_creator_editor_user_permission(self):
+        """
+        Add creator permission to a newly created CatalogRecord.
+        """
+        perm = EditorUserPermission(
+            editor_permissions=self.editor_permissions,
+            user_id=self.metadata_provider_user,
+            role=PermissionRole.CREATOR,
+            date_created=self.date_created,
+            date_modified=self.date_modified,
+            user_created=self.user_created,
+            user_modified=self.user_modified,
+            service_created=self.service_created,
+            service_modified=self.service_modified,
+        )
+        perm.save()
+
 
 class RabbitMQPublishRecord:
 
@@ -3057,11 +3164,6 @@ class RabbitMQPublishRecord:
         """
         from metax_api.services import RabbitMQService as rabbitmq
 
-        _logger.info(
-            "Publishing CatalogRecord %s to RabbitMQ... routing_key: %s"
-            % (self.cr.identifier, self.routing_key)
-        )
-
         if self.routing_key == "delete":
             cr_json = {"identifier": self.cr.identifier}
         else:
@@ -3070,9 +3172,27 @@ class RabbitMQPublishRecord:
             cr_json["data_catalog"] = {"catalog_json": self.cr.data_catalog.catalog_json}
 
         try:
-            for exchange in settings.RABBITMQ["EXCHANGES"]:
-                if exchange["EXC_TYPE"] == "dataset":
-                    rabbitmq.publish(cr_json, routing_key=self.routing_key, exchange=exchange["NAME"])
+            if self.cr.catalog_publishes_to_etsin():
+
+                _logger.info(
+                    "Publishing CatalogRecord %s to RabbitMQ... exchange: datasets, routing_key: %s"
+                    % (self.cr.identifier, self.routing_key)
+                )
+
+                rabbitmq.publish(
+                    cr_json, routing_key=self.routing_key, exchange="datasets"
+                )
+            if self.cr.catalog_publishes_to_ttv():
+
+                _logger.info(
+                    "Publishing CatalogRecord %s to RabbitMQ... exchange: ttv-datasets, routing_key: %s"
+                    % (self.cr.identifier, self.routing_key)
+                )
+
+                rabbitmq.publish(
+                    cr_json, routing_key=self.routing_key, exchange="ttv-datasets"
+                )
+
         except:
             # note: if we'd like to let the request be a success even if this operation fails,
             # we could simply not raise an exception here.

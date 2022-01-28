@@ -6,14 +6,16 @@
 # :license: MIT
 
 from datetime import date
-
+import unittest
 from django.core.management import call_command
 from django.test import TestCase
+from django.conf import settings
 
-from metax_api.models import CatalogRecord, CatalogRecordV2, DeletedObject, Directory, File
+from metax_api.models import CatalogRecord, CatalogRecordV2, DeletedObject
 from metax_api.tests.utils import TestClassUtils, test_data_file_path
 
 
+@unittest.skipIf(settings.ENABLE_DELETED_OBJECTS_SAVING is not True, "Only run if deleted objects are saved")
 class SignalTests(TestCase, TestClassUtils):
 
     def setUp(self):

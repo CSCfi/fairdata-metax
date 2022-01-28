@@ -50,7 +50,7 @@ class DeleteProjectTests(FileRPCTests):
         response = self.client.post(
             "/rpc/files/delete_project?project_identifier=research_project_112"
         )
-        # self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_known_project_identifier(self):
         response = self.client.post(
@@ -78,3 +78,72 @@ class DeleteProjectTests(FileRPCTests):
         self.client.post("/rpc/files/delete_project?project_identifier=project_x")
         response = self.client.get("/rest/datasets/%s" % related_dataset.identifier)
         self.assertEqual(response.data["deprecated"], True)
+
+
+class FlushProjectTests(FileRPCTests):
+
+    """
+    Checks that an entire project's files and directories can be deleted.
+    """
+
+    def test_wrong_parameters(self):
+        # correct user, no project identifier
+        self._use_http_authorization("metax")
+        response = self.client.post("/rpc/files/flush_project")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        # nonexisting project identifier:
+        response = self.client.post("/rpc/files/flush_project?project_identifier=non_existing")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+        # wrong request method
+        response = self.client.delete(
+            "/rpc/files/flush_project?project_identifier=research_project_112"
+        )
+        self.assertEqual(response.status_code, 501)
+
+        # wrong user
+        self._use_http_authorization("api_auth_user")
+        response = self.client.post(
+            "/rpc/files/flush_project?project_identifier=research_project_112"
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_known_project_identifier(self):
+        self._use_http_authorization("metax")
+        response = self.client.post(
+            "/rpc/files/flush_project?project_identifier=research_project_112"
+        )
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_files_are_deleted(self):
+        self._use_http_authorization("metax")
+
+        # make sure project has files before deleting them
+        files_count_before = File.objects.filter(project_identifier="research_project_112").count()
+        self.assertNotEqual(files_count_before, 0)
+
+        # delete all files for project
+        response = self.client.post(
+            "/rpc/files/flush_project?project_identifier=research_project_112"
+        )
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        # make sure all files are now deleted
+        files_count_after = File.objects.filter(project_identifier="research_project_112").count()
+        self.assertEqual(files_count_after, 0)
+
+    def test_directories_are_deleted(self):
+        self._use_http_authorization("metax")
+
+        # make sure project has directories before deleting them
+        dirs_count_before = Directory.objects.filter(project_identifier="research_project_112").count()
+        self.assertNotEqual(dirs_count_before, 0)
+
+        # delete all directories for project
+        response = self.client.post("/rpc/files/flush_project?project_identifier=research_project_112")
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        # make sure all directories are now deleted
+        dirs_count_after = Directory.objects.filter(project_identifier="research_project_112").count()
+        self.assertEqual(dirs_count_after, 0)

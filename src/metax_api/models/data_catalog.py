@@ -59,6 +59,13 @@ class DataCatalog(Common):
         help_text="Services which are allowed to read catalog records in the catalog.",
     )
 
+    publish_to_etsin = models.BooleanField(
+        default=True
+    )
+    publish_to_ttv = models.BooleanField(
+        default=True
+    )
+
     # END OF MODEL FIELD DEFINITIONS #
 
     READ_METHODS = ("GET", "HEAD", "OPTIONS")

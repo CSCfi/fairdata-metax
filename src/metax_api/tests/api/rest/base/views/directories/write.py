@@ -183,11 +183,6 @@ class DirectoryApiWriteTests(DirectoryApiWriteCommon):
             2,
             "Expected 2 files in directory {}".format(dirs[0]["directory_path"]),
         )
-        self.assertEqual(
-            response.data["file_count"],
-            len(response.data["files"]),
-            "Expected 2 file in parent file_count",
-        )
 
         # adding file2 and file3 to dataset
         cr["research_dataset"]["files"] = cr["research_dataset"]["files"] + [

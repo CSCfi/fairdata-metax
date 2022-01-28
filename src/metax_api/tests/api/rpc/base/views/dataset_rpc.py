@@ -381,7 +381,6 @@ class RefreshDirectoryContent(CatalogRecordApiWriteAssignFilesCommon):
             str(new_dir.id) in cr_after._directory_data,
             "New dir id should be found in cr",
         )
-        self.assertEqual(new_dir.byte_size, self._single_file_byte_size * 2)
 
     def test_refreshing_deprecated_dataset_is_not_allowed(self):
         self._add_directory(self.cr_test_data, "/TestExperiment/Directory_2")
@@ -660,3 +659,98 @@ class FixDeprecatedTests(CatalogRecordApiWriteAssignFilesCommon):
         self.assertTrue(
             "/TestExperiment/Directory_2/Group_2/Group_2_deeper/file_12.txt" not in rd_filepaths
         )
+
+class FlushUserDataTests(CatalogRecordApiWriteCommon):
+    """
+    Tests that datasets created by a certain user can be flushed.
+    """
+
+    def test_existing_users_datasets_with_no_files_are_flushed(self):
+        self._use_http_authorization("metax")
+
+        # create new dataset for user "abcd-1234"
+        username = "abcd-1234"
+        self.cr_test_data["metadata_provider_user"] = username
+        self.cr_test_data["research_dataset"].pop("files", None)
+        self.cr_test_data["research_dataset"].pop("directories", None)
+        response = self.client.post(
+            "/rest/v2/datasets?draft=false", self.cr_test_data, format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        # make sure the dataset exists now
+        cr = response.data
+        response = self.client.get("/rest/datasets/{}".format(cr["identifier"]), format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["metadata_provider_user"], username)
+
+        # flush user data for user "abcd-1234" and check that this succeeds
+        response = self.client.post("/rpc/datasets/flush_user_data?metadata_provider_user=%s" % username)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
+
+        response = self.client.get("/rest/datasets/{}".format(cr["identifier"]), format="json")
+        self.assertEqual("not found" in response.json()["detail"].lower(), True)
+
+    def test_existing_users_datasets_with_files_are_flushed(self):
+        self._use_http_authorization("metax")
+
+        # create new dataset for user "abcde-12345"
+        username = "abcde-12345"
+        self.cr_test_data["metadata_provider_user"] = username
+        response = self.client.post(
+            "/rest/v2/datasets?draft=false", self.cr_test_data, format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        # make sure the dataset exists now
+        cr = response.data
+        response = self.client.get("/rest/datasets/{}".format(cr["identifier"]), format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["metadata_provider_user"], username)
+
+        # save file related to dataset to later make sure it still exists
+        response = self.client.get("/rest/datasets/{}/files".format(cr["identifier"]), format="json")
+        cr_file = response.data[0]["identifier"]
+
+        # flush user data for user "abcde-12345" and check that this succeeds
+        response = self.client.post("/rpc/datasets/flush_user_data?metadata_provider_user=%s" % username)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
+
+        response = self.client.get("/rest/datasets/{}".format(cr["identifier"]), format="json")
+        self.assertEqual("not found" in response.json()["detail"].lower(), True)
+
+        # check that the file still exists (flushing datasets should not result to files being deleted)
+        response = self.client.get("/rest/files/{}".format(cr_file), format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_incorrect_parameters(self):
+        self._use_http_authorization("metax")
+
+        # non existing username should return HTTP 404
+        username = "doesnt_exist_123"
+        response = self.client.post("/rpc/datasets/flush_user_data?metadata_provider_user=%s" % username)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, response.data)
+
+        # no metadata provider user should return HTTP 400
+        response = self.client.post("/rpc/datasets/flush_user_data")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        # wrong request method (delete instead of post)
+        username = "abcde-12345"
+        self.cr_test_data["metadata_provider_user"] = username
+        response = self.client.post(
+            "/rest/v2/datasets?draft=false", self.cr_test_data, format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        response = self.client.delete(
+            "/rpc/datasets/flush_user_data?metadata_provider_user=%s" % username
+        )
+        self.assertEqual(response.status_code, 501)
+
+        # wrong user
+        self._use_http_authorization("api_auth_user")
+        response = self.client.post(
+            "/rpc/datasets/flush_user_data?metadata_provider_user=%s" % username
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
