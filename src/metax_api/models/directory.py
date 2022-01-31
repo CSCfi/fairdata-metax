@@ -71,7 +71,7 @@ class Directory(Common):
         )
 
         update_statements = []
-        annotated_root_directory = self._get_project_directories_with_own_sizes()
+        annotated_root_directory = self._get_project_directory_tree(with_own_sizes=True)
         annotated_root_directory._calculate_byte_size_and_file_count(update_statements)
 
         if len(update_statements) > 0:
@@ -101,21 +101,23 @@ class Directory(Common):
             )
         )
 
-    def _get_project_directories_with_own_sizes(self):
+    def _get_project_directory_tree(self, with_own_sizes=False):
         """
-        Get all project directories with total size and count of files
-        they contain annotated as own_byte_size and own_file_count.
+        Get all project directories from DB in single query. Returns current directory with
+        subdirectories in directory.sub_dirs.
 
-        Returns root directory with annotated subdirectories in directory.sub_dirs.
+        Optionally, annotate directories with total size and
+        count of files they contain as own_byte_size and own_file_count.
         """
-        project_directories = (
-            Directory.objects.filter(project_identifier=self.project_identifier)
-            .only("file_count", "byte_size", "parent_directory_id")
-            .annotate(
+        project_directories = Directory.objects.filter(
+            project_identifier=self.project_identifier
+        ).only("file_count", "byte_size", "parent_directory_id")
+
+        if with_own_sizes:
+            project_directories = project_directories.annotate(
                 own_byte_size=Sum("files__byte_size", filter=Q(files__removed=False)),
                 own_file_count=Count("files", filter=Q(files__removed=False)),
             )
-        )
 
         # build directory tree from annotated directories
         directories_by_id = {d.id: d for d in project_directories}
@@ -175,7 +177,10 @@ class Directory(Common):
             parent_id: (byte_size, file_count) for parent_id, byte_size, file_count in stats
         }
 
-        self._calculate_byte_size_and_file_count_for_cr(grouped_by_dir, directory_data)
+        directory_tree = self._get_project_directory_tree()
+        directory_tree._calculate_byte_size_and_file_count_for_cr(
+            grouped_by_dir, directory_data
+        )
 
     def _calculate_byte_size_and_file_count_for_cr(self, grouped_by_dir, directory_data):
         """
@@ -192,15 +197,13 @@ class Directory(Common):
         self.byte_size = 0
         self.file_count = 0
 
-        sub_dirs = self.child_directories.all().only("id")
-
-        if sub_dirs:
-            for sub_dir in sub_dirs:
+        if self.sub_dirs:
+            for sub_dir in self.sub_dirs:
                 sub_dir._calculate_byte_size_and_file_count_for_cr(grouped_by_dir, directory_data)
 
             # sub dir numbers
-            self.byte_size = sum(d.byte_size for d in sub_dirs)
-            self.file_count = sum(d.file_count for d in sub_dirs)
+            self.byte_size = sum(d.byte_size for d in self.sub_dirs)
+            self.file_count = sum(d.file_count for d in self.sub_dirs)
 
         current_dir = grouped_by_dir.get(self.id, [0, 0])
 
