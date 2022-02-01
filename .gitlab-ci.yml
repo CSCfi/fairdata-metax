@@ -21,7 +21,7 @@ integration_test:
   stage: test
   environment: $CI_COMMIT_REF_NAME
   script:
-    - ansible-playbook -i $ANSIBLE_INVENTORY $TEST_PLAYBOOK -e "build_id=$CI_COMMIT_REF_SLUG"
+    - ansible-playbook -i $ANSIBLE_INVENTORY $TEST_PLAYBOOK -e "build_id=$CI_COMMIT_REF_SLUG repo_version=$CI_COMMIT_REF_NAME"
 
 clean_test:
   stage: clean_test
@@ -29,7 +29,7 @@ clean_test:
     name: $CI_COMMIT_REF_NAME
     on_stop: clean_gitlab_env
   script:
-    - ansible-playbook -i $ANSIBLE_INVENTORY $DELETE_PLAYBOOK -e "build_id=$CI_COMMIT_REF_SLUG"
+    - ansible-playbook -i $ANSIBLE_INVENTORY $DELETE_PLAYBOOK -e "build_id=$CI_COMMIT_REF_SLUG repo_version=$CI_COMMIT_REF_NAME"
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       when: always
@@ -53,8 +53,8 @@ update_metax:
   stage: update
   environment: $CI_COMMIT_REF_NAME
   script:
-    - ansible-playbook -i $ANSIBLE_INVENTORY $UPDATE_PROXY_PLAYBOOK -e "build_id=$CI_COMMIT_REF_SLUG"
-    - ansible-playbook -i $ANSIBLE_INVENTORY $MANAGE_PLAYBOOK -e "build_id=$CI_COMMIT_REF_SLUG"
+    - ansible-playbook -i $ANSIBLE_INVENTORY $UPDATE_PROXY_PLAYBOOK -e "build_id=$CI_COMMIT_REF_SLUG repo_version=$CI_COMMIT_REF_NAME"
+    - ansible-playbook -i $ANSIBLE_INVENTORY $MANAGE_PLAYBOOK -e "build_id=$CI_COMMIT_REF_SLUG repo_version=$CI_COMMIT_REF_NAME"
   rules:
     - if: $CI_COMMIT_BRANCH =~ /^(demo|stable|staging|test)$/
       when: always
@@ -64,7 +64,7 @@ clean_previous_build:
   stage: clean_build
   environment: $CI_COMMIT_REF_NAME
   script:
-    - ansible-playbook -i $ANSIBLE_INVENTORY $DELETE_PLAYBOOK -e "build_id=$CI_COMMIT_REF_SLUG"
+    - ansible-playbook -i $ANSIBLE_INVENTORY $DELETE_PLAYBOOK -e "build_id=$CI_COMMIT_REF_SLUG repo_version=$CI_COMMIT_REF_NAME"
   rules:
     - if: $CI_COMMIT_BRANCH =~ /^(demo|stable|staging|test)$/
       when: manual
