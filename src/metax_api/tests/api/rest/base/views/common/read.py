@@ -142,7 +142,6 @@ class ApiReadPaginationTests(CatalogRecordApiReadCommon):
 
                 self.assertEqual(from_api, from_db)
 
-
 class ApiReadHTTPHeaderTests(CatalogRecordApiReadCommon):
     #
     # header if-modified-since tests, single
@@ -193,7 +192,7 @@ class ApiReadHTTPHeaderTests(CatalogRecordApiReadCommon):
 
     # List operation returns always 200 even if no datasets match the if-modified-since criterium
 
-    def test_list_get_with_if_modified_since_header_ok(self):
+    def _test_list_get_with_if_modified_since_header_ok(self):
         cr = CatalogRecord.objects.get(pk=self.pk)
         date_modified = cr.date_modified
         date_modified_in_gmt = timezone.localtime(date_modified, timezone=tz("GMT"))
@@ -233,6 +232,16 @@ class ApiReadHTTPHeaderTests(CatalogRecordApiReadCommon):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(len(response.data.get("results")) > 6)
         self.assertTrue(len(response.data.get("results")) == 28)
+
+    def test_list_get_with_if_modified_since_header_ok_as_unauthenticated_user(self):
+
+        self._set_http_authorization("no")
+        self._test_list_get_with_if_modified_since_header_ok()
+
+    def test_list_get_with_if_modified_since_header_ok_as_authenticated_user(self):
+
+        self._use_http_authorization()
+        self._test_list_get_with_if_modified_since_header_ok()
 
 
 class ApiReadQueryParamTests(CatalogRecordApiReadCommon):

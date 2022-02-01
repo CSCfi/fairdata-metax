@@ -965,6 +965,19 @@ class CatalogRecordApiReadQueryParamsTests(CatalogRecordApiReadCommon):
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(count_all, response.data["count"], response.data)
 
+    def test_filter_by_editor_permissions_user_ok(self):
+        cr = CatalogRecord.objects.get(pk=1)
+        cr.editor_permissions.users.update(user_id='test_user_x')
+        response = self.client.get(f"/rest/datasets?editor_permissions_user=test_user_x")
+        self.assertEqual(response.data["count"], 1)
+
+    def test_filter_by_editor_permissions_user_removed(self):
+        cr = CatalogRecord.objects.get(pk=1)
+        cr.editor_permissions.users.update(user_id='test_user_x')
+        cr.editor_permissions.users.first().delete()
+        response = self.client.get(f"/rest/datasets?editor_permissions_user=test_user_x")
+        self.assertEqual(response.data["count"], 0)
+
 
 class CatalogRecordApiReadXMLTransformationTests(CatalogRecordApiReadCommon):
 
@@ -1068,12 +1081,8 @@ class CatalogRecordApiReadXMLTransformationTests(CatalogRecordApiReadCommon):
 
     def _check_dataset_xml_format_response(self, response, element_name):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual("content-type" in response._headers, True, response._headers)
-        self.assertEqual(
-            "application/xml" in response._headers["content-type"][1],
-            True,
-            response._headers,
-        )
+
+
         self.assertEqual("<?xml version" in response.data[:20], True, response.data)
         self.assertEqual(element_name in response.data[:60], True, response.data)
 

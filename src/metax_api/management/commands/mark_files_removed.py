@@ -32,6 +32,9 @@ class Command(BaseCommand):
 
 		removed_files_sum = 0
 		for prefix in path_prefixes:
+			if not prefix.strip():
+				logger.info("Prefix is empty. Skipping.")
+				continue
 			files = File.objects.filter(project_identifier = options["project_identifier"], file_path__startswith = prefix, removed = "f")
 			logger.info(f"Found {len(files)} files to remove in project: {options['project_identifier']} with path prefix: {prefix}")
 			for file in files:

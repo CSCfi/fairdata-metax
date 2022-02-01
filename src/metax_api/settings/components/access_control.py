@@ -11,6 +11,7 @@ api_permissions = Box(
             "datacatalogs": {},
             "datasets": {},
             "directories": {},
+            "editorpermissions": {},
             "files": {},
             "filestorages": {},
             "schemas": {},
@@ -36,6 +37,10 @@ class Role(Enum):
     API_AUTH_USER = "api_auth_user"
     EXTERNAL = "external"
     JYU = "jyu"
+    REPORTRONIC = "reportronic"
+    AALTO = "aalto"
+    EUDAT = "eudat"
+    SD = "sd"
 
     def __ge__(self, other):
         if self.__class__ is other.__class__:
@@ -74,6 +79,8 @@ api_permissions.rest.datasets.create = [
     Role.TPAS,
     Role.QVAIN,
     Role.ETSIN,
+    Role.EUDAT,
+    Role.JYU,
 ]
 api_permissions.rest.datasets.read = [Role.ALL]
 api_permissions.rest.datasets["update"] = [
@@ -88,6 +95,32 @@ api_permissions.rest.datasets.delete = [
     Role.END_USERS,
     Role.TPAS,
     Role.QVAIN,
+    Role.ETSIN,
+]
+
+api_permissions.rest.editorpermissions.create = [
+    Role.METAX,
+    Role.END_USERS,
+    Role.TPAS,
+    Role.QVAIN,
+    Role.QVAIN_LIGHT,
+    Role.ETSIN,
+]
+api_permissions.rest.editorpermissions.read = [Role.ALL]
+api_permissions.rest.editorpermissions["update"] = [
+    Role.METAX,
+    Role.END_USERS,
+    Role.TPAS,
+    Role.QVAIN,
+    Role.QVAIN_LIGHT,
+    Role.ETSIN,
+]
+api_permissions.rest.editorpermissions.delete = [
+    Role.METAX,
+    Role.END_USERS,
+    Role.TPAS,
+    Role.QVAIN,
+    Role.QVAIN_LIGHT,
     Role.ETSIN,
 ]
 
@@ -132,6 +165,7 @@ api_permissions.rpc.datasets.change_cumulative_state.use = [Role.ALL]
 api_permissions.rpc.datasets.create_draft.use = [Role.ALL]
 api_permissions.rpc.datasets.create_new_version.use = [Role.ALL]
 api_permissions.rpc.datasets.fix_deprecated.use = [Role.ALL]
+api_permissions.rpc.datasets.flush_user_data.use = [Role.METAX, Role.IDA, Role.TPAS]
 api_permissions.rpc.datasets.get_minimal_dataset_template.use = [Role.ALL]
 api_permissions.rpc.datasets.merge_draft.use = [Role.ALL]
 api_permissions.rpc.datasets.publish_dataset.use = [Role.ALL]

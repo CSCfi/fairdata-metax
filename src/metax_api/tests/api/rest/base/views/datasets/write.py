@@ -556,6 +556,23 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
             response.data["research_dataset"]["preferred_identifier"].startswith("urn:")
         )
 
+    def test_create_catalog_record_adds_creator_permission(self):
+        response = self.client.post(
+            "/rest/datasets",
+            self.cr_test_data,
+            format="json",
+        )
+        cr = CatalogRecord.objects.get(id=response.data["id"])
+        self.assertEqual(
+            list(cr.editor_permissions.users.values("user_id", "role")),
+            [
+                {
+                    "user_id": self.cr_test_data["metadata_provider_user"],
+                    "role": "creator",
+                }
+            ],
+        )
+
 
 class CatalogRecordApiWriteIdentifierUniqueness(CatalogRecordApiWriteCommon):
     """
@@ -1056,6 +1073,29 @@ class CatalogRecordApiWriteUpdateTests(CatalogRecordApiWriteCommon):
         cr_depr = CatalogRecord.objects.get(identifier=cr_id)
         self.assertTrue(cr_depr.deprecated)
         # self.assertEqual(cr_depr.date_modified, cr_depr.date_deprecated, 'date_modified should be updated')
+
+    def test_catalog_record_create_reportronic_dataset(self):
+
+        # Create the reportronic catalog
+        dc_id = django_settings.REPORTRONIC_DATA_CATALOG_IDENTIFIER
+        blueprint_dc = DataCatalog.objects.get(pk=1)
+        catalog_json = blueprint_dc.catalog_json
+        catalog_json["identifier"] = dc_id
+        catalog_json["dataset_versioning"] = False
+        catalog_json["research_dataset_schema"] = "att"
+        dc = DataCatalog.objects.create(
+            catalog_json=catalog_json,
+            date_created=get_tz_aware_now_without_micros(),
+            catalog_record_services_create="testuser,api_auth_user,metax",
+            catalog_record_services_edit="testuser,api_auth_user,metax",
+            catalog_record_services_read="testuser,api_auth_user,metax",
+        )
+        cr = self._get_new_full_test_att_cr_data()
+        dc_json = self.client.get(f"/rest/datacatalogs/{dc_id}").data
+        cr["data_catalog"] = dc_json
+        cr_posted = self.client.post("/rest/datasets", cr, format="json")
+        # ic(RabbitMQService.messages.pop())
+        self.assertEqual(cr_posted.status_code, 201, cr_posted.data)
 
     def test_change_datacatalog_ATT_to_IDA(self):
         cr = self._get_new_full_test_att_cr_data()
@@ -4686,6 +4726,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         for entity in ["user", "workflow", "license", "resource", "catalogue-item"]:
             self._mock_rems_write_access_succeeds("POST", entity, "create")
 
+        self._mock_rems_read_access_organization_succeeds()
         self._mock_rems_read_access_succeeds("license")
 
         # mock successful rems access for deletion. Add fails later
@@ -4737,7 +4778,44 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
             status=200,
         )
 
+    def _mock_rems_read_access_organization_succeeds(self):
+        resp = {
+                    "archived": False,
+                    "organization/id": django_settings.REMS["ORGANIZATION"],
+                    "organization/short-name": {
+                        "fi": "Test org",
+                        "en": "Test org",
+                        "sv": "Test org"
+                    },
+                    "organization/review-emails": [],
+                    "enabled": True,
+                    "organization/owners": [],
+                    "organization/modifier": {
+                        "userid": "RDowner@funet.fi",
+                        "name": "RDowner REMSDEMO",
+                        "email": "RDowner.test@test_example.org"
+                    },
+                    "organization/last-modified": "2022-01-05T00:01:44.034Z",
+                    "organization/name": {
+                        "fi": "Test organization",
+                        "en": "Test organization",
+                        "sv": "Test organization"
+                    }
+                }
+        responses.add(
+            responses.GET,
+            f"{django_settings.REMS['BASE_URL']}/organizations/{django_settings.REMS['ORGANIZATION']}",
+            json=resp,
+            status=200,
+        )
+
     def _mock_rems_read_access_succeeds(self, entity):
+
+        organization = {
+            "organization/id": django_settings.REMS["ORGANIZATION"],
+            "organization/short-name": {"fi": "Test org", "en": "Test org", "sv": "Test org"},
+            "organization/name": {"fi": "Test organization", "en": "Test organization", "sv": "Test organization"},
+        }
         if entity == "license":
             resp = [
                 {
@@ -4745,6 +4823,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
                     "licensetype": "link",
                     "enabled": True,
                     "archived": False,
+                    "organization": organization,
                     "localizations": {
                         "fi": {
                             "title": self.rf["reference_data"]["license"][0]["label"]["fi"],
@@ -4761,6 +4840,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
                     "licensetype": "link",
                     "enabled": True,
                     "archived": False,
+                    "organization": organization,
                     "localizations": {
                         "en": {
                             "title": self.rf["reference_data"]["license"][1]["label"]["en"],
@@ -4774,6 +4854,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
             resp = [
                 {
                     "archived": False,
+                    "organization": organization,
                     "localizations": {
                         "en": {
                             "id": 18,

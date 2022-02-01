@@ -8,7 +8,7 @@
 import logging
 
 from django.db import connection, models
-from django.db.models import Count, Prefetch, Sum
+from django.db.models import Count, Prefetch, Sum, Q
 
 from .common import Common
 from .file import File
@@ -71,23 +71,24 @@ class Directory(Common):
         )
 
         update_statements = []
+        annotated_root_directory = self._get_project_directory_tree(with_own_sizes=True)
+        annotated_root_directory._calculate_byte_size_and_file_count(update_statements)
 
-        self._calculate_byte_size_and_file_count(update_statements)
+        if len(update_statements) > 0:
+            sql_update_all_directories = """
+                update metax_api_directory as d set
+                    byte_size = results.byte_size,
+                    file_count = results.file_count
+                from (values
+                    %s
+                ) as results(byte_size, file_count, id)
+                where results.id = d.id;
+                """ % ",".join(
+                update_statements
+            )
 
-        sql_update_all_directories = """
-            update metax_api_directory as d set
-                byte_size = results.byte_size,
-                file_count = results.file_count
-            from (values
-                %s
-            ) as results(byte_size, file_count, id)
-            where results.id = d.id;
-            """ % ",".join(
-            update_statements
-        )
-
-        with connection.cursor() as cursor:
-            cursor.execute(sql_update_all_directories)
+            with connection.cursor() as cursor:
+                cursor.execute(sql_update_all_directories)
 
         _logger.info(
             "Project %s directory tree calculations complete. Total byte_size: "
@@ -100,39 +101,59 @@ class Directory(Common):
             )
         )
 
+    def _get_project_directory_tree(self, with_own_sizes=False):
+        """
+        Get all project directories from DB in single query. Returns current directory with
+        subdirectories in directory.sub_dirs.
+
+        Optionally, annotate directories with total size and
+        count of files they contain as own_byte_size and own_file_count.
+        """
+        project_directories = Directory.objects.filter(
+            project_identifier=self.project_identifier
+        ).only("file_count", "byte_size", "parent_directory_id")
+
+        if with_own_sizes:
+            project_directories = project_directories.annotate(
+                own_byte_size=Sum("files__byte_size", filter=Q(files__removed=False)),
+                own_file_count=Count("files", filter=Q(files__removed=False)),
+            )
+
+        # build directory tree from annotated directories
+        directories_by_id = {d.id: d for d in project_directories}
+        for d in project_directories:
+            d.sub_dirs = []
+        for d in project_directories:
+            if d.parent_directory_id is not None:
+                directories_by_id[d.parent_directory_id].sub_dirs.append(d)
+        annotated_root_directory = directories_by_id.get(self.id)
+        return annotated_root_directory
+
     def _calculate_byte_size_and_file_count(self, update_statements):
         """
         Recursively traverse the entire directory tree and update total byte size and file count
         for each directory. Accumulates a list of triplets for a big sql-update statement.
         """
+        old_byte_size = self.byte_size
+        old_file_count = self.file_count
         self.byte_size = 0
         self.file_count = 0
 
-        # fields id, parent_directory_id must be specified for joining for Prefetch-object to work properly
-        sub_dirs = (
-            self.child_directories.all()
-            .only("byte_size", "parent_directory_id")
-            .prefetch_related(
-                Prefetch(
-                    "files",
-                    queryset=File.objects.only("id", "byte_size", "parent_directory_id"),
-                )
-            )
-        )
-
-        if sub_dirs:
-            for sub_dir in sub_dirs:
+        if self.sub_dirs:
+            for sub_dir in self.sub_dirs:
                 sub_dir._calculate_byte_size_and_file_count(update_statements)
 
             # sub dir numbers
-            self.byte_size = sum(d.byte_size for d in sub_dirs)
-            self.file_count = sum(d.file_count for d in sub_dirs)
+            self.byte_size = sum(d.byte_size for d in self.sub_dirs)
+            self.file_count = sum(d.file_count for d in self.sub_dirs)
 
         # note: never actually saved using .save()
-        self.byte_size += sum(f.byte_size for f in self.files.all()) or 0
-        self.file_count += len(self.files.all()) or 0
+        self.byte_size += self.own_byte_size or 0
+        self.file_count += self.own_file_count or 0
 
-        update_statements.append("(%d, %d, %d)" % (self.byte_size, self.file_count, self.id))
+        # add updated values if changed
+        if self.byte_size != old_byte_size or self.file_count != old_file_count:
+            update_statements.append("(%d, %d, %d)" % (self.byte_size, self.file_count, self.id))
 
     def calculate_byte_size_and_file_count_for_cr(self, cr_id, directory_data):
         """
@@ -156,7 +177,10 @@ class Directory(Common):
             parent_id: (byte_size, file_count) for parent_id, byte_size, file_count in stats
         }
 
-        self._calculate_byte_size_and_file_count_for_cr(grouped_by_dir, directory_data)
+        directory_tree = self._get_project_directory_tree()
+        directory_tree._calculate_byte_size_and_file_count_for_cr(
+            grouped_by_dir, directory_data
+        )
 
     def _calculate_byte_size_and_file_count_for_cr(self, grouped_by_dir, directory_data):
         """
@@ -173,15 +197,13 @@ class Directory(Common):
         self.byte_size = 0
         self.file_count = 0
 
-        sub_dirs = self.child_directories.all().only("id")
-
-        if sub_dirs:
-            for sub_dir in sub_dirs:
+        if self.sub_dirs:
+            for sub_dir in self.sub_dirs:
                 sub_dir._calculate_byte_size_and_file_count_for_cr(grouped_by_dir, directory_data)
 
             # sub dir numbers
-            self.byte_size = sum(d.byte_size for d in sub_dirs)
-            self.file_count = sum(d.file_count for d in sub_dirs)
+            self.byte_size = sum(d.byte_size for d in self.sub_dirs)
+            self.file_count = sum(d.file_count for d in self.sub_dirs)
 
         current_dir = grouped_by_dir.get(self.id, [0, 0])
 

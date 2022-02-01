@@ -209,10 +209,11 @@ class _RabbitMQServiceDummy:
     """
 
     def __init__(self, settings=settings):
-        pass
+        self.messages = []
 
     def publish(self, body, routing_key="", exchange="datasets", persistent=True):
-        pass
+        msg = {"body":body, "routing_key":routing_key, "exchange":exchange, "persistent":persistent}
+        self.messages.append(msg)
 
     def init_exchanges(self, *args, **kwargs):
         pass

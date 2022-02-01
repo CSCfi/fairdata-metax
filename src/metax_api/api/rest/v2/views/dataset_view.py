@@ -41,7 +41,7 @@ class DatasetViewSet(DatasetViewSet):
         cr = self.get_object()
 
         if not cr.user_is_privileged(request):
-            raise Http403
+            raise Http403({"detail": ["Access denied."]})
 
         projects = [
             p

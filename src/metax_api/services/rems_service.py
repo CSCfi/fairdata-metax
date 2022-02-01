@@ -39,6 +39,7 @@ class REMSService:
         self.reporter_user = settings["REPORTER_USER"]
         self.auto_approver = settings["AUTO_APPROVER"]
         self.form_id = settings["FORM_ID"]
+        self.organization = settings["ORGANIZATION"]
 
         self.headers = {
             "x-rems-api-key": self.api_key,
@@ -59,6 +60,9 @@ class REMSService:
         Creates all the necessary elements to create catalogue-item for the dataset in REMS
         """
         self.cr = cr
+
+        # raise error if configured organization does not exist in REMS
+        self._get_rems_organization()
 
         # create user. Successful even if userid is already taken
         self._post_rems("user", user_info)
@@ -112,6 +116,12 @@ class REMSService:
 
         return rems_ci
 
+    def _get_rems_organization(self):
+        """
+        Get configured organization object from REMS.
+        """
+        return self._get_rems("organization", id=self.organization)
+
     def _close_applications(self, rems_id, reason):
         """
         Get all applications that are related to dataset and close them.
@@ -153,7 +163,7 @@ class REMSService:
 
     def _create_workflow(self, user_id):
         body = {
-            "organization": self.cr.metadata_owner_org,
+            "organization": {"organization/id": self.organization},
             "title": self.cr.research_dataset["preferred_identifier"],
             "type": "workflow/default",
             "handlers": [user_id],
@@ -176,7 +186,11 @@ class REMSService:
             if any([v["textcontent"] == license_url for v in lic["localizations"].values()]):
                 return lic["id"]
 
-        body = {"licensetype": "link", "localizations": {}}
+        body = {
+            "licensetype": "link",
+            "localizations": {},
+            "organization": {"organization/id": self.organization},
+        }
 
         for lang in list(license["title"].keys()):
             body["localizations"].update(
@@ -190,7 +204,7 @@ class REMSService:
     def _create_resource(self, license_id):
         body = {
             "resid": self.cr.rems_identifier,
-            "organization": self.cr.metadata_owner_org,
+            "organization": {"organization/id": self.organization},
             "licenses": [license_id],
         }
 
@@ -207,6 +221,7 @@ class REMSService:
             "wfid": wf_id,
             "localizations": {},
             "enabled": True,
+            "organization": {"organization/id": self.organization},
         }
 
         for lang in list(rd_title.keys()):
@@ -273,9 +288,17 @@ class REMSService:
 
         return resp
 
-    def _get_rems(self, entity, params=""):
+    def _get_rems(self, entity, params="", id=None):
+        """Get list of REMS entities or single entity by id. """
+        if id:
+            id_path = f"/{id}"
+        else:
+            id_path = ""
+
         try:
-            response = requests.get(f"{self.base_url}/{entity}s?{params}", headers=self.headers)
+            response = requests.get(
+                f"{self.base_url}/{entity}s{id_path}?{params}", headers=self.headers
+            )
 
         except Exception as e:
             raise Exception(f"Connection to REMS failed while getting {entity}. Error: {e}")

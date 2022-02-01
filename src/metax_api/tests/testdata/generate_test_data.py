@@ -7,6 +7,7 @@
 
 import os
 import sys
+import uuid
 from copy import deepcopy
 from json import dump as json_dump, load as json_load
 
@@ -268,6 +269,7 @@ def save_test_data(
     contract_list,
     catalog_record_list,
     dataset_version_sets,
+    editor_permissions,
 ):
     with open("test_data.json", "w") as f:
         print("dumping test data as json to metax_api/tests/test_data.json...")
@@ -278,6 +280,7 @@ def save_test_data(
             + data_catalogs_list
             + contract_list
             + dataset_version_sets
+            + editor_permissions
             + catalog_record_list,
             f,
             indent=4,
@@ -368,6 +371,30 @@ def generate_contracts(contract_max_rows, validate_json):
     return test_contract_list
 
 
+def add_editor_permissions(editor_permissions, dataset):
+    # add EditorPermissions
+    pk = len(editor_permissions)
+    rights_pk = str(uuid.UUID(int=pk))
+    editor_perms = {
+        "fields": {},
+        "model": "metax_api.editorpermissions",
+        "pk": rights_pk,
+    }
+    editor_permissions.append(editor_perms)
+    editor_user_perms = {
+        "fields": {
+            "user_id": dataset["fields"]["metadata_provider_user"],
+            "date_created": dataset["fields"]["date_created"],
+            "editor_permissions_id": rights_pk,
+            "role": "creator",
+        },
+        "model": "metax_api.editoruserpermission",
+        "pk": str(uuid.UUID(int=pk + 1)),
+    }
+    editor_permissions.append(editor_user_perms)
+    dataset["fields"]["editor_permissions_id"] = rights_pk
+
+
 def generate_catalog_records(
     basic_catalog_record_max_rows,
     data_catalogs_list,
@@ -377,6 +404,7 @@ def generate_catalog_records(
     type,
     test_data_list=[],
     dataset_version_sets=[],
+    editor_permissions=[],
 ):
     print("generating %s catalog records..." % type)
 
@@ -426,6 +454,8 @@ def generate_catalog_records(
         new["fields"]["date_created"] = "2017-05-23T10:07:22Z"
         new["fields"]["files"] = []
 
+        add_editor_permissions(editor_permissions, new)
+
         # add files
 
         if type == "ida":
@@ -454,62 +484,46 @@ def generate_catalog_records(
                     # first fifth of files
                     dataset_files[-1]["file_type"] = {
                         "identifier": "http://uri.suomi.fi/codelist/fairdata/file_type/code/text",
-                        "pref_label": {
-                            "fi": "Teksti",
-                            "en": "Text",
-                            "und": "Teksti"
-                        },
-                        "in_scheme": "http://uri.suomi.fi/codelist/fairdata/file_type"
+                        "pref_label": {"fi": "Teksti", "en": "Text", "und": "Teksti"},
+                        "in_scheme": "http://uri.suomi.fi/codelist/fairdata/file_type",
                     }
                     dataset_files[-1]["use_category"] = {
                         "identifier": "http://uri.suomi.fi/codelist/fairdata/use_category/code/source",
                         "pref_label": {
                             "fi": "Lähdeaineisto",
                             "en": "Source material",
-                            "und": "Lähdeaineisto"
+                            "und": "Lähdeaineisto",
                         },
-                        "in_scheme": "http://uri.suomi.fi/codelist/fairdata/use_category"
+                        "in_scheme": "http://uri.suomi.fi/codelist/fairdata/use_category",
                     }
 
                 elif file_divider <= j < (file_divider * 2):
                     # second fifth of files
                     dataset_files[-1]["file_type"] = {
                         "identifier": "http://uri.suomi.fi/codelist/fairdata/file_type/code/video",
-                        "pref_label": {
-                            "fi": "Video",
-                            "en": "Video",
-                            "und": "Video"
-                        },
-                        "in_scheme": "http://uri.suomi.fi/codelist/fairdata/file_type"
+                        "pref_label": {"fi": "Video", "en": "Video", "und": "Video"},
+                        "in_scheme": "http://uri.suomi.fi/codelist/fairdata/file_type",
                     }
                     dataset_files[-1]["use_category"] = {
                         "identifier": "http://uri.suomi.fi/codelist/fairdata/use_category/code/outcome",
                         "pref_label": {
                             "fi": "Tulosaineisto",
                             "en": "Outcome material",
-                            "und": "Tulosaineisto"
+                            "und": "Tulosaineisto",
                         },
-                        "in_scheme": "http://uri.suomi.fi/codelist/fairdata/use_category"
+                        "in_scheme": "http://uri.suomi.fi/codelist/fairdata/use_category",
                     }
                 elif (file_divider * 2) <= j < (file_divider * 3):
                     # third fifth of files
                     dataset_files[-1]["file_type"] = {
                         "identifier": "http://uri.suomi.fi/codelist/fairdata/file_type/code/image",
-                        "pref_label": {
-                            "fi": "Kuva",
-                            "en": "Image",
-                            "und": "Kuva"
-                        },
-                        "in_scheme": "http://uri.suomi.fi/codelist/fairdata/file_type"
+                        "pref_label": {"fi": "Kuva", "en": "Image", "und": "Kuva"},
+                        "in_scheme": "http://uri.suomi.fi/codelist/fairdata/file_type",
                     }
                     dataset_files[-1]["use_category"] = {
                         "identifier": "http://uri.suomi.fi/codelist/fairdata/use_category/code/publication",
-                        "pref_label": {
-                            "fi": "Julkaisu",
-                            "en": "Publication",
-                            "und": "Julkaisu"
-                        },
-                        "in_scheme": "http://uri.suomi.fi/codelist/fairdata/use_category"
+                        "pref_label": {"fi": "Julkaisu", "en": "Publication", "und": "Julkaisu"},
+                        "in_scheme": "http://uri.suomi.fi/codelist/fairdata/use_category",
                     }
                 elif (file_divider * 3) <= j < (file_divider * 4):
                     # fourth fifth of files
@@ -518,18 +532,18 @@ def generate_catalog_records(
                         "pref_label": {
                             "fi": "Lähdekoodi",
                             "en": "Source code",
-                            "und": "Lähdekoodi"
+                            "und": "Lähdekoodi",
                         },
-                        "in_scheme": "http://uri.suomi.fi/codelist/fairdata/file_type"
+                        "in_scheme": "http://uri.suomi.fi/codelist/fairdata/file_type",
                     }
                     dataset_files[-1]["use_category"] = {
                         "identifier": "http://uri.suomi.fi/codelist/fairdata/use_category/code/documentation",
                         "pref_label": {
                             "fi": "Dokumentaatio",
                             "en": "Documentation",
-                            "und": "Dokumentaatio"
+                            "und": "Dokumentaatio",
                         },
-                        "in_scheme": "http://uri.suomi.fi/codelist/fairdata/use_category"
+                        "in_scheme": "http://uri.suomi.fi/codelist/fairdata/use_category",
                     }
                 else:
                     # the rest of files
@@ -652,6 +666,8 @@ def generate_catalog_records(
         new["fields"]["date_modified"] = "2017-09-23T10:07:22Z"
         new["fields"]["date_created"] = "2017-05-23T10:07:22Z"
 
+        add_editor_permissions(editor_permissions, new)
+
         new["fields"]["research_dataset"]["metadata_version_identifier"] = generate_test_identifier(
             cr_type, len(test_data_list) + 1, urn=False
         )
@@ -761,7 +777,7 @@ def generate_catalog_records(
         json_validate(new["fields"]["research_dataset"], json_schema)
         test_data_list.append(new)
 
-    return test_data_list, dataset_version_sets
+    return test_data_list, dataset_version_sets, editor_permissions
 
 
 def generate_alt_catalog_records(test_data_list):
@@ -844,7 +860,7 @@ if __name__ == "__main__":
         ida_data_catalog_max_rows + 1, att_data_catalog_max_rows, validate_json, "att"
     )
 
-    catalog_record_list, dataset_version_sets = generate_catalog_records(
+    catalog_record_list, dataset_version_sets, editor_permissions = generate_catalog_records(
         ida_catalog_record_max_rows,
         ida_data_catalogs_list,
         contract_list,
@@ -853,7 +869,7 @@ if __name__ == "__main__":
         "ida",
     )
 
-    catalog_record_list, dataset_version_sets = generate_catalog_records(
+    catalog_record_list, dataset_version_sets, editor_permissions = generate_catalog_records(
         att_catalog_record_max_rows,
         att_data_catalogs_list,
         contract_list,
@@ -862,6 +878,7 @@ if __name__ == "__main__":
         "att",
         catalog_record_list,
         dataset_version_sets,
+        editor_permissions,
     )
 
     catalog_record_list = generate_alt_catalog_records(catalog_record_list)
@@ -876,6 +893,7 @@ if __name__ == "__main__":
         contract_list,
         catalog_record_list,
         dataset_version_sets,
+        editor_permissions,
     )
 
     print("done")

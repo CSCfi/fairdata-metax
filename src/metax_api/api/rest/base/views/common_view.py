@@ -176,10 +176,10 @@ class CommonViewSet(ModelViewSet):
         q_filters = []
         deduplicated_q_filters = []
 
-        CS.set_if_modified_since_filter(self.request, additional_filters)
-
         if hasattr(self, "queryset_search_params"):
             additional_filters.update(**self.queryset_search_params)
+
+        CS.set_if_modified_since_filter(self.request, additional_filters)
 
         if "q_filters" in additional_filters:
             # Q-filter objects, which can contain more complex filter options such as OR-clauses
@@ -377,7 +377,9 @@ class CommonViewSet(ModelViewSet):
         """
         if "failed" in response.data and len(response.data["failed"]):
             try:
-                error_json = ApiErrorSerializerV2.request_to_json(self.request, response, other={"bulk_request": True})
+                error_json = ApiErrorSerializerV2.request_to_json(
+                    self.request, response, other={"bulk_request": True}
+                )
                 response.data["error_identifier"] = error_json["identifier"]
                 if settings.ENABLE_API_ERROR_OBJECTS:
                     rabbitmq.publish(error_json, exchange="apierrors")
