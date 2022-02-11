@@ -281,8 +281,11 @@ class MetaxOAIServer(ResumptionOAIPMH):
 
         publisher = []
         publisher_data = json.get("publisher", {})
-        for key, value in publisher_data.get("name", {}).items():
-            publisher.append(self._get_oaic_dc_value(value, key))
+        if publisher_data.get("@type") == "Person":
+            publisher.append(self._get_oaic_dc_value(publisher_data.get("name")))
+        else:
+            for key, value in publisher_data.get("name", {}).items():
+                publisher.append(self._get_oaic_dc_value(value, key))
 
         contributor = []
         contributor_data = json.get("contributor", [])
