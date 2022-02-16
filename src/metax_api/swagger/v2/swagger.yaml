@@ -1001,6 +1001,16 @@ paths:
           description: Returns datasets that can be edited with certain api version. Possible values are 1 and 2
           type: integer
           required: false
+        - name: projects
+          in: query
+          description: Filter datasets with comma-separated list of IDA projects
+          required: false
+          type: string
+        - name: editor_permissions_user
+          in: query
+          description: Filter datasets where user has editor permissions
+          required: false
+          type: string
         - $ref: "#/parameters/include_user_metadata"
         - $ref: "#/parameters/fields"
         - $ref: "#/parameters/include_legacy"
@@ -2452,6 +2462,7 @@ parameters:
     description: Includes legacy datasets in query. Parameter needs to be given when fetching, modifying or deleting legacy datasets.
     required: false
     default: false
+    type: boolean
 
 definitions:
   AddOrDeleteUserMetadata:
