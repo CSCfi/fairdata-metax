@@ -9,6 +9,7 @@ import lxml.etree
 from django.core.management import call_command
 from rest_framework import status
 from rest_framework.test import APITestCase
+from urllib import parse
 
 from metax_api.api.oaipmh.base.metax_oai_server import SYKE_URL_PREFIX_TEMPLATE
 from metax_api.models import CatalogRecord
@@ -66,7 +67,7 @@ class SYKEOAIPMHReadTests(APITestCase, TestClassUtils):
         )
         self.assertTrue(len(identifiers) == 1, response.content)
 
-        syke_url = SYKE_URL_PREFIX_TEMPLATE % "{55AB842F-9CED-4E80-A7E5-07A54F0AE4A4}"
+        syke_url = SYKE_URL_PREFIX_TEMPLATE % parse.quote("{55AB842F-9CED-4E80-A7E5-07A54F0AE4A4}")
         identifiers = self._get_results(
             response.content,
             '//o:record/o:metadata/oai_dc:dc/dc:identifier[text()="%s"]' % syke_url,

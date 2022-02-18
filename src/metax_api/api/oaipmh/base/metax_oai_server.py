@@ -6,8 +6,10 @@
 # :license: MIT
 
 import datetime
+from urllib import parse
 
 from django.conf import settings
+from django.db.models import QuerySet
 from django.utils import timezone
 from oaipmh import common
 from oaipmh.common import ResumptionOAIPMH
@@ -62,13 +64,9 @@ class MetaxOAIServer(ResumptionOAIPMH):
         return catalog_urns
 
     def _get_urnresolver_record_data(self, set, cursor, batch_size, from_=None, until=None):
-        proxy = CatalogRecord
-        if set == DATACATALOGS_SET:
-            proxy = DataCatalog
-
         # Use unfiltered objects for fetching catalog records for urn resolver, since otherwise deleted objects
         # won't appear in the result. Get only active objects.
-        records = proxy.objects_unfiltered.filter(active=True)
+        records = CatalogRecord.objects_unfiltered.filter(active=True, state="published")
 
         if from_ and until:
             records = records.filter(date_modified__gte=from_, date_modified__lte=until)
@@ -109,19 +107,19 @@ class MetaxOAIServer(ResumptionOAIPMH):
     def _get_filtered_records_data(
         self, verb, metadata_prefix, set, cursor, batch_size, from_=None, until=None
     ):
-        proxy = CatalogRecord
+        query_set: QuerySet
         if set == DATACATALOGS_SET:
-            proxy = DataCatalog
-
-        # For NON urn resolver, only get non-deleted active objects
-        query_set = proxy.objects.all()
+            query_set = DataCatalog.objects.all()
+        else:
+            # For NON urn resolver, only get non-deleted active CatalogRecords
+            query_set = CatalogRecord.objects.filter(active=True, state="published")
 
         if from_ and until:
-            query_set = proxy.objects.filter(date_modified__gte=from_, date_modified__lte=until)
+            query_set = query_set.filter(date_modified__gte=from_, date_modified__lte=until)
         elif from_:
-            query_set = proxy.objects.filter(date_modified__gte=from_)
+            query_set = query_set.filter(date_modified__gte=from_)
         elif until:
-            query_set = proxy.objects.filter(date_modified__lte=until)
+            query_set = query_set.filter(date_modified__lte=until)
 
         if set:
             if set == DATACATALOGS_SET:
@@ -134,7 +132,6 @@ class MetaxOAIServer(ResumptionOAIPMH):
             query_set = query_set.filter(
                 data_catalog__catalog_json__identifier__in=self._get_default_set_filter()
             )
-            query_set = query_set.filter(state="published")
 
         data = []
         for record in query_set:
@@ -171,16 +168,22 @@ class MetaxOAIServer(ResumptionOAIPMH):
         cursor_end = cursor + batch_size if cursor + batch_size < len(data) else len(data)
         return data[cursor:cursor_end]
 
-    def _handle_syke_urnresolver_metadata(self, record):
-        identifiers = []
-        preferred_identifier = record.research_dataset.get("preferred_identifier")
-        identifiers.append(preferred_identifier)
-        for id_obj in record.research_dataset.get("other_identifier", []):
+    def _get_syke_urnresolver_metadata_for_record(self, record):
+        metadatas = []
+        pref_id = record["research_dataset"].get("preferred_identifier")
+        for id_obj in record["research_dataset"].get("other_identifier", []):
             if id_obj.get("notation", "").startswith("{"):
                 uuid = id_obj["notation"]
-                identifiers.append(SYKE_URL_PREFIX_TEMPLATE % uuid)
+                metadatas.append(
+                    {
+                        "identifier": [
+                            SYKE_URL_PREFIX_TEMPLATE % parse.quote(uuid),
+                            pref_id,
+                        ]
+                    }
+                )
                 break
-        return identifiers
+        return metadatas
 
     def _get_oai_dc_urnresolver_metadatas_for_record(self, record):
         """
@@ -197,23 +200,10 @@ class MetaxOAIServer(ResumptionOAIPMH):
             pref_id = record["research_dataset"].get("preferred_identifier")
             dc_id = record["data_catalog__catalog_json"].get("identifier")
             is_harvested = record["data_catalog__catalog_json"].get("harvested", False) is True
-            if record["research_dataset"].get("other_identifier") is not None:
-                other_ids = record["research_dataset"].get("other_identifier")
-            else:
-                other_ids = []
+            other_ids = record["research_dataset"].get("other_identifier", [])
 
             if dc_id == "urn:nbn:fi:att:data-catalog-harvest-syke":
-                for id_obj in other_ids:
-                    if id_obj.get("notation", "").startswith("{"):
-                        metadatas.append(
-                            {
-                                "identifier": [
-                                    SYKE_URL_PREFIX_TEMPLATE % id_obj["notation"],
-                                    pref_id,
-                                ]
-                            }
-                        )
-                        break
+                metadatas.extend(self._get_syke_urnresolver_metadata_for_record(record))
 
             elif dc_id not in settings.LEGACY_CATALOGS:
                 resolution_url = settings.OAI["ETSIN_URL_TEMPLATE"] % record["identifier"]
@@ -429,7 +419,9 @@ class MetaxOAIServer(ResumptionOAIPMH):
         """Implement OAI-PMH verb Identify ."""
         first = (
             CatalogRecord.objects.filter(
-                data_catalog__catalog_json__identifier__in=self._get_default_set_filter()
+                active=True,
+                state="published",
+                data_catalog__catalog_json__identifier__in=self._get_default_set_filter(),
             )
             .order_by("date_created")
             .values_list("date_created", flat=True)
