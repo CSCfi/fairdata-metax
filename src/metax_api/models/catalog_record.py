@@ -654,7 +654,7 @@ class CatalogRecord(Common):
         if request.user.username in ids:
             return True
         elif self.user_is_owner(request):
-            raise True
+            return True
         else:
             raise Http404
 
