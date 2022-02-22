@@ -656,7 +656,7 @@ class CatalogRecord(Common):
         elif self.user_is_owner(request):
             return True
         else:
-            raise Http404
+            return False
 
     def _check_catalog_permissions(self, catalog_groups, catalog_services, request=None):
         """
