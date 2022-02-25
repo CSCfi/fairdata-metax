@@ -149,6 +149,12 @@ class OAIPMHReadTests(APITestCase, TestClassUtils):
         headers = self._get_results(response.content, "//o:header")
         self.assertFalse(len(headers) == len(allRecords), len(headers))
 
+        # drafts should also be filtered when set=datasets is set explicitly
+        response = self.client.get("/oai/?verb=ListIdentifiers&metadataPrefix=oai_dc&set=datasets")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        headers = self._get_results(response.content, "//o:header")
+        self.assertFalse(len(headers) == len(allRecords), len(headers))
+
     def test_list_identifiers_from_datacatalogs_set(self):
         allRecords = DataCatalog.objects.all()[: settings.OAI["BATCH_SIZE"]]
         response = self.client.get(
