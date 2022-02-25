@@ -235,6 +235,17 @@ class MetaxOAIServer(ResumptionOAIPMH):
             valueDict["lang"] = lang
         return valueDict
 
+    def _get_actors_oaic_dc_value(self, actors):
+        names = []
+        for actor in actors:
+            if "name" in actor:
+                if isinstance(actor["name"], dict):
+                    for key, val in actor["name"].items():
+                        names.append(self._get_oaic_dc_value(val, key))
+                else:
+                    names.append(self._get_oaic_dc_value(actor.get("name")))
+        return names
+
     def _get_oai_dc_metadata(self, record, json):
         identifier = []
         if "preferred_identifier" in json:
@@ -247,15 +258,7 @@ class MetaxOAIServer(ResumptionOAIPMH):
         for key, value in title_data.items():
             title.append(self._get_oaic_dc_value(value, key))
 
-        creator = []
-        creator_data = json.get("creator", [])
-        for value in creator_data:
-            if "name" in value:
-                if isinstance(value["name"], dict):
-                    for key, val in value["name"].items():
-                        creator.append(self._get_oaic_dc_value(val, key))
-                else:
-                    creator.append(self._get_oaic_dc_value(value.get("name")))
+        creator = self._get_actors_oaic_dc_value(json.get("creator", []))
 
         subject = []
         subject_data = json.get("keyword", [])
@@ -279,23 +282,9 @@ class MetaxOAIServer(ResumptionOAIPMH):
             else:
                 desc.append(desc_data)
 
-        publisher = []
-        publisher_data = json.get("publisher", {})
-        if publisher_data.get("@type") == "Person":
-            publisher.append(self._get_oaic_dc_value(publisher_data.get("name")))
-        else:
-            for key, value in publisher_data.get("name", {}).items():
-                publisher.append(self._get_oaic_dc_value(value, key))
+        publisher = self._get_actors_oaic_dc_value([json.get("publisher", {})])
 
-        contributor = []
-        contributor_data = json.get("contributor", [])
-        for value in contributor_data:
-            if "name" in value:
-                if isinstance(value["name"], dict):
-                    for key, val in value["name"].items():
-                        contributor.append(self._get_oaic_dc_value(val, key))
-                else:
-                    contributor.append(self._get_oaic_dc_value(value.get("name")))
+        contributor = self._get_actors_oaic_dc_value([json.get("contributor", [])])
 
         date = self._get_oaic_dc_value(str(record.date_created))
 
