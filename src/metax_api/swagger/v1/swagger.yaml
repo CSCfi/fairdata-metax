@@ -1001,6 +1001,11 @@ paths:
           description: Filter datasets with comma-separated list of IDA projects
           required: false
           type: string
+        - name: editor_permissions_user
+          in: query
+          description: Filter datasets where user has editor permissions
+          required: false
+          type: string
         - $ref: "#/parameters/fields"
         - $ref: "#/parameters/include_legacy"
       responses:
@@ -2156,7 +2161,7 @@ parameters:
     description: Includes legacy datasets in query. Parameter needs to be given when fetching, modifying or deleting legacy datasets.
     required: false
     default: false
-
+    type: boolean
 
 definitions:
   CatalogRecord:

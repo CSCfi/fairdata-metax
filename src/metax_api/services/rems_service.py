@@ -24,6 +24,10 @@ class REMSException(Exception):
     pass
 
 
+class REMSCatalogItemNotFoundException(REMSException):
+    pass
+
+
 class REMSService:
     def __init__(self):
         if not hasattr(django_settings, "REMS"):
@@ -73,6 +77,13 @@ class REMSService:
 
         self._create_catalogue_item(res_id, wf_id)
 
+    def get_rems_entity(self, cr):
+        """
+        Get rems catalogue item for cr.
+        """
+        rems_ci = self._get_catalogue_item(cr.rems_identifier)
+        return rems_ci
+
     def close_rems_entity(self, old_rems_id, reason):
         """
         Closes all applications and archives and disables all related entities
@@ -112,7 +123,9 @@ class REMSService:
 
         if len(rems_ci) < 1:  # pragma: no cover
             # this should not happen
-            raise REMSException(f"Could not find catalogue-item for {rems_id} in REMS.")
+            raise REMSCatalogItemNotFoundException(
+                f"Could not find catalogue-item for {rems_id} in REMS."
+            )
 
         return rems_ci
 

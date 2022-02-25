@@ -447,16 +447,27 @@ class _DataciteService(CommonService):
     def _licenses(access_rights):
         licenses = []
         for license in access_rights["license"]:
-            for lang in license["title"].keys():
+            # If only URL of the license is submitted. Use "en" as language
+            # and set rights and rightsURI to the URL
+            if len(license) == 1:
                 licenses.append(
                     {
-                        "lang": lang,
-                        "rightsURI": license["license"]
-                        if "license" in license
-                        else license["identifier"],
-                        "rights": license["title"][lang],
+                    "lang": "en",
+                    "rightsURI": license["license"],
+                    "rights": license["license"]
                     }
                 )
+            else:
+                for lang in license["title"].keys():
+                    licenses.append(
+                        {
+                            "lang": lang,
+                            "rightsURI": license["license"]
+                            if "license" in license
+                            else license["identifier"],
+                            "rights": license["title"][lang],
+                        }
+                    )
         return licenses
 
     @staticmethod
@@ -470,12 +481,15 @@ class _DataciteService(CommonService):
 
             for wkt in spatial.get("as_wkt", []):
                 if wkt.startswith("POINT"):
-                    geo_location["geoLocationPoint"] = {
-                        "pointLongitude": float(
-                            re.search(r"POINT\((.*) ", wkt, re.IGNORECASE).group(1)
-                        ),
-                        "pointLatitude": float(re.search(r" (.*)\)", wkt, re.IGNORECASE).group(1)),
+                    point = wkt.strip("POINT()")
+                    point_list = point.strip().split(" ")
+                    longitude = point_list[0]
+                    latitude = point_list[1]
+                    polygon_point = {
+                        "pointLongitude": float(longitude.strip("()")),
+                        "pointLatitude": float(latitude.strip("()")),
                     }
+                    geo_location["geoLocationPoint"] = polygon_point
                     # only one point can be placed
                     break
 
@@ -486,8 +500,8 @@ class _DataciteService(CommonService):
                         for point in polygon.split(","):
                             longitude, latitude = point.strip().split(" ")
                             polygon_point = {
-                                "pointLongitude": float(longitude),
-                                "pointLatitude": float(latitude),
+                                "pointLongitude": float(longitude.strip("()")),
+                                "pointLatitude": float(latitude.strip("()")),
                             }
                             geo_location["geoLocationPolygon"]["polygonPoints"].append(
                                 polygon_point
