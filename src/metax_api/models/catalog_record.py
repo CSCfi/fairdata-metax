@@ -3185,12 +3185,12 @@ class RabbitMQPublishRecord:
             if self.cr.catalog_publishes_to_ttv():
 
                 _logger.info(
-                    "Publishing CatalogRecord %s to RabbitMQ... exchange: ttv-datasets, routing_key: %s"
+                    "Publishing CatalogRecord %s to RabbitMQ... exchange: TTV-datasets, routing_key: %s"
                     % (self.cr.identifier, self.routing_key)
                 )
 
                 rabbitmq.publish(
-                    cr_json, routing_key=self.routing_key, exchange="ttv-datasets"
+                    cr_json, routing_key=self.routing_key, exchange="TTV-datasets"
                 )
 
         except:
