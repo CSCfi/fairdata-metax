@@ -674,7 +674,7 @@ class CatalogRecordRabbitMQPublish(CatalogRecordApiWriteCommon):
         """
         messages_str = ''.join(str(message) for message in RabbitMQService.messages)
         assert_str_etsin = f"'routing_key': '{routing_key}', 'exchange': 'datasets'"
-        assert_str_ttv = f"'routing_key': '{routing_key}', 'exchange': 'ttv-datasets'"
+        assert_str_ttv = f"'routing_key': '{routing_key}', 'exchange': 'TTV-datasets'"
 
         self.assertEqual(assert_str_etsin in messages_str, publish_to_etsin)
         self.assertEqual(assert_str_ttv in messages_str, publish_to_ttv)
