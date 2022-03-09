@@ -107,6 +107,8 @@ def get_orgs_from_api() -> List[Organization]:
                 orgs.append(o)
 
         o = Organization(name_fi, name_en, org_code)
+        if name_sv:
+            o.org_name_sv = name_sv
         orgs.append(o)
     logger.info(f"retrieved {len(orgs)} organizations from research.fi")
     return orgs
@@ -153,9 +155,12 @@ class Command(BaseCommand):
                 added += 1
         logger.info(f"Added {added} organisations from research.fi to local org list")
 
+        # sort orgs alphabetically
         s = sorted(union, key=lambda i: (i.org_name_fi, i.unit_name))
-        with open(settings.ORG_FILE_PATH, "w") as f:
+        # write new orgs to local csv
+        with open(settings.ORG_FILE_PATH, "w", newline='') as f:
             logger.info("writing updated csv")
+            # remove duplicates
             no_duplicates = []
             for c in s:
                 if c not in no_duplicates:
@@ -165,6 +170,7 @@ class Command(BaseCommand):
             writer = csv.DictWriter(
                 f,
                 fieldnames=CSV_HEADERS,
+                lineterminator='\n',
             )
             writer.writeheader()
             for i in csv_serialized:
@@ -174,9 +180,11 @@ class Command(BaseCommand):
                 # Malformed values from TTV api
                 if i["unit_name"] == "LÃ„Ã„KETIETEELLINEN TIEDEKUNTA":
                     continue
-                if "Ã…bo" in i["unit_name"]:
-                    i["unit_name"] = str(i["unit_name"]).replace("Ã…bo", "Åbo")
-                if "Ã–S" in i["unit_name"]:
-                    i["unit_name"] = str(i["unit_name"]).replace("Ã–S", "Ö")
+                if "Ã…" in i["unit_name"]:
+                    i["unit_name"] = str(i["unit_name"]).replace("Ã…", "Å")
+                if "Ã–" in i["unit_name"]:
+                    i["unit_name"] = str(i["unit_name"]).replace("Ã–", "Ö")
+                if "Ã„" in i["unit_name"]:
+                    i["unit_name"] = str(i["unit_name"]).replace("Ã„", "Ä")
                 writer.writerow(i)
             logger.info("successfully updated organization csv")
