@@ -66,6 +66,7 @@ clean_previous_build:
   script:
     - ansible-playbook -i $ANSIBLE_INVENTORY $DELETE_PLAYBOOK -e "build_id=$CI_COMMIT_REF_SLUG repo_version=$CI_COMMIT_REF_NAME"
   rules:
-    - if: $CI_COMMIT_BRANCH =~ /^(staging|test)$/
+    - if: $CI_COMMIT_BRANCH =~ /^(staging|test|stable)$/
+      when: never
       when: manual
-    - when: never
+
