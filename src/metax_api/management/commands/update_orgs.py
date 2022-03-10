@@ -110,6 +110,7 @@ def get_orgs_from_api() -> List[Organization]:
         if name_sv:
             o.org_name_sv = name_sv
         orgs.append(o)
+        
     logger.info(f"retrieved {len(orgs)} organizations from research.fi")
     return orgs
 
