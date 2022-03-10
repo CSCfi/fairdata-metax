@@ -232,7 +232,7 @@ class FileService(CommonService, ReferenceDataMixin):
         return Response({"restored_files_count": affected_rows}, status=status.HTTP_200_OK)
 
     @classmethod
-    def get_identifiers(cls, identifiers, params, keysonly):
+    def get_identifiers(cls, identifiers, params, keysonly, get_pids = False):
         """
         keys='files': Find out which (non-deprecated) datasets a list of files belongs to, and return
         their preferred_identifiers per file as a list in json format.
@@ -242,6 +242,8 @@ class FileService(CommonService, ReferenceDataMixin):
 
         keysonly= for dataset return dataset ids that have files, for files return file ids that belong
         to some dataset
+
+        get_pids: get preferred identifiers instead of identifiers. Only applicable, if params = "noparams"
 
         Parameter identifiers can be a list of pk's (integers), or file/dataset identifiers (strings).
         """
@@ -253,7 +255,7 @@ class FileService(CommonService, ReferenceDataMixin):
 
         _logger.info(
             "Searching return for the following %s (printing first 10):\n%s"
-            % (params, "\n".join(str(id) for id in ids[:10]))
+            % (params, ", ".join(str(id) for id in ids[:10]))
         )
 
         noparams = """
@@ -265,6 +267,9 @@ class FileService(CommonService, ReferenceDataMixin):
                 AND cr.removed = false AND cr.active = true AND cr.deprecated = false
             GROUP BY cr.identifier
             """
+
+        if get_pids:
+            noparams = noparams.replace("cr.identifier", "research_dataset->>'preferred_identifier'")
 
         files = """
             SELECT f.identifier, json_agg(cr.identifier)
