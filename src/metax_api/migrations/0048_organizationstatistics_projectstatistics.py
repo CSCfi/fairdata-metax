@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('metax_api', '0045_add_publish_fields_to_catalogs'),
+        ('metax_api', '0047_update_vrk_datasets'),
     ]
 
     operations = [
