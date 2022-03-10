@@ -9,7 +9,7 @@ stages:
   - clean_test
   - clean_env
   - update
-  - clean_build
+#   - clean_build
 
 deploy:
   stage: deploy
