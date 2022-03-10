@@ -32,13 +32,6 @@ class Command(BaseCommand):
 			else:
 				catalog_records = FileService.get_identifiers(file_pids, "noparams", True, get_pids=True).data
 
-			logger.info("")
-			logger.info(f"project_id: {project_id}")
-			logger.info(f"count: {count}")
-			logger.info(f"size: {size}")
-			logger.info(f"file_pids: {file_pids}")
-			logger.info(f"catalog_records: {catalog_records}\n")
-
 			stat = ProjectStatistics(project_id, count, size, catalog_records)
 			stat.save()
 
