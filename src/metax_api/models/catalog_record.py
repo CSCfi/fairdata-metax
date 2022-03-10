@@ -611,7 +611,7 @@ class CatalogRecord(Common):
                     raise Http404
 
         # write operation
-        return self.user_is_owner(request)
+        return self.user_is_privileged(request)
 
     def user_is_owner(self, request):
         if self.state == self.STATE_DRAFT and self.metadata_provider_user != request.user.username:
@@ -648,11 +648,14 @@ class CatalogRecord(Common):
                     return True
             else:
                 return True
+
+        users = self.editor_permissions.users
+        ids = users.all().values_list('user_id', flat=True)
+        if request.user.username in ids:
+            return True
         elif self.user_is_owner(request):
-            # can see sensitive fields
             return True
         else:
-            # unknown user
             return False
 
     def _check_catalog_permissions(self, catalog_groups, catalog_services, request=None):
