@@ -13,7 +13,7 @@ from django.db.models import Count, Sum
 from django.db.models.functions import Coalesce
 
 from metax_api.exceptions import Http400
-from metax_api.models import CatalogRecord, DataCatalog, File
+from metax_api.models import CatalogRecord, DataCatalog, File, ProjectStatistics, OrganizationStatistics
 
 _logger = logging.getLogger(__name__)
 
@@ -616,7 +616,7 @@ class StatisticService:
         return file_stats
 
     @classmethod
-    def count_files(cls, projects, removed=None):
+    def count_files(cls, projects, removed=None, include_pids=False):
         kwargs = OrderedDict()
         file_query = File.objects_unfiltered.all()
 
@@ -630,4 +630,27 @@ class StatisticService:
                                .distinct()
 
         # Coalesce is required to provides default value
+        if include_pids:
+            return file_query.aggregate(count=Count("id"), byte_size=Coalesce(Sum("byte_size"), 0)), list(file_query.values_list('identifier', flat=True))
         return file_query.aggregate(count=Count("id"), byte_size=Coalesce(Sum("byte_size"), 0))
+
+    @classmethod
+    def projects_summary(cls, projects):
+        stats_query = ProjectStatistics.objects.all()
+        if not projects is None:
+            stats_query = stats_query.filter(project_identifier__in=projects)
+        summary = stats_query.values()
+        if len(summary) == 0:
+            summary = f"No projects found with project_identifier: {projects}"
+        return summary
+
+    @classmethod
+    def organizations_summary(cls, organizations):
+        stats_query = OrganizationStatistics.objects.all()
+        if not organizations is None:
+            stats_query = stats_query.filter(organization__in=organizations)
+        summary = stats_query.values()
+        if len(summary) == 0:
+            summary = f"No organizations found with organization_identifier: {organizations}"
+        return summary
+

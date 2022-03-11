@@ -153,3 +153,31 @@ class StatisticRPC(CommonRPC):
         }
 
         return Response(StatisticService.count_files(**params))
+
+    @action(detail=False, methods=["get"], url_path="projects_summary")
+    def projects_summary(self, request):
+        if not request.query_params.get("projects"):
+            params = {
+                "projects": None,
+            }
+
+        else:
+            params = {
+                "projects": list(CS.get_list_query_param(request, "projects")),
+            }
+
+        return Response(StatisticService.projects_summary(**params))
+
+    @action(detail=False, methods=["get"], url_path="organizations_summary")
+    def organizations_summary(self, request):
+        if not request.query_params.get("organizations"):
+            params = {
+                "organizations": None,
+            }
+
+        else:
+            params = {
+                "organizations": list(CS.get_list_query_param(request, "organizations")),
+            }
+
+        return Response(StatisticService.organizations_summary(**params))

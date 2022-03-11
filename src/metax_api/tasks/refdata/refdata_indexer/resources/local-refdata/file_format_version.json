@@ -62,6 +62,7 @@
     {"id": "file_format_version_application_pdf_1.6", "input_file_format": "application/pdf", "output_format_version": "1.6", "uri": "http://uri.suomi.fi/codelist/fairdata/file_format_version/code/application_pdf_1.6"},
     {"id": "file_format_version_application_pdf_1.7", "input_file_format": "application/pdf", "output_format_version": "1.7", "uri": "http://uri.suomi.fi/codelist/fairdata/file_format_version/code/application_pdf_1.7"},
     {"id": "file_format_version_audio_x-aiff", "input_file_format": "audio/x-aiff", "output_format_version": "", "uri": "http://uri.suomi.fi/codelist/fairdata/file_format_version/code/audio_x-aiff"},
+    {"id": "file_format_version_video_avi", "input_file_format": "video/avi", "output_format_version": "", "uri": "http://uri.suomi.fi/codelist/fairdata/file_format_version/code/video_avi"},
     {"id": "file_format_version_audio_x-ms-wma_9", "input_file_format": "audio/x-ms-wma", "output_format_version": "9", "uri": "http://uri.suomi.fi/codelist/fairdata/file_format_version/code/audio_x-ms-wma_9"},
     {"id": "file_format_version_video_dv", "input_file_format": "video/dv", "output_format_version": "", "uri": "http://uri.suomi.fi/codelist/fairdata/file_format_version/code/video_dv"},
     {"id": "file_format_version_video_mpeg_1", "input_file_format": "video/mpeg", "output_format_version": "1", "uri": "http://uri.suomi.fi/codelist/fairdata/file_format_version/code/video_mpeg_1"},

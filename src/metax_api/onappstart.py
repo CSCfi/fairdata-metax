@@ -15,6 +15,7 @@ from icecream import ic
 
 from metax_api.utils import ReferenceDataLoader, executing_test_case, convert_yaml_to_html
 
+
 _logger = logging.getLogger(__name__)
 
 
