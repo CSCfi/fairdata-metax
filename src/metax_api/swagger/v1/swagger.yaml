@@ -2002,6 +2002,36 @@ paths:
   #           $ref: "#/examples/unused_files"
   #     tags:
   #       - Statistics RPC
+  /rpc/statistics/projects_summary:
+    get:
+      summary: Get summary statistics of all projects or a single project.
+      description: Retrieve dataset count, total byte size, and preferred identifiers of the published datasets in a project.
+      parameters:
+        - name: projects
+          in: query
+          description: A Comma-separated list of project identifiers. If left empty, the response will include every project in the database.
+          required: false
+          type: string
+      responses:
+        '200':
+          description: Successful operation
+      tags:
+        - Statistics RPC
+  /rpc/statistics/organizations_summary:
+    get:
+      summary: Get summary statistics of all organizations or a single project.
+      description: Retrieve dataset count and total byte size of the published datasets by an organization.
+      parameters:
+        - name: organizations
+          in: query
+          description: A Comma-separated list of organizations. If left empty, the response will include every organization in the database.
+          required: false
+          type: string
+      responses:
+        '200':
+          description: Successful operation
+      tags:
+        - Statistics RPC
   /rpc/files/delete_project:
     post:
       summary: Deletes given project from the database.

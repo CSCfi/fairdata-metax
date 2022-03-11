@@ -46,8 +46,8 @@ clean_gitlab_env:
     - echo "Cleaning deleted branches from environments"
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-      when: manual
-    - when: never
+      when: never
+    - when: manual
 
 update_metax:
   stage: update

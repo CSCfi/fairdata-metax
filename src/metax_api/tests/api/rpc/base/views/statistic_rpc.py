@@ -9,6 +9,7 @@ from copy import deepcopy
 
 from django.conf import settings
 from django.core.management import call_command
+
 from rest_framework import status
 from rest_framework.test import APITestCase
 
@@ -943,22 +944,27 @@ class StatisticRPCforOrganizationDatasetsCumulative(StatisticRPCCommon, CatalogR
     dateparam_all = "from_date=2018-06-01&to_date=2018-06-30"
 
     def test_organization_datasets_cumulative_removed(self):
+        catalog_id = "urn:nbn:fi:att:2955e904-e3dd-4d7e-99f1-3fed446f96d1"
+        catalog = DataCatalog.objects.get(catalog_json__identifier=catalog_id)
         # initially there are 2 datasets
-        response = self.client.get(f"{self.url}?{self.dateparam_all}").data
-        self.assertEqual(response["org_2"]["urn:nbn:fi:att:2955e904-e3dd-4d7e-99f1-3fed446f96d1"][0]["count"], 2)
+        initial_count = CatalogRecord.objects.filter(data_catalog=catalog).count()
 
         # removed=true should return 0 datasets since none have been removed
         response = self.client.get(f"{self.url}?{self.dateparam_all}&removed=true").data
-        self.assertEqual(response["org_2"]["urn:nbn:fi:att:2955e904-e3dd-4d7e-99f1-3fed446f96d1"][0]["count"], 0)
+        self.assertEqual(response["org_2"][catalog_id][0]["count"], 0)
 
-        # remove one dataset from June, so one dataset should be left
-        self._set_removed_dataset(id=8)
-        response = self.client.get(f"{self.url}?{self.dateparam_all}&removed=false").data
-        self.assertEqual(response["org_2"]["urn:nbn:fi:att:2955e904-e3dd-4d7e-99f1-3fed446f96d1"][0]["count"], 1)
+        # remove one dataset
+        cr = CatalogRecord.objects.filter(data_catalog_id=catalog.id).first()
+        cr.removed = True
+        cr.force_save()
 
-        # removed=true should return 1 removed dataset now
-        response = self.client.get(f"{self.url}?{self.dateparam_all}&removed=true").data
-        self.assertEqual(response["org_2"]["urn:nbn:fi:att:2955e904-e3dd-4d7e-99f1-3fed446f96d1"][0]["count"], 1)
+        crs_count_after_remove = CatalogRecord.objects.filter(data_catalog_id=catalog.id).count()
+
+        removed_count = CatalogRecord.objects_unfiltered.filter(data_catalog_id=catalog.id, removed=True).count()
+
+        self.assertEqual(crs_count_after_remove + 1, initial_count)
+        self.assertEqual(removed_count, 1)
+
 
     def test_organization_datasets_cumulative_legacy(self):
         # let's create 2 legacy datasets for 2018-06
