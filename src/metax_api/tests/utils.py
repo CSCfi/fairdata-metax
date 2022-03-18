@@ -411,6 +411,20 @@ class TestClassUtils:
 
         return response.data
 
+    def _create_pas_dataset_from_id(self, id):
+        """
+        Helper method to create a pas dataset by updating the given dataset's
+        preservation_state to 80.
+        """
+        cr_data = self.client.get("/rest/v2/datasets/%d" % id, format="json").data
+        self.assertEqual(cr_data["preservation_state"], 0)
+
+        # update state to "accepted to pas" -> should create pas version
+        cr_data["preservation_state"] = 80
+        response = self.client.put("/rest/v2/datasets/%d" % id, cr_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        return response.data
+
     def _get_ida_dataset_without_files(self):
         data = self._get_object_from_test_data("catalogrecord", requested_index=0)
 

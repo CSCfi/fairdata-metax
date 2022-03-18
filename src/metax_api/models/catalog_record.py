@@ -2278,6 +2278,7 @@ class CatalogRecord(Common):
         new_version_template.next_dataset_version = None
         new_version_template.previous_dataset_version = None
         new_version_template.dataset_version_set = None
+        new_version_template.preservation_dataset_version = None
         new_version_template.identifier = generate_uuid_identifier()
         new_version_template.research_dataset[
             "metadata_version_identifier"
