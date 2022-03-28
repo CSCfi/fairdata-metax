@@ -611,7 +611,11 @@ class CatalogRecordApiReadActorFilter(CatalogRecordApiReadCommon):
         )
         cr.research_dataset["creator"] = []
         cr.research_dataset["creator"].append(
-            {"@type": "Organization", "name": {"en": "Unique Organization"}, "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/1234567"}
+            {
+                "@type": "Organization",
+                "name": {"en": "Unique Organization"},
+                "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/1234567",
+            }
         )
         cr.force_save()
 
@@ -892,7 +896,10 @@ class CatalogRecordApiReadQueryParamsTests(CatalogRecordApiReadCommon):
         self._mock_token_validation_succeeds()
         self._use_http_authorization(
             method="bearer",
-            token={"group_names": ["IDA01:project_x", "IDA01:no_datasets_here"], "CSCUserName": "testi"}
+            token={
+                "group_names": ["IDA01:project_x", "IDA01:no_datasets_here"],
+                "CSCUserName": "testi",
+            },
         )
 
         response = self.client.get("/rest/datasets?projects=project_x&pagination=false")
@@ -967,16 +974,29 @@ class CatalogRecordApiReadQueryParamsTests(CatalogRecordApiReadCommon):
 
     def test_filter_by_editor_permissions_user_ok(self):
         cr = CatalogRecord.objects.get(pk=1)
-        cr.editor_permissions.users.update(user_id='test_user_x')
+        cr.editor_permissions.users.update(user_id="test_user_x")
         response = self.client.get(f"/rest/datasets?editor_permissions_user=test_user_x")
         self.assertEqual(response.data["count"], 1)
 
     def test_filter_by_editor_permissions_user_removed(self):
         cr = CatalogRecord.objects.get(pk=1)
-        cr.editor_permissions.users.update(user_id='test_user_x')
+        cr.editor_permissions.users.update(user_id="test_user_x")
         cr.editor_permissions.users.first().delete()
         response = self.client.get(f"/rest/datasets?editor_permissions_user=test_user_x")
         self.assertEqual(response.data["count"], 0)
+
+    def test_research_dataset_fields(self):
+        cr = CatalogRecord.objects.get(pk=1)
+        expected_fields = {
+            "title": cr.research_dataset["title"],
+            "description": cr.research_dataset["description"],
+            "preferred_identifier": cr.research_dataset["preferred_identifier"],
+        }
+        response = self.client.get(
+            f"/rest/datasets/1?research_dataset_fields=title,description,preferred_identifier"
+        )
+        returned_fields = response.data["research_dataset"]
+        self.assertEqual(returned_fields, expected_fields)
 
 
 class CatalogRecordApiReadXMLTransformationTests(CatalogRecordApiReadCommon):
@@ -1081,7 +1101,6 @@ class CatalogRecordApiReadXMLTransformationTests(CatalogRecordApiReadCommon):
 
     def _check_dataset_xml_format_response(self, response, element_name):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-
 
         self.assertEqual("<?xml version" in response.data[:20], True, response.data)
         self.assertEqual(element_name in response.data[:60], True, response.data)

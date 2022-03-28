@@ -5,7 +5,7 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
-from copy import deepcopy
+import pickle
 
 from dateutil import parser
 from django.core.exceptions import FieldError
@@ -132,6 +132,16 @@ class Common(models.Model):
 
         return timestamp < self.date_modified
 
+    def _deepcopy_field(self, field_value):
+        """
+        Deep copy field value.
+
+        Pickle can be an order of magnitude faster than copy.deepcopy for
+        deeply nested fields like CatalogRecord.research_dataset.
+        """
+        return pickle.loads(pickle.dumps(field_value))
+
+
     def track_fields(self, *fields):
         """
         Save initial values from object fields when object is created (= retrieved from db),
@@ -141,17 +151,16 @@ class Common(models.Model):
         field_name is a dict (a JSON field). For now only one level of nesting is supported.
         If a need arises, can be made mega generic.
         """
+        self._tracked_fields.extend(fields)
+
         for field_name in fields:
-
-            self._tracked_fields.append(field_name)
-
             if "." in field_name:
                 self._track_json_field(field_name)
             else:
                 if self._field_is_loaded(field_name):
                     requested_field = getattr(self, field_name)
                     if isinstance(requested_field, dict):
-                        self._initial_data[field_name] = deepcopy(requested_field)
+                        self._initial_data[field_name] = self._deepcopy_field(requested_field)
                     else:
                         self._initial_data[field_name] = requested_field
 
@@ -173,7 +182,7 @@ class Common(models.Model):
                 self._initial_data[field_name] = {}
 
             if isinstance(json_field_value, dict):
-                self._initial_data[field_name][json_field_name] = deepcopy(json_field_value)
+                self._initial_data[field_name][json_field_name] = self._deepcopy_field(json_field_value)
             else:
                 self._initial_data[field_name][json_field_name] = json_field_value
 

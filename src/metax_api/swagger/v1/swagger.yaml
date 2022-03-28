@@ -1007,6 +1007,7 @@ paths:
           required: false
           type: string
         - $ref: "#/parameters/fields"
+        - $ref: "#/parameters/research_dataset_fields"
         - $ref: "#/parameters/include_legacy"
       responses:
         "200":
@@ -1261,6 +1262,7 @@ paths:
           required: false
           type: boolean
         - $ref: "#/parameters/fields"
+        - $ref: "#/parameters/research_dataset_fields"
         - $ref: "#/parameters/include_legacy"
       responses:
         '200':
@@ -2181,7 +2183,14 @@ parameters:
   fields:
     name: fields
     in: query
-    description: Comma separated list of fields that is returned. Note that nested fields are not supported.
+    description: Comma separated list of fields that are returned. Note that nested fields are not supported.
+    required: false
+    type: string
+
+  research_dataset_fields:
+    name: research_dataset_fields
+    in: query
+    description: Comma separated list of fields in research_dataset that are returned.
     required: false
     type: string
 
