@@ -28,11 +28,13 @@ class Command(BaseCommand):
 			file_pids = ret[1]
 
 			if len(file_pids) == 0:
-				catalog_records = ""
+				published_catalog_record_pids = ""
 			else:
-				catalog_records = FileService.get_identifiers(file_pids, "noparams", True, get_pids=True).data
+				all_catalog_records = FileService.get_identifiers(file_pids, "noparams", True).data
+				published_catalog_records = CatalogRecordV2.objects.filter(identifier__in = all_catalog_records, state = "published")
+				published_catalog_record_pids = list(published_catalog_records.values_list('research_dataset__preferred_identifier', flat = True).distinct())
 
-			stat = ProjectStatistics(project_id, count, size, catalog_records)
+			stat = ProjectStatistics(project_id, count, size, published_catalog_record_pids)
 			stat.save()
 
 
