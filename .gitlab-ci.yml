@@ -5,8 +5,8 @@ workflow:
 
 stages:
   - clean_build
-  - test
   - deploy
+  - test
   - update
   - clean_env
 
@@ -74,7 +74,7 @@ deploy:
   script:
     - ansible-playbook -i $ANSIBLE_INVENTORY $DEPLOY_PLAYBOOK --vault-id $ANSIBLE_VAULT_FILE -e "build_id=$CI_COMMIT_REF_SLUG repo_version=$CI_COMMIT_REF_NAME"
   rules:
-    - if: $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME =~ /^(demo|master|stable|staging|test)$/
+    - if: $CI_COMMIT_BRANCH =~ /^(demo|master|stable|staging|test)$/
       when: always
 
 update_metax:
