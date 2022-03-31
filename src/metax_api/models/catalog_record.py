@@ -158,25 +158,17 @@ class DatasetVersionSet(models.Model):
             self.records(manager="objects_unfiltered")
             .filter(state=CatalogRecord.STATE_PUBLISHED)
             .order_by("-date_created")
+            .only(
+                "id",
+                "identifier",
+                "research_dataset",
+                "dataset_version_set_id",
+                "date_created",
+                "date_removed",
+                "removed",
+            )
         )
-
-        versions = [
-            {
-                "identifier": r.identifier,
-                "preferred_identifier": r.preferred_identifier,
-                "removed": r.removed,
-                "date_created": r.date_created.astimezone().isoformat(),
-                "date_removed": r.date_removed.astimezone().isoformat() if r.date_removed else None,
-            }
-            for r in records
-        ]
-
-        # dont show the date_removed field at all if the value is None (record has not been removed)
-        versions = [
-            {key: value for (key, value) in i.items() if value is not None} for i in versions
-        ]
-
-        return versions
+        return [r.version_dict for r in records]
 
     def print_records(self):  # pragma: no cover
         for r in self.records.all():
@@ -1292,6 +1284,21 @@ class CatalogRecord(Common):
                 "identifier": self.identifier,
                 "preferred_identifier": self.research_dataset["preferred_identifier"],
             }
+        except:
+            return {}
+
+    @property
+    def version_dict(self):
+        try:
+            val = {
+                "identifier": self.identifier,
+                "preferred_identifier": self.research_dataset["preferred_identifier"],
+                "date_created": self.date_created.astimezone().isoformat(),
+                "removed": self.removed,
+            }
+            if self.removed and self.date_removed:
+                val['date_removed'] = self.date_removed
+            return val
         except:
             return {}
 
