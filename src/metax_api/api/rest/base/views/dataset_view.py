@@ -10,6 +10,7 @@ from json import dump
 
 from django.conf import settings
 from django.http import Http404
+from django.db.models import Count
 
 from rest_framework import status
 from rest_framework.decorators import action
@@ -72,6 +73,26 @@ class DatasetViewSet(CommonViewSet):
         if not CS.get_boolean_query_param(self.request, "include_legacy"):
             self.queryset = self.queryset.exclude(
                 data_catalog__catalog_json__identifier__in=settings.LEGACY_CATALOGS
+            )
+
+        if self.request.META["REQUEST_METHOD"] == "GET":
+            # Optimize dataset listing by prefetching related objects.
+            # Annotate results with number of records in dataset_version_set
+            # to allow the serializer skip querying other versions when there
+            # is only one.
+            return (
+                super()
+                .get_queryset()
+                .prefetch_related(
+                    "data_catalog",
+                    "dataset_version_set",
+                    "preservation_dataset_version",
+                    "preservation_dataset_origin_version",
+                    "next_draft",
+                    "draft_of",
+                    "editor_permissions",
+                )
+                .annotate(Count("dataset_version_set__records"))
             )
 
         return super().get_queryset()

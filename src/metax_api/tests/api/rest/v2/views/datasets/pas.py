@@ -9,30 +9,17 @@ from django.conf import settings as django_settings
 from rest_framework import status
 
 from metax_api.models import CatalogRecordV2, DataCatalog
+from metax_api.tests.utils import TestClassUtils
 from metax_api.utils import get_tz_aware_now_without_micros
 
 from .write import CatalogRecordApiWriteCommon
 
 
-class CatalogRecordApiWritePreservationStateTests(CatalogRecordApiWriteCommon):
+class CatalogRecordApiWritePreservationStateTests(CatalogRecordApiWriteCommon, TestClassUtils):
 
     """
     Field preservation_state related tests.
     """
-
-    def _create_pas_dataset_from_id(self, id):
-        """
-        Helper method to create a pas dataset by updating the given dataset's
-        preservation_state to 80.
-        """
-        cr_data = self.client.get("/rest/v2/datasets/%d" % id, format="json").data
-        self.assertEqual(cr_data["preservation_state"], 0)
-
-        # update state to "accepted to pas" -> should create pas version
-        cr_data["preservation_state"] = 80
-        response = self.client.put("/rest/v2/datasets/%d" % id, cr_data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        return response.data
 
     def setUp(self):
         super().setUp()

@@ -4,36 +4,55 @@ workflow:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME !~ /^(demo|master|stable|staging|test)$/
 
 stages:
+  - clean_build
   - deploy
   - test
-  - clean_test
-  - clean_env
   - update
-  - clean_build
-
-deploy:
-  stage: deploy
-  environment: $CI_COMMIT_REF_NAME
-  script:
-    - ansible-playbook -i $ANSIBLE_INVENTORY $DEPLOY_PLAYBOOK -e "build_id=$CI_COMMIT_REF_SLUG repo_version=$CI_COMMIT_REF_NAME"
+  - clean_env
 
 integration_test:
   stage: test
+  tags:
+    - docker
+  image:
+    name: python:3.8
+  services:
+    - postgres:9.6
+    - rabbitmq:3
+    - redis:latest
+    - name: elasticsearch:7.9.2
+      alias: elasticsearch
+      command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
+  variables:
+    POSTGRES_USER: metax_user
+    POSTGRES_PASSWORD: password
+    POSTGRES_DB: metax_db
+    METAX_DATABASE: metax_db
+    METAX_DATABASE_PASSWORD: password
+    METAX_DATABASE_USER: metax_user
+    METAX_DATABASE_HOST: postgres
+    ELASTIC_SEARCH_HOSTS: elasticsearch
+    RABBIT_MQ_HOSTS: rabbitmq
+    REDIS_HOST: redis
+    REDIS_PORT: 6379
+    DJANGO_SECRET_KEY: django-insecure-22388&4#2_#u0e%$%!)5vo3mpys)#f7@vsk9az354!jgze--&e
+    DJANGO_ENV: unittests
   environment: $CI_COMMIT_REF_NAME
   script:
-    - ansible-playbook -i $ANSIBLE_INVENTORY $TEST_PLAYBOOK -e "build_id=$CI_COMMIT_REF_SLUG repo_version=$CI_COMMIT_REF_NAME"
-
-clean_test:
-  stage: clean_test
-  environment:
-    name: $CI_COMMIT_REF_NAME
-    on_stop: clean_gitlab_env
-  script:
-    - ansible-playbook -i $ANSIBLE_INVENTORY $DELETE_PLAYBOOK -e "build_id=$CI_COMMIT_REF_SLUG repo_version=$CI_COMMIT_REF_NAME"
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-      when: always
-    - when: never
+    - apt-get update && apt-get install -y xqilla libxerces-c-dev build-essential libssl-dev libffi-dev python-dev libxqilla-dev
+    - mkdir -p /var/log/metax-api/errors
+    - pip install -r requirements.txt
+    - cd src
+    - python manage.py first_time_setup
+    - coverage run manage.py test --parallel
+    - coverage combine
+    - coverage report -m
+    - coverage xml
+  artifacts:
+    reports:
+      cobertura: src/coverage.xml
+    paths:
+      - src/coverage.xml
 
 clean_gitlab_env:
   stage: clean_env
@@ -45,16 +64,25 @@ clean_gitlab_env:
   script:
     - echo "Cleaning deleted branches from environments"
   rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME !~ /^(demo|master|stable|staging|test)$/
       when: never
     - when: manual
+
+deploy:
+  stage: deploy
+  environment: $CI_COMMIT_REF_NAME
+  script:
+    - ansible-playbook -i $ANSIBLE_INVENTORY $DEPLOY_PLAYBOOK --vault-id $ANSIBLE_VAULT_FILE -e "build_id=$CI_COMMIT_REF_SLUG repo_version=$CI_COMMIT_REF_NAME"
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /^(demo|master|stable|staging|test)$/
+      when: always
 
 update_metax:
   stage: update
   environment: $CI_COMMIT_REF_NAME
   script:
-    - ansible-playbook -i $ANSIBLE_INVENTORY $UPDATE_PROXY_PLAYBOOK -e "build_id=$CI_COMMIT_REF_SLUG repo_version=$CI_COMMIT_REF_NAME"
-    - ansible-playbook -i $ANSIBLE_INVENTORY $MANAGE_PLAYBOOK -e "build_id=$CI_COMMIT_REF_SLUG repo_version=$CI_COMMIT_REF_NAME"
+    - ansible-playbook -i $ANSIBLE_INVENTORY $UPDATE_PROXY_PLAYBOOK --vault-id $ANSIBLE_VAULT_FILE -e "build_id=$CI_COMMIT_REF_SLUG repo_version=$CI_COMMIT_REF_NAME"
+    - ansible-playbook -i $ANSIBLE_INVENTORY $MANAGE_PLAYBOOK --vault-id $ANSIBLE_VAULT_FILE -e "build_id=$CI_COMMIT_REF_SLUG repo_version=$CI_COMMIT_REF_NAME"
   rules:
     - if: $CI_COMMIT_BRANCH =~ /^(demo|stable|staging|test)$/
       when: always
@@ -64,9 +92,33 @@ clean_previous_build:
   stage: clean_build
   environment: $CI_COMMIT_REF_NAME
   script:
-    - ansible-playbook -i $ANSIBLE_INVENTORY $DELETE_PLAYBOOK -e "build_id=$CI_COMMIT_REF_SLUG repo_version=$CI_COMMIT_REF_NAME"
+    - ansible-playbook -i $ANSIBLE_INVENTORY $DELETE_PLAYBOOK --vault-id $ANSIBLE_VAULT_FILE -e "build_id=$CI_COMMIT_REF_SLUG repo_version=$CI_COMMIT_REF_NAME"
   rules:
     - if: $CI_COMMIT_BRANCH =~ /^(staging|test|stable)$/
-      when: never
-      when: manual
+      when: always
 
+sonarqube-check:
+  tags: 
+    - docker
+  stage: test
+  image: 
+    name: sonarsource/sonar-scanner-cli:latest
+    entrypoint: [""]
+  variables:
+    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
+    GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
+  cache:
+    key: "${CI_JOB_NAME}"
+    paths:
+      - .sonar/cache
+  script: 
+    - sonar-scanner
+  allow_failure: true
+  needs:
+    - job: integration_test
+      artifacts: true
+  only:
+    - merge_requests
+    - master
+    - test
+    - staging

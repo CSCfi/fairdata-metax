@@ -10,6 +10,8 @@ omit =
     */urls.py
     */router.py
     metax_api/onappstart.py
+    */site-packages/*
+
 branch = True
 concurrency = multiprocessing
 data_file = coverage_data/coverage.db
@@ -29,6 +31,8 @@ exclude_lines =
     raise NotImplementedError
     if 0:
     if __name__ == .__main__.:
+
+
 skip_covered = True
 omit =
     */migrations/*
@@ -41,3 +45,4 @@ omit =
     */urls.py
     */router.py
     metax_api/onappstart.py
+    */site-packages/*

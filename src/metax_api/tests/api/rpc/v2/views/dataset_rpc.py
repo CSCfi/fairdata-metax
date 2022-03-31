@@ -9,9 +9,10 @@ import responses
 from django.conf import settings
 from rest_framework import status
 
-from metax_api.models import CatalogRecordV2
+from metax_api.models import CatalogRecordV2, DataCatalog
 from metax_api.tests.api.rest.base.views.datasets.write import CatalogRecordApiWriteCommon
 from metax_api.tests.utils import get_test_oidc_token
+from metax_api.utils import get_tz_aware_now_without_micros
 
 CR = CatalogRecordV2
 
@@ -95,6 +96,19 @@ class CatalogRecordVersionHandling(CatalogRecordApiWriteCommon):
     New dataset versions are not created automatically when changing files of a dataset.
     New dataset versions can only be created by explicitly calling related RPC API.
     """
+
+    def setUp(self):
+        super().setUp()
+        dc = DataCatalog.objects.get(pk=1)
+        catalog_json = dc.catalog_json
+        catalog_json["identifier"] = settings.PAS_DATA_CATALOG_IDENTIFIER
+        catalog_json["dataset_versioning"] = False
+        dc = DataCatalog.objects.create(
+            catalog_json=catalog_json,
+            date_created=get_tz_aware_now_without_micros(),
+            catalog_record_services_create="testuser,api_auth_user,metax",
+            catalog_record_services_edit="testuser,api_auth_user,metax",
+        )
 
     def test_create_new_version(self):
         """
@@ -200,6 +214,48 @@ class CatalogRecordVersionHandling(CatalogRecordApiWriteCommon):
         self.assertTrue(
             new_cr.files.count() < original_cr.files(manager="objects_unfiltered").count()
         )
+
+    def test_new_version_of_pas_catalog_record(self):
+        """
+        Trying to create a new version of a PAS dataset should fail.
+        """
+        cr_data = self.client.get("/rest/v2/datasets/1", format="json").data
+        self.assertEqual(cr_data["preservation_state"], 0)
+
+        origin_dataset = self._create_pas_dataset_from_id(1)
+
+        pas_id = origin_dataset["preservation_dataset_version"]["identifier"]
+
+        response = self.client.post(
+            f"/rpc/v2/datasets/create_new_version?identifier={pas_id}", format="json"
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertTrue("Data catalog does not allow dataset versioning" in response.data["detail"][0])
+
+    def test_new_version_of_copy_of_pas_catalog_record(self):
+        """
+        Trying to create a new version from a origin version of a PAS dataset should succeed.
+        New version should have preservation_state 0 and it shouldn't contain
+        preservation_dataset_version.
+        """
+        cr_data = self.client.get("/rest/v2/datasets/1", format="json").data
+        self.assertEqual(cr_data["preservation_state"], 0)
+
+        origin_dataset = self._create_pas_dataset_from_id(1)
+
+        cr_id = origin_dataset["identifier"]
+
+        response = self.client.post(
+            f"/rpc/v2/datasets/create_new_version?identifier={cr_id}", format="json"
+        )
+        self.assertEqual(response.status_code, 201)
+
+        new_version_id = response.data["identifier"]
+
+        cr_data = self.client.get(f"/rest/v2/datasets/{new_version_id}", format="json").data
+        self.assertEqual(cr_data["preservation_state"], 0)
+        self.assertFalse("preservation_dataset_version" in cr_data)
+
 
     def test_version_from_draft(self):
         """

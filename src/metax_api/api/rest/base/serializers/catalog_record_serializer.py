@@ -254,6 +254,29 @@ class CatalogRecordSerializer(CommonSerializer):
                 }
             )
 
+    def _filter_research_dataset_fields(self, res):
+        """
+        If research_dataset_fields query parameter is supplied, return only
+        requested fields from research_dataset.
+        """
+        if (
+            "research_dataset" in res
+            and "view" in self.context
+            and "research_dataset_fields" in self.context["view"].request.query_params
+        ):
+            research_dataset_fields = set(
+                self.context["view"]
+                .request.query_params.get("research_dataset_fields", "")
+                .split(",")
+            )
+            research_dataset = {
+                key: value
+                for (key, value) in res["research_dataset"].items()
+                if key in research_dataset_fields
+            }
+            return {**res, "research_dataset": research_dataset}
+        return res
+
     def to_representation(self, instance):
         res = super(CatalogRecordSerializer, self).to_representation(instance)
 
@@ -281,7 +304,14 @@ class CatalogRecordSerializer(CommonSerializer):
                 res["alternate_record_set"] = [ar.identifier for ar in alternate_records]
 
         if "dataset_version_set" in res:
-            res["dataset_version_set"] = instance.dataset_version_set.get_listing()
+            # avoid querying records when there are no other datasets in dataset_version_set
+            if (
+                hasattr(instance, "dataset_version_set__records__count")
+                and instance.dataset_version_set__records__count == 1
+            ):
+                res["dataset_version_set"] = [instance.version_dict]
+            else:
+                res["dataset_version_set"] = instance.dataset_version_set.get_listing()
 
         if "next_dataset_version" in res:
             if instance.next_dataset_version.state == CatalogRecord.STATE_PUBLISHED:
@@ -322,6 +352,7 @@ class CatalogRecordSerializer(CommonSerializer):
         if "request" in self.context and "file_details" in self.context["request"].query_params:
             CRS.populate_file_details(res, self.context["request"])
 
+        res = self._filter_research_dataset_fields(res)
         res = self._check_and_strip_sensitive_fields(instance, res)
 
         return res
