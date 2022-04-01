@@ -144,10 +144,18 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
 
         # non-service users can only query their own datasets
         if not request.user.is_service:
-            if request.user.username == '':
-                raise Http403({"detail": ["Query by editor_permissions_user is only supported for authenticated users"]})
+            if request.user.username == "":
+                raise Http403(
+                    {
+                        "detail": [
+                            "Query by editor_permissions_user is only supported for authenticated users"
+                        ]
+                    }
+                )
             if request.user.username != user_id:
-                raise Http403({"detail": ["Provided editor_permissions_user does not match current user"]})
+                raise Http403(
+                    {"detail": ["Provided editor_permissions_user does not match current user"]}
+                )
 
         queryset_search_params["editor_permissions__users__user_id"] = user_id
         queryset_search_params["editor_permissions__users__removed"] = False
@@ -227,8 +235,12 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
             if agent == "publisher":
                 name_filter |= Q(**{f"research_dataset__{agent}__{name_en}__iregex": org})
                 name_filter |= Q(**{f"research_dataset__{agent}__{name_fi}__iregex": org})
-                name_filter |= Q(**{f"research_dataset__{agent}__member_of__{name_en}__iregex": org})
-                name_filter |= Q(**{f"research_dataset__{agent}__member_of__{name_fi}__iregex": org})
+                name_filter |= Q(
+                    **{f"research_dataset__{agent}__member_of__{name_en}__iregex": org}
+                )
+                name_filter |= Q(
+                    **{f"research_dataset__{agent}__member_of__{name_fi}__iregex": org}
+                )
             else:
                 for i in range(3):
                     name_filter |= Q(**{f"research_dataset__{agent}__{i}__{name_en}__iregex": org})
@@ -262,15 +274,9 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                         }
                     )
                 else:
+                    name_filter |= Q(**{f"research_dataset__{agent}__contains": [{name: org}]})
                     name_filter |= Q(
-                        **{f"research_dataset__{agent}__contains": [{name: org}]}
-                    )
-                    name_filter |= Q(
-                        **{
-                            f"research_dataset__{agent}__contains": [
-                                {"member_of": {name: org}}
-                            ]
-                        }
+                        **{f"research_dataset__{agent}__contains": [{"member_of": {name: org}}]}
                     )
 
             return name_filter
@@ -352,14 +358,19 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
             if not set(projects).issubset(user_projects):
                 raise Http403({"detail": ["User is not member of project"]})
 
-        q_filter = Q(files__project_identifier__in=projects)
-        if "deduplicated_q_filters" in queryset_search_params:
-            queryset_search_params["deduplicated_q_filters"].append(q_filter)
+        project_cr_ids = (
+            File.objects_unfiltered.filter(project_identifier__in=projects)
+            .values("record__id")
+            .distinct()
+        )
+        q_filter = Q(id__in=project_cr_ids)
+
+        if "q_filters" in queryset_search_params:
+            queryset_search_params["q_filters"].append(q_filter)
         else:
-            queryset_search_params["deduplicated_q_filters"] = [q_filter]
+            queryset_search_params["q_filters"] = [q_filter]
 
         return queryset_search_params
-
 
     @staticmethod
     def populate_file_details(cr_json, request):
