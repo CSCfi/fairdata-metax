@@ -82,7 +82,8 @@ class DatasetRPC(DatasetRPC):
                     data={"id": cr.next_draft.id, "identifier": cr.next_draft.identifier},
                     status=status.HTTP_201_CREATED,
                 )
-        except DatabaseError:
+        except DatabaseError as e:
+            _logger.error(f"DatabaseError: {e}")
             return Response({'error': 'Failed to create draft'}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=["post"], url_path="create_new_version")
@@ -100,7 +101,8 @@ class DatasetRPC(DatasetRPC):
                     },
                     status=status.HTTP_201_CREATED,
                 )
-        except DatabaseError:
+        except DatabaseError as e:
+            _logger.error(f"DatabaseError: {e}")
             return Response({'error': 'Failed to create a new version'}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=["post"], url_path="publish_dataset")
@@ -115,7 +117,8 @@ class DatasetRPC(DatasetRPC):
                     data={"preferred_identifier": cr.preferred_identifier},
                     status=status.HTTP_200_OK,
                 )
-        except DatabaseError:
+        except DatabaseError as e:
+            _logger.error(f"DatabaseError: {e}")
             return Response({'error': 'Failed to publish dataset'}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=["post"], url_path="merge_draft")
