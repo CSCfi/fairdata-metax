@@ -472,6 +472,7 @@ class CatalogRecordSerializer(CommonSerializer):
             self._validate_research_dataset_uniqueness(value)
 
         CRS.validate_reference_data(value, cache)
+        self._validate_org_name_is_set(self.initial_data["research_dataset"])
 
         return value
 

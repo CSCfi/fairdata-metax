@@ -1237,6 +1237,37 @@ class CatalogRecordApiWritePartialUpdateTests(CatalogRecordApiWriteCommon):
             response.data["failed"][0]["errors"],
         )
 
+    def test_catalog_record_partial_update_list_error_erroneous_organization(self):
+        test_data = {}
+        test_data["id"] = 1
+        test_data["preservation_description"] = "description"
+
+        second_test_data = self.client.get("/rest/datasets/2", format="json").data
+        second_test_data["research_dataset"]["creator"] = [
+            {
+                "@type": "Person",
+                "name": "Teppo Testaaja",
+                "member_of": {
+                    "@type": "Organization",
+                    "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/asdf"
+                }
+            }
+        ]
+
+        response = self.client.patch("/rest/datasets", [test_data, second_test_data], format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual("success" in response.data.keys(), True)
+        self.assertEqual("failed" in response.data.keys(), True)
+        self.assertEqual(len(response.data["success"]), 1, "success list should contain one item")
+        self.assertEqual(
+            len(response.data["failed"]), 1, "there should have been one failed element"
+        )
+        self.assertEqual(
+            "research_dataset" in response.data["failed"][0]["errors"],
+            True,
+            response.data["failed"][0]["errors"],
+        )
+
     def test_catalog_record_partial_update_list_error_key_not_found(self):
         # does not have identifier key
         test_data = {}
