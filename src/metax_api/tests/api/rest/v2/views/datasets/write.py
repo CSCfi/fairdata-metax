@@ -235,6 +235,21 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
             response.data["research_dataset"]["preferred_identifier"].startswith("urn:")
         )
 
+    def test_create_catalog_record_with_existing_pid_to_harvested_catalog(self):
+        """
+        Test creating a catalog record which already has a pid to a harvested catalog.
+        API should return 201 and the pid that is returned should be the same as the one that was sent.
+        """
+        self.cr_test_data["research_dataset"]["preferred_identifier"] = "doi:10.1234/abcd"
+        self.cr_test_data["data_catalog"] = 3
+        response = self.client.post("/rest/v2/datasets", self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(
+            self.cr_test_data["research_dataset"]["preferred_identifier"],
+            response.data["research_dataset"]["preferred_identifier"],
+            "in harvested catalogs, the service user is allowed to set preferred_identifier",
+        )
+
 
 class CatalogRecordApiWriteIdentifierUniqueness(CatalogRecordApiWriteCommon):
     """
