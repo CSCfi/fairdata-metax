@@ -191,6 +191,38 @@ class CatalogRecordVersionHandling(CatalogRecordApiWriteCommon):
             response.data,
         )
 
+    def test_create_new_version_from_newest_non_removed_dataset(self):
+        """
+        If the newest version of a dataset has been deleted, then it should be
+        possible to create a new version from the newest non-removed dataset
+        src.metax_api.tests.api.rpc.v2.views.dataset_rpc.CatalogRecordVersionHandling.test_create_new_version_from_newest_non_removed_dataset
+        """
+        # Create new version
+        response = self.client.post(
+            "/rpc/v2/datasets/create_new_version?identifier=1", format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        next_version_identifier = response.data.get("identifier")
+
+        # Publish the new version
+        response = self.client.post(
+            f"/rpc/v2/datasets/publish_dataset?identifier={next_version_identifier}", format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        # Delete the new version
+        response = self.client.delete(
+            f"/rest/v2/datasets/{next_version_identifier}", format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
+
+        # Create new version from the original dataset
+        response = self.client.post(
+            "/rpc/v2/datasets/create_new_version?identifier=1", format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+
     def test_new_version_removes_deprecated_files(self):
         """
         If a new version is created from a deprecated dataset, then the new version should have deprecated=False
