@@ -149,14 +149,14 @@ class DatasetVersionSet(models.Model):
 
     id = models.BigAutoField(primary_key=True, editable=False)
 
-    def get_listing(self):
+    def get_listing(self, only_published=True):
         """
         Return a list of record preferred_identifiers that belong in the same dataset version chain.
         Latest first.
+        If only_published is True, return only versions that are in published state.
         """
         records = (
             self.records(manager="objects_unfiltered")
-            .filter(state=CatalogRecord.STATE_PUBLISHED)
             .order_by("-date_created")
             .only(
                 "id",
@@ -168,6 +168,8 @@ class DatasetVersionSet(models.Model):
                 "removed",
             )
         )
+        if only_published:
+            records = records.filter(state=CatalogRecord.STATE_PUBLISHED)
         return [r.version_dict for r in records]
 
     def print_records(self):  # pragma: no cover

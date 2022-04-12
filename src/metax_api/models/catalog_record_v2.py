@@ -96,6 +96,12 @@ class CatalogRecordV2(CatalogRecord):
             draft_of.next_draft = None
             super(CatalogRecord, draft_of).save(update_fields=["next_draft"])
 
+        # To avoid duplicate key errors, 'forget' the information about previous dataset version,
+        # when a CR is deleted.
+        if self.state == self.STATE_PUBLISHED and self.previous_dataset_version:
+            self.previous_dataset_version = None
+            super().save()
+
         super().delete(*args, **kwargs)
 
     def _pre_create_operations(self):
@@ -1359,7 +1365,7 @@ class CatalogRecordV2(CatalogRecord):
 
         old_version = self
 
-        if old_version.next_dataset_version_id:
+        if not self._is_newest_non_removed_version():
             raise Http400(
                 "Dataset already has a next version: %s"
                 % old_version.next_dataset_version.identifier
@@ -1445,6 +1451,17 @@ class CatalogRecordV2(CatalogRecord):
         ] = new_version.previous_dataset_version.preferred_identifier
 
         self.add_post_request_callable(DelayedLog(**log_args))
+
+    def _is_newest_non_removed_version(self):
+        """
+        Check if the dataset is the newest non-removed version of the dataset.
+        If all versions are removed, return False
+        """
+        versions = self.dataset_version_set.get_listing(only_published=False)
+        for version in versions:
+            if not version["removed"]:
+                return self.identifier == version["identifier"]
+        return False
 
     def change_cumulative_state(self, new_state):
         """
