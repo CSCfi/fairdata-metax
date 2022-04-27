@@ -22,6 +22,7 @@ from metax_api.utils import (
     generate_uuid_identifier,
     get_identifier_type,
     get_tz_aware_now_without_micros,
+    is_metax_generated_doi_identifier,
 )
 
 from .catalog_record import (
@@ -303,9 +304,10 @@ class CatalogRecordV2(CatalogRecord):
 
             self._validate_cr_against_datacite_schema()
 
-            self.add_post_request_callable(
-                DataciteDOIUpdate(self, self.research_dataset["preferred_identifier"], "create")
-            )
+            if is_metax_generated_doi_identifier(self.research_dataset.get("preferred_identifier")):
+                self.add_post_request_callable(
+                    DataciteDOIUpdate(self, self.research_dataset["preferred_identifier"], "create")
+                )
 
         if self._dataset_has_rems_managed_access() and settings.REMS["ENABLED"]:
             self._pre_rems_creation()
