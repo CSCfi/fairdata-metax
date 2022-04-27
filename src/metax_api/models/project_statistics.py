@@ -14,5 +14,5 @@ _logger = logging.getLogger(__name__)
 class ProjectStatistics(models.Model):
 	project_identifier = models.CharField(primary_key=True, max_length=200)
 	count = models.IntegerField()
-	byte_size = models.IntegerField()
+	byte_size = models.BigIntegerField()
 	published_datasets = models.TextField()
