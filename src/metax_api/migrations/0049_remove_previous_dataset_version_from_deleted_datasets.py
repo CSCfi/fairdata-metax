@@ -1,8 +1,6 @@
 from django.db import migrations
 from metax_api.models import CatalogRecord as CRM
 
-from pprint import pprint
-
 import logging
 
 logger = logging.getLogger(__name__)
