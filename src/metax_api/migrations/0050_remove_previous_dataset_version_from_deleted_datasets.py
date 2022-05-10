@@ -25,7 +25,7 @@ def revert(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('metax_api', '0048_organizationstatistics_projectstatistics'),
+        ('metax_api', '0049_auto_20220413_0952'),
     ]
 
     operations = [
