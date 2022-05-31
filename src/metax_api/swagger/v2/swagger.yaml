@@ -355,8 +355,8 @@ paths:
           type: string
         - $ref: "#/parameters/dryrun"
       responses:
-        '204':
-          description: Successful operation, no content returned
+        '200':
+          description: Successful operation, returns JSON with deleted files count
         '403':
           description: Forbidden. Must have permission for resource
         '404':
