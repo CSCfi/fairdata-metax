@@ -1694,8 +1694,13 @@ class FileService(CommonService, ReferenceDataMixin):
         for entry in file_format_version_refdata:
             if input_file_format == entry["input_file_format"]:
                 iff_found = True
-                if entry.get("output_format_version", False):
-                    versions.append(entry["output_format_version"])
+                ofv = entry.get("output_format_version")
+                if ofv is not None:
+                    if isinstance(ofv, list):
+                        for e in ofv:
+                            versions.append(e)
+                    else:
+                        versions.append(entry["output_format_version"])
 
         if not iff_found:
             errors["file_characteristics.file_format"].append(
