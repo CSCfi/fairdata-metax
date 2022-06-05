@@ -32,7 +32,7 @@ def update_luke_datasets(apps, schema_editor):
 	old_org_obj = f"\"identifier\": \"http://uri.suomi.fi/codelist/fairdata/organization/code/{old_org_id}\""
 
 	CatalogRecord = apps.get_model('metax_api', 'CatalogRecord')
-	crs = CatalogRecord.objects.raw(f"SELECT * FROM metax_api_catalogrecord where research_dataset::text like '%%{old_org_obj}%%'")
+	crs = CatalogRecord.objects.filter(research_dataset__icontains=old_org_obj)
 	
 	logger.info(f"Changing organization id from: {old_org_id} to: {new_org_id} on {len(crs)} dataset(s)")
 	for cr in crs:
