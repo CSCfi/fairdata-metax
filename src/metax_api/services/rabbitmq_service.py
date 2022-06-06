@@ -138,7 +138,7 @@ class _RabbitMQService:
                 # ApiError.objects.bulk_create(errors, batch_size=5000)
                 now = datetime.now()
                 tz_aware = parse_timestamp_string_to_tz_aware_datetime(datetime_to_str(now))
-                with open(f"/var/log/metax-api/errors/api-errors/{tz_aware}") as out:
+                with open(f"{settings.ERROR_FILES_PATH}{tz_aware}.log", 'w') as out:
                     serializers.serialize("json", errors, stream=out)
             except DatabaseError as e:
                 _logger.error("cannot create API Error. Discarding..")

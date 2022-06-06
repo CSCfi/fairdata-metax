@@ -149,14 +149,14 @@ class DatasetVersionSet(models.Model):
 
     id = models.BigAutoField(primary_key=True, editable=False)
 
-    def get_listing(self):
+    def get_listing(self, only_published=True):
         """
         Return a list of record preferred_identifiers that belong in the same dataset version chain.
         Latest first.
+        If only_published is True, return only versions that are in published state.
         """
         records = (
             self.records(manager="objects_unfiltered")
-            .filter(state=CatalogRecord.STATE_PUBLISHED)
             .order_by("-date_created")
             .only(
                 "id",
@@ -168,6 +168,8 @@ class DatasetVersionSet(models.Model):
                 "removed",
             )
         )
+        if only_published:
+            records = records.filter(state=CatalogRecord.STATE_PUBLISHED)
         return [r.version_dict for r in records]
 
     def print_records(self):  # pragma: no cover
@@ -3194,6 +3196,11 @@ class RabbitMQPublishRecord:
                     cr_json, routing_key=self.routing_key, exchange="datasets"
                 )
             if self.cr.catalog_publishes_to_ttv():
+                if self.cr.catalog_is_pas() and self.cr.preservation_state != self.cr.PRESERVATION_STATE_IN_PAS:
+                    _logger.info("Not publishing the catalog record to TTV." \
+                        " Catalog Record is in PAS catalog and preservation state is not" \
+                        f" {self.cr.PRESERVATION_STATE_IN_PAS}")
+                    return
 
                 _logger.info(
                     "Publishing CatalogRecord %s to RabbitMQ... exchange: TTV-datasets, routing_key: %s"

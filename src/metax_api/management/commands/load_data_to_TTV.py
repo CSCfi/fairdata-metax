@@ -7,9 +7,10 @@
 
 import logging
 
+from django.conf import settings as django_settings
 from django.core.management.base import BaseCommand
 
-from metax_api.models import CatalogRecord
+from metax_api.models import CatalogRecord, DataCatalog
 from metax_api.services import RabbitMQService
 
 logger = logging.getLogger(__name__)
@@ -30,7 +31,8 @@ class Request:
 
 class Command(BaseCommand):
 
-    help = "Upload all existing and removed catalog records to TTV's RabbitMQ queue"
+    help = """Upload all existing non-pas and preservation_state = 120 catalog records with routing_key create
+    and removed catalog records with routing_key delete to TTV's RabbitMQ queue"""
 
     def handle(self, *args, **options):
         user = User()
@@ -38,7 +40,8 @@ class Command(BaseCommand):
         context = {"request": request}
 
         aff_rows = 0
-        catalog_records = CatalogRecord.objects.filter(state="published")
+        pas_catalog = DataCatalog.objects.get(catalog_json__identifier=django_settings.PAS_DATA_CATALOG_IDENTIFIER)
+        catalog_records = CatalogRecord.objects.filter(state="published", data_catalog=pas_catalog, preservation_state=CatalogRecord.PRESERVATION_STATE_IN_PAS)
         for catalog_record in catalog_records:
             serializer = catalog_record.serializer_class
             cr_json = serializer(catalog_record, context=context).data
@@ -46,7 +49,18 @@ class Command(BaseCommand):
 
             RabbitMQService.publish(cr_json, routing_key="create", exchange="TTV-datasets")
             aff_rows += 1
-        logger.info(f"Published {aff_rows} records to exchange: TTV-datasets, routing_key: create")
+        logger.info(f"Published {aff_rows} PAS catalog records to exchange: TTV-datasets, routing_key: create")
+
+        aff_rows = 0
+        catalog_records = CatalogRecord.objects.filter(state="published").exclude(data_catalog=pas_catalog)
+        for catalog_record in catalog_records:
+            serializer = catalog_record.serializer_class
+            cr_json = serializer(catalog_record, context=context).data
+            cr_json["data_catalog"] = {"catalog_json": catalog_record.data_catalog.catalog_json}
+
+            RabbitMQService.publish(cr_json, routing_key="create", exchange="TTV-datasets")
+            aff_rows += 1
+        logger.info(f"Published {aff_rows} non-PAS catalog records to exchange: TTV-datasets, routing_key: create")
 
         aff_rows = 0
         removed_catalog_records = CatalogRecord.objects_unfiltered.filter(removed=True)
@@ -57,7 +71,7 @@ class Command(BaseCommand):
 
             RabbitMQService.publish(cr_json, routing_key="delete", exchange="TTV-datasets")
             aff_rows += 1
-        logger.info(f"Published {aff_rows} records to exchange: TTV-datasets, routing_key: delete")
+        logger.info(f"Published {aff_rows} removed records to exchange: TTV-datasets, routing_key: delete")
 
 
 
