@@ -3196,7 +3196,7 @@ class RabbitMQPublishRecord:
                     cr_json, routing_key=self.routing_key, exchange="datasets"
                 )
             if self.cr.catalog_publishes_to_ttv():
-                if self.cr.catalog_is_pas and self.cr.preservation_state != self.cr.PRESERVATION_STATE_IN_PAS:
+                if self.cr.catalog_is_pas() and self.cr.preservation_state != self.cr.PRESERVATION_STATE_IN_PAS:
                     _logger.info("Not publishing the catalog record to TTV." \
                         " Catalog Record is in PAS catalog and preservation state is not" \
                         f" {self.cr.PRESERVATION_STATE_IN_PAS}")
