@@ -426,6 +426,16 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                     dr["details"] = LightDirectorySerializer.serialize(directory)
                     continue
 
+        # cleanup identifiers, if they were not actually requested
+        if not dir_identifier_requested:
+            for dr in rd.get("directories", []):
+                del dr["details"]["identifier"]
+
+        if not file_identifier_requested:
+            for f in rd.get("files", []):
+                del f["details"]["identifier"]
+
+        # if the dataset doesn't contain directories, return
         if not dir_identifiers:
             return
 
@@ -453,14 +463,6 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
                     cr_directory_data=_directory_data,
                 )
 
-        # cleanup identifiers, if they were not actually requested
-        if not dir_identifier_requested:
-            for dr in rd["directories"]:
-                del dr["details"]["identifier"]
-
-        if not file_identifier_requested:
-            for f in rd["files"]:
-                del f["details"]["identifier"]
 
     @classmethod
     def transform_datasets_to_format(

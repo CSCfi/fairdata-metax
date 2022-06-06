@@ -1243,11 +1243,14 @@ paths:
             The details can be found behind the appended key 'details' that is placed into each file and directory in the dataset.
             Additionally total byte size and total file counts are calculated for directories, and are placed into fields
             byte_size and file_count in each directory's details as extra information.
+            <b>Note:</b>: Only works if used with the include_user_metadata query parameter.
           required: false
           type: boolean
         - name: file_fields
           in: query
-          description: Comma-separated list of field names to retrieve for file details, when details are requested (query param file_details=true is passed)
+          description: |
+            Comma-separated list of field names to retrieve for file details, when details are requested (query param file_details=true is passed)
+            <b>Note:</b>: Only works if the files were added to the dataset as individual files, not as directories.
           required: false
           type: string
         - name: directory_fields
