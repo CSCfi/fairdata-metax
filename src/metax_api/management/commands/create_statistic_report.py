@@ -22,7 +22,7 @@ class Command(BaseCommand):
 		ida_projects = File.objects.all().values("project_identifier").distinct()
 		for project in ida_projects:
 			project_id = project["project_identifier"]
-			ret = StatisticService.count_files([project_id], include_pids=True)
+			ret = StatisticService.count_files([project_id], removed="false", include_pids=True)
 			count = ret[0]["count"]
 			size = ret[0]["byte_size"]
 			file_pids = ret[1]
