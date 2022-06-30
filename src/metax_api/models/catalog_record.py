@@ -2044,7 +2044,7 @@ class CatalogRecord(Common):
             self.research_dataset
         ) != CRS.get_research_dataset_license_url(self._initial_data["research_dataset"])
 
-    def _calculate_total_files_byte_size(self):
+    def _calculate_total_files_byte_size(self, save_cr=False):
         rd = self.research_dataset
         if "files" in rd or "directories" in rd:
             rd["total_files_byte_size"] = (
@@ -2052,6 +2052,9 @@ class CatalogRecord(Common):
             )
         else:
             rd["total_files_byte_size"] = 0
+        if save_cr:
+            self.research_dataset = rd
+            super(Common, self).save(update_fields=["research_dataset"])
 
     def _calculate_total_remote_resources_byte_size(self):
         rd = self.research_dataset
