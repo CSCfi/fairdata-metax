@@ -50,7 +50,9 @@ integration_test:
     - coverage xml
   artifacts:
     reports:
-      cobertura: src/coverage.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: src/coverage.xml
     paths:
       - src/coverage.xml
 
