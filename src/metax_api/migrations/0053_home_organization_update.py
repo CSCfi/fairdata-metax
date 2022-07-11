@@ -7,16 +7,14 @@ logger = logging.getLogger(__name__)
 def replace_home_organization(cr, old_org, new_org):
     logger.info(f"replacing home organization {old_org} with new_org: {new_org}")
     changed = False
-    if cr.metadata_provider_org:
-        if cr.metadata_provider_org == old_org:
-            cr.metadata_provider_org = new_org
-            changed = True
-            logger.info("metadata_provider_user changed")
-    if cr.metadata_owner_org:
-        if cr.metadata_owner_org == old_org:
-            cr.metadata_owner_org = new_org
-            changed = True
-            logger.info("metadata_owner_user changed")
+    if cr.metadata_provider_org == old_org:
+        cr.metadata_provider_org = new_org
+        changed = True
+        logger.info("metadata_provider_user changed")
+    if cr.metadata_owner_org == old_org:
+        cr.metadata_owner_org = new_org
+        changed = True
+        logger.info("metadata_owner_user changed")
     if changed == False:
         logger.info("home organization not changed")
 
