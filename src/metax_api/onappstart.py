@@ -11,7 +11,6 @@ from shutil import rmtree
 
 from django.apps import AppConfig
 from django.conf import settings
-from icecream import ic
 
 from metax_api.utils import ReferenceDataLoader, executing_test_case, convert_yaml_to_html
 
@@ -53,22 +52,13 @@ class OnAppStart(AppConfig):
                 if callable(check):
                     try:
                         resp = json.dumps(check())
-                        ic(resp)
+                        _logger.info(resp)
                     except TypeError as e:
                         e_resp = check()
                         _logger.error(
                             f"Error in system check: {e}, caused by check:{check.__name__} with return value of {e_resp}"
                         )
         _logger.info(f"event='process_started',process_id={self._pid}")
-
-        """if not executing_test_case() and any(cmd in sys.argv for cmd in ['manage.py']):
-            _logger.info(f"process {self._pid} startapp task returned")
-            return
-
-        # ex = expiration in seconds
-        if not cache.get_or_set('on_app_start_executing', True, ex=120):
-            _logger.info(f"process {self._pid} startapp tasks returned")
-            return"""
 
         # actual startup tasks ->
         _logger.info("Metax API startup tasks executing...")
@@ -84,8 +74,7 @@ class OnAppStart(AppConfig):
             ):
                 ReferenceDataLoader.populate_cache_reference_data(cache)
                 _logger.info(f"event='reference_data_loaded',process_id={self._pid}")
-            else:
-                ic()
+
         except Exception as e:
             _logger.error(e)
 
