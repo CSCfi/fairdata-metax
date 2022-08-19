@@ -616,7 +616,7 @@ class StatisticService:
         return file_stats
 
     @classmethod
-    def count_files(cls, projects, removed=None, include_pids=False):
+    def count_files(cls, projects, removed=None, include_pids=False, file_storage=None):
         kwargs = OrderedDict()
         file_query = File.objects_unfiltered.all()
 
@@ -624,6 +624,8 @@ class StatisticService:
         kwargs['record__state'] = "published"
         if removed is not None:
             kwargs['removed'] = False if removed == 'false' else True
+        if file_storage is not None:
+            kwargs['file_storage'] = file_storage
         # "record" is defined for CatalogRecord to enable lookups from Files to CatalogRecord
         file_query = file_query.filter(**kwargs) \
                                .values("id", "byte_size") \

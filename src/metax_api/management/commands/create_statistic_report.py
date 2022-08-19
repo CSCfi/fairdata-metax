@@ -4,7 +4,7 @@ from django.core.management.base import BaseCommand
 from django.db.models import Sum
 from django.db.models.expressions import RawSQL
 
-from metax_api.models import File, CatalogRecordV2, OrganizationStatistics, ProjectStatistics
+from metax_api.models import File, CatalogRecordV2, OrganizationStatistics, ProjectStatistics, FileStorage
 from metax_api.api.rest.base.views import FileViewSet
 from metax_api.services import FileService, StatisticService
 
@@ -18,23 +18,28 @@ class Command(BaseCommand):
 		OrganizationStatistics.objects.all().delete()
 		ProjectStatistics.objects.all().delete()
 
+		ida_file_storage = FileStorage.objects.get(file_storage_json__icontains="urn:nbn:fi:att:file-storage-ida")
+		pas_file_storage = FileStorage.objects.get(file_storage_json__icontains="urn:nbn:fi:att:file-storage-pas")
 
-		ida_projects = File.objects.all().values("project_identifier").distinct()
-		for project in ida_projects:
+		all_projects = File.objects.all().values("project_identifier").distinct()
+
+		for project in all_projects:
+			logger.info(f"all_project: {project}")
 			project_id = project["project_identifier"]
-			ret = StatisticService.count_files([project_id], removed="false", include_pids=True)
-			count = ret[0]["count"]
-			size = ret[0]["byte_size"]
-			file_pids = ret[1]
 
-			if len(file_pids) == 0:
-				published_catalog_record_pids = ""
-			else:
-				all_catalog_records = FileService.get_identifiers(file_pids, "noparams", True).data
-				published_catalog_records = CatalogRecordV2.objects.filter(identifier__in = all_catalog_records, state = "published")
-				published_catalog_record_pids = list(published_catalog_records.values_list('research_dataset__preferred_identifier', flat = True).distinct())
+			ida_files_stats = StatisticService.count_files([project_id], removed="false", include_pids=True, file_storage=ida_file_storage)
+			ida_count = ida_files_stats[0]["count"]
+			ida_size = ida_files_stats[0]["byte_size"]
+			ida_file_pids = ida_files_stats[1]
+			ida_published_catalog_record_pids = self.get_published_cr_pids(ida_file_pids)
 
-			stat = ProjectStatistics(project_id, count, size, published_catalog_record_pids)
+			pas_files_stats = StatisticService.count_files([project_id], removed="false", include_pids=True, file_storage=pas_file_storage)
+			pas_count = pas_files_stats[0]["count"]
+			pas_size = pas_files_stats[0]["byte_size"]
+			pas_file_pids = pas_files_stats[1]
+			pas_published_catalog_record_pids = self.get_published_cr_pids(pas_file_pids)
+
+			stat = ProjectStatistics(project_id, ida_count, ida_size, ida_published_catalog_record_pids, pas_count, pas_size, pas_published_catalog_record_pids)
 			stat.save()
 
 
@@ -47,3 +52,12 @@ class Command(BaseCommand):
 			stat.save()
 
 		logger.info("Statistic summary created")
+
+	def get_published_cr_pids(self, file_pids):
+
+		if len(file_pids) == 0:
+			return ""
+		else:
+			all_catalog_records = FileService.get_identifiers(file_pids, "noparams", True).data
+			published_catalog_records = CatalogRecordV2.objects.filter(identifier__in = all_catalog_records, state = "published")
+			return list(published_catalog_records.values_list('research_dataset__preferred_identifier', flat = True).distinct())
