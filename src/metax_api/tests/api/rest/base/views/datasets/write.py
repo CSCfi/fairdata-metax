@@ -1604,6 +1604,18 @@ class CatalogRecordApiWritePreservationStateTests(CatalogRecordApiWriteCommon):
         cr_data = self.client.get("/rest/datasets/1", format="json").data
         self.assertEqual(cr_data["preservation_state"], 0)
 
+    def test_pas_version_editor_permissions(self):
+        """
+        When preservation_state is updated to 'accepted to pas', a copy should be created into
+        designated PAS catalog.
+        """
+        self._create_pas_dataset_from_id(1)
+        cr = CatalogRecord.objects.get(pk=1)
+        self.assertEqual(
+            cr.editor_permissions_id,
+            cr.preservation_dataset_version.editor_permissions_id,
+        )
+
     def test_origin_dataset_cant_have_multiple_pas_versions(self):
         """
         If state is update to 'accepted to pas', and relation preservation_dataset_version
@@ -4579,7 +4591,7 @@ class CatalogRecordExternalServicesAccess(CatalogRecordApiWriteCommon):
         )
 
     def test_external_service_can_not_read_all_metadata_in_other_catalog(self):
-        """ External service should get the same output from someone elses catalog than anonymous user """
+        """External service should get the same output from someone elses catalog than anonymous user"""
         # create a catalog that does not belong to our external service
         dc2 = DataCatalog.objects.get(pk=2)
         dc2.catalog_json["identifier"] = "Some other catalog"

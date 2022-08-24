@@ -644,7 +644,7 @@ class CatalogRecord(Common):
                 return True
 
         users = self.editor_permissions.users
-        ids = users.all().values_list('user_id', flat=True)
+        ids = users.all().values_list("user_id", flat=True)
         if request.user.username in ids:
             return True
         elif self.user_is_owner(request):
@@ -1299,7 +1299,7 @@ class CatalogRecord(Common):
                 "removed": self.removed,
             }
             if self.removed and self.date_removed:
-                val['date_removed'] = self.date_removed
+                val["date_removed"] = self.date_removed
             return val
         except:
             return {}
@@ -2733,6 +2733,7 @@ class CatalogRecord(Common):
             "preservation_description": origin_version.preservation_description,
             "preservation_reason_description": origin_version.preservation_reason_description,
             "preservation_dataset_origin_version": origin_version,
+            "editor_permissions_id": origin_version.editor_permissions_id,
         }
 
         # add information about other identifiers for this dataset
