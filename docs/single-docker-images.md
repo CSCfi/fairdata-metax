@@ -23,7 +23,7 @@ __NOTICE: copy values of `POSTGRES_USER`, `POSTGRES_PASSWORD` and `POSTGRES_DB` 
 `docker run -d -p 5671:5671 -p 5672:5672 -p 15672:15672 -v metax-rabbitmq:/var/lib/rabbitmq --name metax-rabbitmq --restart=unless-stopped rabbitmq:3-management`
 
 ## Metax
-Check the IP addresses of Redis, RabbitMQ, ElasticSearch and Postgres:9 either from Portainer container list (click the link in the container name to see all attributes) or by going to portainer network tab or by typing `docker container ps` followed by `docker network inspect bridge`
+Check the IP addresses of Redis, RabbitMQ, ElasticSearch and Postgres either from Portainer container list (click the link in the container name to see all attributes) or by going to portainer network tab or by typing `docker container ps` followed by `docker network inspect bridge`
 
 Build new docker image from repository root with this command
 
