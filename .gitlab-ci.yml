@@ -1,7 +1,7 @@
 workflow:
   rules:
-    - if: $CI_COMMIT_BRANCH =~ /^(demo|stable|staging|test)$/
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME !~ /^(demo|master|stable|staging|test)$/
+    - if: $CI_COMMIT_BRANCH =~ /^(master|relase)$/
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME !~ /^(master|relase)$/
 
 stages:
   - clean_build
@@ -70,14 +70,32 @@ clean_gitlab_env:
       when: never
     - when: manual
 
+# Deploy MR branch to test environment
 deploy:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME !~ /^(master|relase)$/
   stage: deploy
   environment: $CI_COMMIT_REF_NAME
   script:
-    - ansible-playbook -i $ANSIBLE_INVENTORY $DEPLOY_PLAYBOOK --vault-id $ANSIBLE_VAULT_FILE -e "build_id=$CI_COMMIT_REF_SLUG repo_version=$CI_COMMIT_REF_NAME"
+    - ansible-playbook -i $ANSIBLE_INVENTORY $DEPLOY_PLAYBOOK -e "repo_version=$CI_COMMIT_REF_NAME" --vault-id $ANSIBLE_VAULT_FILE 
+
+# Deploy master branch to test environment
+deploy:
   rules:
-    - if: $CI_COMMIT_BRANCH =~ /^(demo|master|stable|staging|test)$/
-      when: always
+    - if: $CI_COMMIT_BRANCH =~ /^(master)$/
+  stage: deploy
+  environment: test
+  script:
+    - ansible-playbook -i $ANSIBLE_INVENTORY $DEPLOY_PLAYBOOK -e "repo_version=master" --vault-id $ANSIBLE_VAULT_FILE 
+
+# Deploy release branch to stable environment
+deploy:
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /^(release)$/
+  stage: deploy
+  environment: stable
+  script:
+    - ansible-playbook -i $ANSIBLE_INVENTORY $DEPLOY_PLAYBOOK -e "repo_version=release" --vault-id $ANSIBLE_VAULT_FILE 
 
 update_metax:
   stage: update
