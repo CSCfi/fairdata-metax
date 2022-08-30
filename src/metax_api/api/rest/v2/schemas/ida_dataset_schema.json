@@ -511,6 +511,38 @@
             ],
             "additionalProperties": false
         },
+        "FilePair": {
+            "@id":"http://www.w3.org/ns/dcat#Distribution",
+            "title":"File pair addition event",
+            "type":"object",
+            "@id":"http://www.w3.org/ns/dcat#Distribution",
+            "description":"Links two files of the dataset to each other. The other one is combatible with PAS and the other one is not",
+            "minProperties":1,
+            "properties":{
+                "pas_compatible_file":{
+                    "@id":"http://purl.org/dc/terms/identifier",
+                    "title":"Identifier",
+                    "description":"The identifier of the file that is pas combatible",
+                    "@type":"@id",
+                    "minLength": 1,
+                    "type":"string"
+                },
+                "non_pas_compatible_file":{
+                    "@id":"http://purl.org/dc/terms/identifier",
+                    "title":"Identifier",
+                    "description":"The identifier of the file that is not pas combatible",
+                    "@type":"@id",
+                    "minLength": 1,
+                    "type":"string"
+                }
+            },
+            "required":[
+                "pas_compatible_file",
+                "non_pas_compatible_file"
+            ],
+            "additionalProperties": false
+
+        },
         "File":{
             "title":"File in file storage",
             "type":"object",
@@ -1384,6 +1416,17 @@
                     "items":{
                         "type":"object",
                         "$ref":"#/definitions/File"
+                    }
+                },
+                "file_relations":{
+                    "@id":"http://www.w3.org/ns/dcat#distribution",
+                    "title":"List of file relations",
+                    "description":"Connects two related files to each other",
+                    "@type":"@id",
+                    "type":"array",
+                    "items":{
+                        "type":"object",
+                        "$ref":"#/definitions/FilePair"
                     }
                 },
                 "curator":{

@@ -133,3 +133,36 @@ class CatalogRecordApiWritePreservationStateTests(CatalogRecordApiWriteCommon, T
 
         # note: trying to assert querysets will result in failure. must evaluate the querysets first by iterating them
         self.assertEqual([f for f in cr_files], [f for f in cr_pas_files])
+
+    def test_file_relations_remain_in_pas(self):
+        cr_data = self.client.get("/rest/v2/datasets/1?include_user_metadata", format="json").data
+        self.assertEqual(cr_data["preservation_state"], 0)
+
+        files = [{"identifier": "pid:urn:1"}, {"identifier": "pid:urn:2"}]
+        file_relations = [{"pas_compatible_file": "pid:urn:1", "non_pas_compatible_file": "pid:urn:2"}]
+        cr_data["research_dataset"]["files"] = files
+        cr_data["research_dataset"]["file_relations"] = file_relations
+        del(cr_data["research_dataset"]["preferred_identifier"])
+        del(cr_data["identifier"])
+
+        response = self.client.post("/rest/v2/datasets", cr_data, format="json")
+        self.assertEqual(response.status_code, 201)
+        cr_id = response.data["id"]
+
+        response = self.client.get(f"/rest/v2/datasets/{cr_id}?include_user_metadata", format="json")
+        cr_data = response.data
+        cr_fr = cr_data["research_dataset"]["file_relations"]
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(cr_fr)
+        self.assertEqual(cr_fr, file_relations)
+
+        origin_dataset = self._create_pas_dataset_from_id(cr_id)
+        pas_id = origin_dataset["preservation_dataset_version"]["id"]
+
+        response = self.client.get(f"/rest/v2/datasets/{pas_id}?include_user_metadata", format="json")
+        cr_data = response.data
+        pas_fr = cr_data["research_dataset"]["file_relations"]
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(pas_fr)
+        self.assertEqual(pas_fr, cr_fr)
