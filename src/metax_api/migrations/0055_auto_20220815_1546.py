@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('metax_api', '0053_home_organization_update'),
+        ('metax_api', '0054_organization_update_fmi'),
     ]
 
     operations = [
