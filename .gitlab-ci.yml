@@ -31,7 +31,7 @@ job_clean_previous_build:
   rules:
     - if: $CI_COMMIT_BRANCH =~ /^(master|release)$/
   # Note: "environment" in this case refers to a "gitlab-ci-environment", not a "fairdata environment"
-  environment: $CI_COMMIT_REF_NAME
+  environment: $CI_COMMIT_BRANCH
   script:
     # repo_version must be passed in order to correctly delete previous build
     - ansible-playbook -i $ANSIBLE_INVENTORY $DELETE_PLAYBOOK --vault-id $ANSIBLE_VAULT_FILE -e "repo_version=$CI_COMMIT_REF_NAME"
@@ -42,7 +42,7 @@ job_deploy_protected_branch:
   rules:
     - if: $CI_COMMIT_BRANCH =~ /^(master|release)$/
   # Note: "environment" in this case refers to a "gitlab-ci-environment", not a "fairdata environment"
-  environment: $CI_COMMIT_REF_NAME
+  environment: $CI_COMMIT_BRANCH
   script:
     - ansible-playbook -i $ANSIBLE_INVENTORY $DEPLOY_PLAYBOOK --vault-id $ANSIBLE_VAULT_FILE 
 
@@ -62,7 +62,7 @@ job_update:
   rules:
     - if: $CI_COMMIT_BRANCH =~ /^(master|release)$/
   # Note: "environment" in this case refers to a "gitlab-ci-environment", not a "fairdata environment"
-  environment: $CI_COMMIT_REF_NAME
+  environment: $CI_COMMIT_BRANCH
   script:
     - ansible-playbook -i $ANSIBLE_INVENTORY $UPDATE_PROXY_PLAYBOOK --vault-id $ANSIBLE_VAULT_FILE
     - ansible-playbook -i $ANSIBLE_INVENTORY $MANAGE_PLAYBOOK --vault-id $ANSIBLE_VAULT_FILE
@@ -144,8 +144,8 @@ job_clean_gitlab_env:
     action: stop
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME !~ /^(master|release)$/
+    - if: $CI_COMMIT_BRANCH =~ /^(release)$/
       when: never
-    - when: manual
   stage: clean_env
   variables:
     GIT_STRATEGY: none
