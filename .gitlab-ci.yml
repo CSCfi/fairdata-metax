@@ -15,8 +15,8 @@
 
 workflow:
   rules:
-    - if: $CI_COMMIT_BRANCH =~ /^(master|relase)$/
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME !~ /^(master|relase)$/
+    - if: $CI_COMMIT_BRANCH =~ /^(master|release)$/
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME !~ /^(master|release)$/
 
 stages:
   - clean_previous_build
@@ -50,7 +50,7 @@ job_deploy_protected_branch:
 job_deploy_feature_branch:
   stage: deploy
   rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME !~ /^(master|relase)$/
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME !~ /^(master|release)$/
   # Note: "environment" in this case refers to a "gitlab-ci-environment", not a "fairdata environment"
   environment: $CI_COMMIT_REF_NAME
   script:
