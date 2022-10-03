@@ -60,6 +60,7 @@ class File(Common):
         null=True,
         related_name="files",
     )
+    pas_compatible = models.BooleanField(default=True)
     project_identifier = models.CharField(max_length=200)
 
     # END OF MODEL FIELD DEFINITIONS #

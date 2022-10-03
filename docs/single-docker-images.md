@@ -10,7 +10,7 @@ After installing [Docker prerequisites](docker-prerequisites.md),run the followi
 
 ## Postgres
 
-`docker run -d -p 5432:5432 --name metax-postgres -v metax-postgres:/var/lib/postgresql96/data -e POSTGRES_USER=metax_db_user -e POSTGRES_PASSWORD=YMDLekQMqrVKcs3 -e POSTGRES_DB=metax_db --restart=unless-stopped  postgres:9`
+`docker run -d -p 5432:5432 --name metax-postgres -v metax-postgres:/var/lib/postgresql/data -e POSTGRES_USER=metax_db_user -e POSTGRES_PASSWORD=YMDLekQMqrVKcs3 -e POSTGRES_DB=metax_db --restart=unless-stopped  postgres:12`
 
 __NOTICE: copy values of `POSTGRES_USER`, `POSTGRES_PASSWORD` and `POSTGRES_DB` into your `.env` files as `METAX_DATABASE_USER`, `METAX_DATABASE_PASSWORD` and `METAX_DATABASE`__
 
@@ -23,7 +23,7 @@ __NOTICE: copy values of `POSTGRES_USER`, `POSTGRES_PASSWORD` and `POSTGRES_DB` 
 `docker run -d -p 5671:5671 -p 5672:5672 -p 15672:15672 -v metax-rabbitmq:/var/lib/rabbitmq --name metax-rabbitmq --restart=unless-stopped rabbitmq:3-management`
 
 ## Metax
-Check the IP addresses of Redis, RabbitMQ, ElasticSearch and Postgres:9 either from Portainer container list (click the link in the container name to see all attributes) or by going to portainer network tab or by typing `docker container ps` followed by `docker network inspect bridge`
+Check the IP addresses of Redis, RabbitMQ, ElasticSearch and Postgres either from Portainer container list (click the link in the container name to see all attributes) or by going to portainer network tab or by typing `docker container ps` followed by `docker network inspect bridge`
 
 Build new docker image from repository root with this command
 

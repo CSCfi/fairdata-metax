@@ -81,6 +81,7 @@ class FileSerializer(CommonSerializer):
             "file_characteristics",
             "file_characteristics_extension",
             "open_access",
+            "pas_compatible",
             "project_identifier",
         ) + CommonSerializer.Meta.fields
 
