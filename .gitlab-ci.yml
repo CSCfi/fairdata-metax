@@ -1,71 +1,55 @@
-# Note: all "environment:" assignments in this file 
-# refers to gitlab-ci environments, which are:
-#
-# - {{ feature_branch }}
-# - master
-# - release
-#
-# This "environment:" assignment is separate from 
-# Fairdata environments, which are:
-#
-# - staging
-# - test
-# - stable
-# - demo
+variables:
+  GITLAB_ENV: test
 
-workflow:
-  rules:
-    - if: $CI_COMMIT_BRANCH =~ /^(master|release)$/
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME !~ /^(master|release)$/
+default:
+  tags:
+    - shell
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~
 
 stages:
-  - clean_previous_build
+  - clean
   - deploy
   - test
   - update
   - clean_env
 
-# Clean any previous build from [test/stable], if deploying [master/release] branch
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+
 job_clean_previous_build:
-  stage: clean_previous_build
-  rules:
-    - if: $CI_COMMIT_BRANCH =~ /^(master|release)$/
-  # Note: "environment" in this case refers to a "gitlab-ci-environment", not a "fairdata environment"
-  environment: $CI_COMMIT_BRANCH
+  stage: clean
+  environment: $GITLAB_ENV
   script:
-    # repo_version must be passed in order to correctly delete previous build
-    - ansible-playbook -i $ANSIBLE_INVENTORY $DELETE_PLAYBOOK --vault-id $ANSIBLE_VAULT_FILE -e "repo_version=$CI_COMMIT_REF_NAME"
+    - ansible-playbook -i $ANSIBLE_INVENTORY $DELETE_PLAYBOOK --vault-id $ANSIBLE_VAULT_FILE
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /^(master)$/
+    - if: $CI_PIPELINE_SOURCE =~ /^(web)$/
 
-# Deploy master/release branch to test/stable environment
-job_deploy_protected_branch:
-  stage: deploy
-  rules:
-    - if: $CI_COMMIT_BRANCH =~ /^(master|release)$/
-  # Note: "environment" in this case refers to a "gitlab-ci-environment", not a "fairdata environment"
-  environment: $CI_COMMIT_BRANCH
-  script:
-    - ansible-playbook -i $ANSIBLE_INVENTORY $DEPLOY_PLAYBOOK --vault-id $ANSIBLE_VAULT_FILE 
+# ~~~~~~~~~~~~~~~~~~~~~~~~
 
-# Deploy MR branch to test environment
-job_deploy_feature_branch:
-  stage: deploy
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME !~ /^(master|release)$/
-  # Note: "environment" in this case refers to a "gitlab-ci-environment", not a "fairdata environment"
-  environment: $CI_COMMIT_REF_NAME
-  script:
-    # repo_version must be passed in order to correctly deploy the build
-    - ansible-playbook -i $ANSIBLE_INVENTORY $DEPLOY_PLAYBOOK -e "repo_version=$CI_COMMIT_REF_NAME" --vault-id $ANSIBLE_VAULT_FILE 
+# Deploy
+include:
+  - project: fairdata/fairdata-ci
+    ref: master
+    file:
+      - /templates/deploy.yml
+    rules:
+    - if: $CI_COMMIT_BRANCH =~ /^(master)$/
+    - if: $CI_PIPELINE_SOURCE =~ /^(web)$/
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~
 
 job_update:
   stage: update
-  rules:
-    - if: $CI_COMMIT_BRANCH =~ /^(master|release)$/
-  # Note: "environment" in this case refers to a "gitlab-ci-environment", not a "fairdata environment"
-  environment: $CI_COMMIT_BRANCH
+  environment: $GITLAB_ENV
   script:
     - ansible-playbook -i $ANSIBLE_INVENTORY $UPDATE_PROXY_PLAYBOOK --vault-id $ANSIBLE_VAULT_FILE
     - ansible-playbook -i $ANSIBLE_INVENTORY $MANAGE_PLAYBOOK --vault-id $ANSIBLE_VAULT_FILE
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /^(master)$/
+    - if: $CI_PIPELINE_SOURCE =~ /^(web)$/
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~
 
 job_sonarqube_check:
   tags: 
@@ -87,13 +71,15 @@ job_sonarqube_check:
   needs:
     - job: job_integration_test
       artifacts: true
-  only:
-    - merge_requests
-    - master
-    - release
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      allow_failure: true
+    - if: $CI_COMMIT_BRANCH =~ /^(master)$/ && $CI_PIPELINE_SOURCE !~ /^(web)$/
+      allow_failure: true
+    - if: $CI_COMMIT_BRANCH =~ /^(release)$/
 
 job_integration_test:
-  environment: $CI_COMMIT_REF_NAME
+  environment: $GITLAB_ENV
   stage: test
   tags:
     - docker
@@ -137,18 +123,24 @@ job_integration_test:
         path: src/coverage.xml
     paths:
       - src/coverage.xml
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME !~ /^(master|release)$/
+    - if: $CI_COMMIT_BRANCH =~ /^(master)$/
+    - if: $CI_PIPELINE_SOURCE == "web"
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~
 
 job_clean_gitlab_env:
   environment:
-    name: $CI_COMMIT_REF_NAME
+    name: $GITLAB_ENV
     action: stop
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME !~ /^(master|release)$/
-    - if: $CI_COMMIT_BRANCH =~ /^(release)$/
-      when: never
   stage: clean_env
   variables:
     GIT_STRATEGY: none
   script:
     - echo "Cleaning deleted branches from environments"
-
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME !~ /^(master)$/
+    - if: $CI_COMMIT_BRANCH =~ /^(master)$/
+    - if: $CI_COMMIT_BRANCH =~ /^(release)$/
+      when: never
