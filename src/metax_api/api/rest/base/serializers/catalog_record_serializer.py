@@ -334,6 +334,9 @@ class CatalogRecordSerializer(CommonSerializer):
             res["preservation_dataset_version"][
                 "preservation_state"
             ] = instance.preservation_dataset_version.preservation_state
+            res["preservation_dataset_version"][
+                "preservation_state_modified"
+            ] = instance.preservation_dataset_version.preservation_state_modified
 
         elif "preservation_dataset_origin_version" in res:
             res[

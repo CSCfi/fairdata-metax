@@ -257,6 +257,7 @@ class CatalogRecordVersionHandling(CatalogRecordApiWriteCommon):
         origin_dataset = self._create_pas_dataset_from_id(1)
 
         pas_id = origin_dataset["preservation_dataset_version"]["identifier"]
+        assert "preservation_state_modified" in origin_dataset["preservation_dataset_version"]
 
         response = self.client.post(
             f"/rpc/v2/datasets/create_new_version?identifier={pas_id}", format="json"
