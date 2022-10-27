@@ -98,7 +98,7 @@ job_integration_test:
       - src/coverage.xml
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-    - if: $CI_COMMIT_BRANCH =~ /^(master)$/
+    - if: $CI_COMMIT_BRANCH =~ /^(master|release)$/
     - if: $CI_PIPELINE_SOURCE == "web"
 
 job_sonarqube_check:
