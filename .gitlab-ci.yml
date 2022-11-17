@@ -1,3 +1,6 @@
+# Definitions
+# ------------------------
+
 variables:
   GITLAB_ENV: test
 
@@ -5,29 +8,17 @@ default:
   tags:
     - shell
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~
+# Stages
+# ------------------------
 
 stages:
-  - clean
   - deploy
-  - test
   - update
-  - clean_env
+  - test
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~
+# Stage 1: Deploy
+# ------------------------
 
-job_clean_previous_build:
-  stage: clean
-  environment: $GITLAB_ENV
-  script:
-    - ansible-playbook -i $ANSIBLE_INVENTORY $DELETE_PLAYBOOK --vault-id $ANSIBLE_VAULT_FILE
-  rules:
-    - if: $CI_COMMIT_BRANCH =~ /^(master)$/
-    - if: $CI_PIPELINE_SOURCE =~ /^(web)$/
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~
-
-# Deploy
 include:
   - project: fairdata/fairdata-ci
     ref: master
@@ -37,7 +28,8 @@ include:
     - if: $CI_COMMIT_BRANCH =~ /^(master)$/
     - if: $CI_PIPELINE_SOURCE =~ /^(web)$/
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~
+# Stage 2: Update
+# ------------------------
 
 job_update:
   stage: update
@@ -49,7 +41,8 @@ job_update:
     - if: $CI_COMMIT_BRANCH =~ /^(master)$/
     - if: $CI_PIPELINE_SOURCE =~ /^(web)$/
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~
+# Stage 3: Test
+# ------------------------
 
 job_integration_test:
   environment: $GITLAB_ENV
@@ -127,20 +120,3 @@ job_sonarqube_check:
     - if: $CI_COMMIT_BRANCH =~ /^(master)$/ && $CI_PIPELINE_SOURCE !~ /^(web)$/
       allow_failure: true
     - if: $CI_COMMIT_BRANCH =~ /^(release)$/
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~
-
-job_clean_gitlab_env:
-  environment:
-    name: $GITLAB_ENV
-    action: stop
-  stage: clean_env
-  variables:
-    GIT_STRATEGY: none
-  script:
-    - echo "Cleaning deleted branches from environments"
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME !~ /^(master)$/
-    - if: $CI_COMMIT_BRANCH =~ /^(master)$/
-    - if: $CI_COMMIT_BRANCH =~ /^(release)$/
-      when: never
