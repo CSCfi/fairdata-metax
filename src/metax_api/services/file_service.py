@@ -13,6 +13,8 @@ from uuid import NAMESPACE_DNS as UUID_NAMESPACE_DNS, uuid3
 
 from django.conf import settings
 from django.db import connection
+from django.db.models import Value, CharField, OuterRef, Exists
+from django.db.models.functions import Concat
 from django.http import Http404
 from rest_framework import status
 from rest_framework.response import Response
@@ -232,7 +234,7 @@ class FileService(CommonService, ReferenceDataMixin):
         return Response({"restored_files_count": affected_rows}, status=status.HTTP_200_OK)
 
     @classmethod
-    def get_identifiers(cls, identifiers, params, keysonly, get_pids = False):
+    def get_identifiers(cls, identifiers, params, keysonly, get_pids=False):
         """
         keys='files': Find out which (non-deprecated) datasets a list of files belongs to, and return
         their preferred_identifiers per file as a list in json format.
@@ -269,7 +271,9 @@ class FileService(CommonService, ReferenceDataMixin):
             """
 
         if get_pids:
-            noparams = noparams.replace("cr.identifier", "research_dataset->>'preferred_identifier'")
+            noparams = noparams.replace(
+                "cr.identifier", "research_dataset->>'preferred_identifier'"
+            )
 
         files = """
             SELECT f.identifier, json_agg(cr.identifier)
@@ -447,8 +451,8 @@ class FileService(CommonService, ReferenceDataMixin):
 
         sql_delete_files = """
             update metax_api_file set
-                removed = true, 
-                file_deleted = CURRENT_TIMESTAMP, 
+                removed = true,
+                file_deleted = CURRENT_TIMESTAMP,
                 date_modified = CURRENT_TIMESTAMP,
                 date_removed = CURRENT_TIMESTAMP
             where active = true and removed = false
@@ -668,18 +672,18 @@ class FileService(CommonService, ReferenceDataMixin):
 
         cr_id = not_cr_id = None
 
+        cr_directory_data = {}
+
         if cr_identifier:
             cr_id, cr_directory_data = cls._get_cr_if_relevant(cr_identifier, directory, request)
         elif not_cr_identifier:
             not_cr_id, cr_directory_data = cls._get_cr_if_relevant(
                 not_cr_identifier, directory, request
             )
-        else:
-            # generally browsing the directory - NOT in the context of a cr! check user permissions
-            if not request.user.is_service:
-                cls.check_user_belongs_to_project(request, directory["project_identifier"])
 
-            cr_directory_data = {}
+        if not cr_identifier and not request.user.is_service:
+            # browsing files not contained in a cr, check user permissions
+            cls.check_user_belongs_to_project(request, directory["project_identifier"])
 
         # get list of field names to retrieve. note: by default all fields are retrieved
         directory_fields, file_fields = cls._get_requested_file_browsing_fields(request)
@@ -982,80 +986,56 @@ class FileService(CommonService, ReferenceDataMixin):
         Browsing files in the context of a specific CR id.
         """
 
-        def _cr_belongin_to_directory(id):
+        def _dirs_with_files_in_cr():
+            """Return subdirectories that recursively contain at least one file belonging to dataset.
+
+            Gets files which begin with the same path as the directory path, so files contained by
+            subdirectories are also counted.
+
+            If not_cr_id is set, return subdirectories that contain files not belonging to dataset.
+            """
+            cr = cr_id or not_cr_id
+            exclude = bool(not_cr_id)
+
             if recursive and not dirs_only:
                 return Directory.objects.filter(parent_directory_id=directory_id).values("id")
-
-            # select dirs which are contained by the directory,
-            # AND which contain files belonging to the cr <-> files m2m relation table,
-            # AND there exists files for CR which begin with the same path as the dir path,
-            # to successfully also include files which did not DIRECTLY contain any files, but do
-            # contain files further down the tree.
-            # dirs which otherwise contained files, but not any files that were selected for
-            # the cr, are not returned.
-
-            # directory_fields are validated in LightDirectorySerializer against allowed fields
-            # which is set(DirectorySerializer.Meta.fields). Should be safe to use in raw SQL,
-            # but considered to be more safe to sanitize here once more.
 
             from metax_api.api.rest.base.serializers import DirectorySerializer
 
             allowed_fields = set(DirectorySerializer.Meta.fields)
-
-            directory_fields_sql = []
-
-            for field in directory_fields:
-                if field in allowed_fields:
-                    directory_fields_sql.append("d." + field)
-                elif (
-                    "parent_directory__" in field
+            fields = [
+                field
+                for field in directory_fields
+                if field in allowed_fields
+                or (
+                    field.startswith("parent_directory__")
                     and field.split("parent_directory__")[1] in allowed_fields
-                ):
-                    directory_fields_sql.append(field.replace("parent_directory__", "parent_d."))
-            directory_fields_string_sql = ", ".join(directory_fields_sql)
-
-            dir_name_sql = (
-                ""
-                if not directory_name or not_cr_id
-                else "AND d.directory_name LIKE ('%%' || %s || '%%')"
-            )
-
-            sql_select_dirs_for_cr = """
-                SELECT {}
-                FROM metax_api_directory d
-                JOIN metax_api_directory parent_d
-                    ON d.parent_directory_id = parent_d.id
-                WHERE d.parent_directory_id = %s
-                    {}
-                AND EXISTS(
-                    SELECT 1
-                    FROM metax_api_file f
-                    INNER JOIN metax_api_catalogrecord_files cr_f ON cr_f.file_id = f.id
-                    WHERE f.file_path LIKE (d.directory_path || '/%%')
-                    AND cr_f.catalogrecord_id = %s
-                    AND f.removed = false
-                    AND f.active = true
                 )
-                ORDER BY d.directory_path
-                """
-            with connection.cursor() as cr:
-                sql_select_dirs_for_cr = sql_select_dirs_for_cr.format(
-                    directory_fields_string_sql, dir_name_sql
+            ]
+
+            child_dirs = Directory.objects.filter(parent_directory_id=directory_id)
+            if directory_name:
+                child_dirs = child_dirs.filter(directory_name__icontains=directory_name)
+
+            project = Directory.objects.get(id=directory_id).project_identifier
+            if exclude:
+                files = File.objects.filter(project_identifier=project).exclude(record=cr)
+            else:
+                files = File.objects.filter(project_identifier=project, record=cr)
+
+            dirs = child_dirs.filter(
+                Exists(
+                    files.filter(
+                        file_path__startswith=Concat(
+                            OuterRef("directory_path"), Value("/"), output_field=CharField()
+                        ),
+                    )
                 )
-                sql_params = (
-                    [directory_id, directory_name, id]
-                    if directory_name and not not_cr_id
-                    else [directory_id, id]
-                )
-                cr.execute(sql_select_dirs_for_cr, sql_params)
+            ).order_by("directory_path")
+            return list(dirs.values(*fields))
 
-                dirs = [dict(zip(directory_fields, row)) for row in cr.fetchall()]
-
-            return dirs
-
+        dirs = _dirs_with_files_in_cr()
         if cr_id:
-            dirs = _cr_belongin_to_directory(cr_id)
-
             files = (
                 None
                 if dirs_only
@@ -1063,22 +1043,7 @@ class FileService(CommonService, ReferenceDataMixin):
                 .order_by("file_path")
                 .values(*file_fields)
             )
-
         elif not_cr_id:
-            dirs = _cr_belongin_to_directory(not_cr_id)
-
-            if dirs_only or not recursive:
-                dirs = (
-                    Directory.objects.filter(parent_directory=directory_id)
-                    .exclude(id__in=[dir["id"] for dir in dirs])
-                    .values(*directory_fields)
-                )
-                if directory_name:
-                    dirs = dirs.filter(directory_name__icontains=directory_name)
-
-                if directory_name:
-                    dirs = dirs.filter(directory_name__icontains=directory_name)
-
             files = (
                 None
                 if dirs_only

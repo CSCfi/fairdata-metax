@@ -796,7 +796,8 @@ class DirectoryApiReadCatalogRecordFileBrowsingAuthorizationTests(DirectoryApiRe
 
         # Verify /rest/directories/<dir_id>/files?cr_identifier=cr_id returns dir files even without authorization for
         # open catalog record
-        self._assert_ok(open_cr_json, "no")
+        # Because user has no projects, request with not_cr_identifier returns 404.
+        self._assert_ok(open_cr_json, "no", not_cr_status=status.HTTP_404_NOT_FOUND)
 
     def test_returns_ok_for_login_catalog_record_if_no_authorization(self):
         login_cr_json = self.get_open_cr_with_files_and_dirs_from_api_with_file_details(
@@ -805,7 +806,8 @@ class DirectoryApiReadCatalogRecordFileBrowsingAuthorizationTests(DirectoryApiRe
 
         # Verify /rest/directories/<dir_id>/files?cr_identifier=cr_id returns dir files even without authorization for
         # login catalog record
-        self._assert_ok(login_cr_json, "no")
+        # Because user has no projects, request with not_cr_identifier returns 404.
+        self._assert_ok(login_cr_json, "no", not_cr_status=status.HTTP_404_NOT_FOUND)
 
     def test_returns_ok_for_open_catalog_record_if_service_authorization(self):
         open_cr_json = self.get_open_cr_with_files_and_dirs_from_api_with_file_details()
@@ -830,7 +832,8 @@ class DirectoryApiReadCatalogRecordFileBrowsingAuthorizationTests(DirectoryApiRe
 
         # Verify /rest/directories/<dir_id>/files?cr_identifier=cr_id returns dir files with owner authorization for
         # owner-owned open catalog record
-        self._assert_ok(open_cr_json, "owner")
+        # Because user has no access to project, request with not_cr_identifier returns 403.
+        self._assert_ok(open_cr_json, "owner", not_cr_status=status.HTTP_403_FORBIDDEN)
 
     @responses.activate
     def test_returns_ok_for_login_catalog_record_if_owner_authorization(self):
@@ -839,7 +842,8 @@ class DirectoryApiReadCatalogRecordFileBrowsingAuthorizationTests(DirectoryApiRe
 
         # Verify /rest/directories/<dir_id>/files?cr_identifier=cr_id returns dir files with owner authorization for
         # owner-owned login_cr_json catalog record
-        self._assert_ok(login_cr_json, "owner")
+        # Because user has no access to project, request with not_cr_identifier returns 403.
+        self._assert_ok(login_cr_json, "owner", not_cr_status=status.HTTP_403_FORBIDDEN)
 
     def test_returns_ok_for_restricted_catalog_record_if_service_authorization(self):
         restricted_cr_json = self.get_restricted_cr_with_files_and_dirs_from_api_with_file_details()
@@ -857,7 +861,8 @@ class DirectoryApiReadCatalogRecordFileBrowsingAuthorizationTests(DirectoryApiRe
 
         # Verify /rest/directories/<dir_id>/files?cr_identifier=cr_id returns dir files with owner authorization for
         # owner-owned restricted catalog record
-        self._assert_ok(restricted_cr_json, "owner")
+        # Because user has no access to project, request with not_cr_identifier returns 403.
+        self._assert_ok(restricted_cr_json, "owner", not_cr_status=status.HTTP_403_FORBIDDEN)
 
     def test_returns_ok_for_embargoed_catalog_record_if_available_reached_and_no_authorization(
         self,
@@ -867,8 +872,9 @@ class DirectoryApiReadCatalogRecordFileBrowsingAuthorizationTests(DirectoryApiRe
         )
 
         # Verify /rest/directories/<dir_id>/files?cr_identifier=cr_id returns dir files without authorization
-        # for embargoed catalog record whose embargo date has been reached
-        self._assert_ok(available_embargoed_cr_json, "no")
+        # for embargoed catalog record whose embargo date has been reached.
+        # Because user has no projects, request with not_cr_identifier returns 404.
+        self._assert_ok(available_embargoed_cr_json, "no", not_cr_status=status.HTTP_404_NOT_FOUND)
 
     # THE FORBIDDEN TESTS
 
@@ -905,7 +911,7 @@ class DirectoryApiReadCatalogRecordFileBrowsingAuthorizationTests(DirectoryApiRe
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def _assert_ok(self, cr_json, credentials_type):
+    def _assert_ok(self, cr_json, credentials_type, not_cr_status=status.HTTP_200_OK):
         dir_file_amt = cr_json["research_dataset"]["directories"][0]["details"]["file_count"]
         dir_id = cr_json["research_dataset"]["directories"][0]["identifier"]
         cr_id = cr_json["identifier"]
@@ -921,8 +927,10 @@ class DirectoryApiReadCatalogRecordFileBrowsingAuthorizationTests(DirectoryApiRe
                 dir_id, cr_id
             )
         )
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assertEqual(len(response.data), 0)
+
+        self.assertEqual(response.status_code, not_cr_status, response.data)
+        if not_cr_status == status.HTTP_200_OK:
+            self.assertEqual(len(response.data), 0)
 
 
 class DirectoryApiReadQueryFiltersTogetherTests(DirectoryApiReadCommon):
@@ -1256,25 +1264,20 @@ class DirectoryApiReadEndUserAccess(DirectoryApiReadCommon):
     @responses.activate
     def test_browsing_in_not_cr_context(self):
         """
-        Cr with open access type should be available for any end-user api user. Browsing files for a cr with restricted
-        access type should be forbidden for non-owner (or service) user.
+        Browsing files with not_cr_identifier should be forbidden if user does not have access to the project.
         """
         cr = CatalogRecord.objects.get(pk=1)
         self._use_http_authorization(method="bearer", token=self.token)
         response = self.client.get(
             "/rest/directories/3/files?not_cr_identifier={0}".format(cr.identifier)
         )
-        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
 
-        cr.research_dataset["access_rights"]["access_type"]["identifier"] = ACCESS_TYPES[
-            "restricted"
-        ]
-        cr.force_save()
-
+        self._update_token_with_project_of_directory(3)
         response = self.client.get(
             "/rest/directories/3/files?not_cr_identifier={0}".format(cr.identifier)
         )
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
 
 class DirectoryApiReadPaginationTests(DirectoryApiReadCommon):
@@ -1619,13 +1622,13 @@ class DirectoryApiReadFileNameDirectoryNameTests(DirectoryApiReadCommon):
             "/rest/directories/17/files?directory_name=phase&not_cr_identifier=13"
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assertEqual(len(response.data["directories"]), 0)
+        self.assertEqual(len(response.data["directories"]), 1)
 
         response = self.client.get(
             "/rest/directories/17/files?directory_name=2&not_cr_identifier=13"
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
-        self.assertEqual(len(response.data["directories"]), 0)
+        self.assertEqual(len(response.data["directories"]), 1)
 
         # tests for file_name and cr_identifier
         response = self.client.get("/rest/directories/12/files?file_name=22&cr_identifier=13")
