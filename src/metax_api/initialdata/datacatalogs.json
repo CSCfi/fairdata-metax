@@ -539,9 +539,8 @@
 {
     "catalog_json": {
         "title": {
-            "en": "Finnish Meteorological Institute EUDAT B2SHARE catalog",
-            "fi": "Ilmatieteen laitoksen EUDAT B2SHARE -katalogi",
-            "sv": "Meteorologiska Institutet EUDAT B2SHARE register"
+            "en": "METIS - FMI's EUDAT B2SHARE research data repository",
+            "fi": "METIS - Ilmatieteen laitoksen EUDAT B2SHARE tutkimusaineistojen data-arkisto"
         },
         "language": [
             {
