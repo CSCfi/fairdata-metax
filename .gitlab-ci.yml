@@ -1,37 +1,40 @@
-# Definitions
-# ------------------------
-
+---
 variables:
   GITLAB_ENV: test
+  SERVICE: ${SERVICE}
 
 default:
   tags:
     - shell
 
-# Stages
-# ------------------------
-
 stages:
   - deploy
   - update
   - test
-
-# Stage 1: Deploy
-# ------------------------
+  - e2e-test
 
 include:
   - project: fairdata/fairdata-ci
     ref: master
     file:
-      - /templates/deploy/deploy.yml
-    rules:
+      - /templates/deploy/deploy-jobs.yml
+      - /templates/test/test-jobs.yml
+
+# ------------------------
+
+deploy:
+  extends: .deploy-job
+  rules:
     - if: $CI_COMMIT_BRANCH =~ /^(master)$/
     - if: $CI_PIPELINE_SOURCE =~ /^(web)$/
 
-# Stage 2: Update
-# ------------------------
+deploy-feature:
+  extends: .deploy-feature-job
+  stage: deploy
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
 
-job_update:
+update-proxy:
   stage: update
   environment: $GITLAB_ENV
   script:
@@ -41,16 +44,24 @@ job_update:
     - if: $CI_COMMIT_BRANCH =~ /^(master)$/
     - if: $CI_PIPELINE_SOURCE =~ /^(web)$/
 
-# Stage 3: Test
+update-proxy-feature:
+  stage: update
+  environment: staging
+  script:
+    - ansible-playbook -i $ANSIBLE_INVENTORY $UPDATE_PROXY_PLAYBOOK --vault-id $ANSIBLE_VAULT_FILE
+    - ansible-playbook -i $ANSIBLE_INVENTORY $MANAGE_PLAYBOOK --vault-id $ANSIBLE_VAULT_FILE
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
 # ------------------------
 
-job_integration_test:
-  environment: $GITLAB_ENV
+integration-test-docker:
   stage: test
   tags:
     - docker
   image:
     name: python:3.8
+  interruptible: true
   services:
     - postgres:9.6
     - rabbitmq:3
@@ -91,32 +102,38 @@ job_integration_test:
       - src/coverage.xml
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-    - if: $CI_COMMIT_BRANCH =~ /^(master|release)$/
-    - if: $CI_PIPELINE_SOURCE == "web"
 
-job_sonarqube_check:
-  tags: 
-    - docker
+integration-test:
   stage: test
-  image: 
-    name: sonarsource/sonar-scanner-cli:latest
-    entrypoint: [""]
-  variables:
-    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
-    GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
-  cache:
-    key: "${CI_JOB_NAME}"
-    paths:
-      - .sonar/cache
-  script: 
-    - sonar-scanner
-  allow_failure: true
+  environment: $GITLAB_ENV
+  needs: [update-proxy]
+  script:
+    - ansible-playbook -i $ANSIBLE_INVENTORY $TEST_PLAYBOOK --vault-id $ANSIBLE_VAULT_FILE
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /^(master)$/
+    - if: $CI_PIPELINE_SOURCE =~ /^(web)$/
+
+sonarqube:
+  extends: .sonarqube-job
   needs:
-    - job: job_integration_test
+    - job: integration-test-docker
       artifacts: true
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-      allow_failure: true
-    - if: $CI_COMMIT_BRANCH =~ /^(master)$/ && $CI_PIPELINE_SOURCE !~ /^(web)$/
-      allow_failure: true
-    - if: $CI_COMMIT_BRANCH =~ /^(release)$/
+
+fairdata-e2e:
+  stage: e2e-test
+  trigger: fairdata/fairdata-ci
+  allow_failure: true
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /^(master)$/
+    - if: $CI_PIPELINE_SOURCE =~ /^(web)$/
+
+fairdata-e2e-feature:
+  stage: e2e-test
+  trigger: fairdata/fairdata-ci
+  variables:
+    GITLAB_ENV: staging
+  allow_failure: true
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
