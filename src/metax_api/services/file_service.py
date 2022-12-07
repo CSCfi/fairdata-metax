@@ -503,7 +503,7 @@ class FileService(CommonService, ReferenceDataMixin):
                 }
             )
 
-        cls._delete_empy_directories(root_dir[0])
+        cls._delete_empty_directories(root_dir[0])
 
     @classmethod
     def _delete_empy_dir_chain_above(cls, directory):
@@ -522,7 +522,7 @@ class FileService(CommonService, ReferenceDataMixin):
             cls._delete_empy_dir_chain_above(parent_directory)
 
     @classmethod
-    def _delete_empy_directories(cls, dr):
+    def _delete_empty_directories(cls, dr):
         """
         Find and delete any empty sub directories, and the directory itself. If any of the
         sub directories contained any files, directory is not deleted. This method is
@@ -540,7 +540,7 @@ class FileService(CommonService, ReferenceDataMixin):
         if sub_dirs.exists():
             # start deleting directories from the bottom to up
             for sub_dr in sub_dirs:
-                sub_dirs_are_empty.append(cls._delete_empy_directories(sub_dr))
+                sub_dirs_are_empty.append(cls._delete_empty_directories(sub_dr))
 
             if all(sub_dirs_are_empty):
                 # if even one sub dir needs to be preserved, the current directory must be preserved.
@@ -601,6 +601,8 @@ class FileService(CommonService, ReferenceDataMixin):
         directory_name=None,
         paginate=None,
         request=None,
+        file_ordering="",
+        directory_ordering="",
     ):
         """
         Get files and directories contained by a directory.
@@ -641,6 +643,12 @@ class FileService(CommonService, ReferenceDataMixin):
 
         directory_name: substring search from directory names. Only matching directories are returned.
         Can be used with file_name.
+
+        file_ordering: method for sorting files. Any existing field works if it can be sorted automatically.
+        Reversed sort works with "-" prefix. Can have multiple fields.
+
+        directory_ordering: method for sorting dorectories. Any existing field works if it can be sorted automatically.
+        Reversed sort works with "-" prefix. Can have multiple fields.
 
         request: the web request object.
 
@@ -714,6 +722,8 @@ class FileService(CommonService, ReferenceDataMixin):
             directory_name=directory_name,
             paginate=paginate,
             request=request,
+            file_ordering=file_ordering,
+            directory_ordering=directory_ordering,
         )
 
         def _remove_id(dirs):
@@ -864,6 +874,8 @@ class FileService(CommonService, ReferenceDataMixin):
         file_name=None,
         directory_name=None,
         paginate=None,
+        file_ordering=["file_path"],
+        directory_ordering=["directory_path"],
     ):
         """
         Get files and directories contained by a directory.
@@ -897,6 +909,8 @@ class FileService(CommonService, ReferenceDataMixin):
                     dirs_only=dirs_only,
                     directory_fields=directory_fields,
                     file_fields=file_fields,
+                    file_ordering=file_ordering,
+                    directory_ordering=directory_ordering,
                 )
 
             except Http404:
@@ -907,7 +921,7 @@ class FileService(CommonService, ReferenceDataMixin):
             # browsing from ALL files, not cr specific
             dirs = (
                 Directory.objects.filter(parent_directory_id=directory_id)
-                .order_by("directory_path")
+                .order_by(*directory_ordering)
                 .values(*directory_fields)
             )
 
@@ -921,7 +935,7 @@ class FileService(CommonService, ReferenceDataMixin):
             else:
                 files = (
                     File.objects.filter(parent_directory_id=directory_id)
-                    .order_by("file_path")
+                    .order_by(*file_ordering)
                     .values(*file_fields)
                 )
                 if file_name:
@@ -958,6 +972,8 @@ class FileService(CommonService, ReferenceDataMixin):
                         directory_name=directory_name,
                         paginate=paginate,
                         request=request,
+                        file_ordering=file_ordering,
+                        directory_ordering=directory_ordering,
                     )
                 except MaxRecursionDepthExceeded:
                     continue
@@ -981,6 +997,8 @@ class FileService(CommonService, ReferenceDataMixin):
         dirs_only=False,
         directory_fields=[],
         file_fields=[],
+        file_ordering=["file_path"],
+        directory_ordering=["directory_path"],
     ):
         """
         Browsing files in the context of a specific CR id.
@@ -1031,7 +1049,7 @@ class FileService(CommonService, ReferenceDataMixin):
                         ),
                     )
                 )
-            ).order_by("directory_path")
+            ).order_by(*directory_ordering)
             return list(dirs.values(*fields))
 
         dirs = _dirs_with_files_in_cr()
@@ -1040,7 +1058,7 @@ class FileService(CommonService, ReferenceDataMixin):
                 None
                 if dirs_only
                 else File.objects.filter(record__pk=cr_id, parent_directory=directory_id)
-                .order_by("file_path")
+                .order_by(*file_ordering)
                 .values(*file_fields)
             )
         elif not_cr_id:
@@ -1049,7 +1067,7 @@ class FileService(CommonService, ReferenceDataMixin):
                 if dirs_only
                 else File.objects.exclude(record__pk=not_cr_id)
                 .filter(parent_directory=directory_id)
-                .order_by("file_path")
+                .order_by(*file_ordering)
                 .values(*file_fields)
             )
 
@@ -1106,7 +1124,9 @@ class FileService(CommonService, ReferenceDataMixin):
                     directory["file_count"] = current_dir[1]
 
     @classmethod
-    def get_project_root_directory(cls, project_identifier):
+    def get_project_root_directory(
+        cls, project_identifier, file_ordering=["file_path"], directory_ordering=["directory_path"]
+    ):
         """
         Return root directory for a project, with its child directories and files.
         """
@@ -1125,7 +1145,12 @@ class FileService(CommonService, ReferenceDataMixin):
             )
         root_dir_json = LightDirectorySerializer.serialize(root_dir)
         root_dir_json.update(
-            cls._get_directory_contents(root_dir["id"], directory_fields=directory_fields)
+            cls._get_directory_contents(
+                root_dir["id"],
+                directory_fields=directory_fields,
+                file_ordering=file_ordering,
+                directory_ordering=directory_ordering,
+            )
         )
         return root_dir_json
 

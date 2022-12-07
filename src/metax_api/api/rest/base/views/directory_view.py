@@ -68,6 +68,8 @@ class DirectoryViewSet(CommonViewSet):
         not_cr_identifier = request.query_params.get("not_cr_identifier", None)
         file_name = request.query_params.get("file_name")
         directory_name = request.query_params.get("directory_name")
+        file_ordering = request.query_params.get("file_ordering", "file_path")
+        directory_ordering = request.query_params.get("directory_ordering", "directory_path")
 
         # max_depth can be an integer > 0, or * for everything.
         try:
@@ -87,6 +89,8 @@ class DirectoryViewSet(CommonViewSet):
                     ]
                 }
             )
+        directory_ordering_list = directory_ordering.split(",")
+        file_ordering_list = file_ordering.split(",")
 
         files_and_dirs = FileService.get_directory_contents(
             identifier=identifier,
@@ -102,6 +106,8 @@ class DirectoryViewSet(CommonViewSet):
             directory_name=directory_name,
             paginate=paginate,
             request=request,
+            file_ordering=file_ordering_list,
+            directory_ordering=directory_ordering_list,
         )
 
         if paginate:

@@ -7,7 +7,9 @@ ALLOWED_HOSTS += ["*"]
 
 if "debug_toolbar" not in INSTALLED_APPS and env("DEBUG_TOOLBAR_ENABLED"):
     INSTALLED_APPS += ["debug_toolbar"]
-if "debug_toolbar.middleware.DebugToolbarMiddleware" not in MIDDLEWARE and env("DEBUG_TOOLBAR_ENABLED"):
+if "debug_toolbar.middleware.DebugToolbarMiddleware" not in MIDDLEWARE and env(
+    "DEBUG_TOOLBAR_ENABLED"
+):
     MIDDLEWARE = ["debug_toolbar.middleware.DebugToolbarMiddleware"] + MIDDLEWARE
 
 INTERNAL_IPS = ["127.0.0.1", "0.0.0.0"]

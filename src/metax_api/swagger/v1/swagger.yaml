@@ -1,16 +1,15 @@
-swagger: '2.0'
+swagger: "2.0"
 info:
   title: METAX REST API
   version: v1
 host: __METAX_ENV_DOMAIN__
 schemes:
   - https
-basePath: ''
+basePath: ""
 produces:
   - application/json
 paths:
-
-# File Storage API
+  # File Storage API
   /rest/filestorages:
     get:
       summary: List File Storages
@@ -33,13 +32,13 @@ paths:
       consumes:
         - application/json
       responses:
-        '201':
+        "201":
           description: New file storage created, returns created object
-        '400':
+        "400":
           description: Parameters contained errors, response includes details
-        '401':
+        "401":
           description: Unauthorized
-        '403':
+        "403":
           description: Forbidden. Must have permission for resource
       tags:
         - File Storage API
@@ -54,11 +53,11 @@ paths:
           type: string
         - $ref: "#/parameters/fields"
       responses:
-        '200':
+        "200":
           description: Return file storage metadata
-        '403':
+        "403":
           description: Forbidden. Must have permission for resource
-        '404':
+        "404":
           description: Not found
       tags:
         - File Storage API
@@ -72,13 +71,13 @@ paths:
           type: string
         - $ref: "#/parameters/dryrun"
       responses:
-        '200':
+        "200":
           description: Successful operation. Modified content returned
-        '400':
+        "400":
           description: Parameters contained errors, response includes details
-        '401':
+        "401":
           description: Unauthorized. Reserved for admins only
-        '403':
+        "403":
           description: Forbidden. Must have permission for resource
       tags:
         - File Storage API
@@ -92,13 +91,13 @@ paths:
           type: string
         - $ref: "#/parameters/dryrun"
       responses:
-        '200':
+        "200":
           description: Successful operation. Modified content returned
-        '400':
+        "400":
           description: Parameters contained errors, response includes details
-        '401':
+        "401":
           description: Unauthorized. Reserved for admins only
-        '403':
+        "403":
           description: Forbidden. Must have permission for resource
       tags:
         - File Storage API
@@ -112,19 +111,18 @@ paths:
           type: string
         - $ref: "#/parameters/dryrun"
       responses:
-        '204':
+        "204":
           description: Successful operation
-        '401':
+        "401":
           description: Unauthorized. Reserved for admins only
-        '403':
+        "403":
           description: Forbidden. Must have permission for resource
-        '404':
+        "404":
           description: Not found
       tags:
         - File Storage API
 
-
-# File API
+  # File API
   /rest/files:
     get:
       summary: Get list of files
@@ -166,8 +164,8 @@ paths:
         "200":
           description: Successful operation, return list of files
           schema:
-            $ref: '#/definitions/FileList'
-        '404':
+            $ref: "#/definitions/FileList"
+        "404":
           description: Not found. Also when not authenticated request
       tags:
         - File API
@@ -176,19 +174,19 @@ paths:
       consumes:
         - application/json
       parameters:
-      - in: "body"
-        name: "body"
-        description: "Object or a list of objects to create."
-        required: true
-        schema:
-          $ref: '#/definitions/File'
-      - $ref: "#/parameters/dryrun"
+        - in: "body"
+          name: "body"
+          description: "Object or a list of objects to create."
+          required: true
+          schema:
+            $ref: "#/definitions/File"
+        - $ref: "#/parameters/dryrun"
       responses:
-        '201':
+        "201":
           description: Returns the created object, or if a list was given, a list of objects and errors.
-        '400':
+        "400":
           description: Parameters contained errors, response includes details.
-        '403':
+        "403":
           description: Forbidden. Must have permission for resource
       tags:
         - File API
@@ -197,20 +195,20 @@ paths:
       consumes:
         - application/json
       parameters:
-      - in: "body"
-        name: "body"
-        description: A list of objects to update.
-        required: true
-        schema:
-          $ref: '#/definitions/FileList'
-      - $ref: "#/parameters/allowed_projects"
-      - $ref: "#/parameters/dryrun"
+        - in: "body"
+          name: "body"
+          description: A list of objects to update.
+          required: true
+          schema:
+            $ref: "#/definitions/FileList"
+        - $ref: "#/parameters/allowed_projects"
+        - $ref: "#/parameters/dryrun"
       responses:
-        '200':
+        "200":
           description: Successful operation. Return values include a list of errors, if any.
-        '400':
+        "400":
           description: All updates failed. A list of errors is returned.
-        '403':
+        "403":
           description: Forbidden. Must have permission for resource
       tags:
         - File API
@@ -226,15 +224,15 @@ paths:
           description: A list of (partial) objects to update.
           required: true
           schema:
-            $ref: '#/definitions/FileList'
+            $ref: "#/definitions/FileList"
         - $ref: "#/parameters/allowed_projects"
         - $ref: "#/parameters/dryrun"
       responses:
-        '200':
+        "200":
           description: Some or all objects were updated. Return values contain list of full updated objects, and may include a list of errors.
-        '400':
+        "400":
           description: All updates failed. A list of errors is returned.
-        '403':
+        "403":
           description: Forbidden. Must have permission for resource
       tags:
         - File API
@@ -249,18 +247,18 @@ paths:
           description: A list of ids, or a list of identifiers.
           required: true
           schema:
-            $ref: '#/definitions/StringList'
+            $ref: "#/definitions/StringList"
         - $ref: "#/parameters/dryrun"
       responses:
-        '200':
+        "200":
           description: |
             Successful operation. At least some requested files were marked deleted. If some of the provided
             identifiers were not found, those are ignored. Returns count of deleted files in json body.
-        '400':
+        "400":
           description: All updates failed. A list of errors is returned.
-        '403':
+        "403":
           description: Forbidden. Must have permission for resource
-        '404':
+        "404":
           description: None of the provided identifiers were found.
       tags:
         - File API
@@ -281,11 +279,11 @@ paths:
           required: false
           type: string
       responses:
-        '200':
+        "200":
           description: Return file metadata
           schema:
-            $ref: '#/definitions/File'
-        '404':
+            $ref: "#/definitions/File"
+        "404":
           description: Not found. Also when not authenticated request
       tags:
         - File API
@@ -302,17 +300,17 @@ paths:
           description: Object to update the resource with
           required: true
           schema:
-            $ref: '#/definitions/File'
+            $ref: "#/definitions/File"
         - $ref: "#/parameters/allowed_projects"
         - $ref: "#/parameters/dryrun"
       responses:
-        '200':
+        "200":
           description: Successful operation. Modified content returned
-        '400':
+        "400":
           description: Parameters contained errors, response includes details
-        '403':
+        "403":
           description: Forbidden. Must have permission for resource
-        '404':
+        "404":
           description: Object not found
       tags:
         - File API
@@ -329,19 +327,19 @@ paths:
           description: (Partial) Object to update the resource with
           required: true
           schema:
-            $ref: '#/definitions/File'
+            $ref: "#/definitions/File"
         - $ref: "#/parameters/allowed_projects"
         - $ref: "#/parameters/dryrun"
       responses:
-        '200':
+        "200":
           description: Successful operation, full content returned
           schema:
-            $ref: '#/definitions/File'
-        '400':
+            $ref: "#/definitions/File"
+        "400":
           description: Parameters contained errors, response includes details
-        '403':
+        "403":
           description: Forbidden. Must have permission for resource
-        '404':
+        "404":
           description: Object not found
       tags:
         - File API
@@ -355,11 +353,11 @@ paths:
           type: string
         - $ref: "#/parameters/dryrun"
       responses:
-        '204':
+        "204":
           description: Successful operation, no content returned
-        '403':
+        "403":
           description: Forbidden. Must have permission for resource
-        '404':
+        "404":
           description: Object not found
       tags:
         - File API
@@ -380,9 +378,9 @@ paths:
           description: Namespace of the schema. If omitted, returns a list of xml metadata namespaces associated with the file.
           type: string
       responses:
-        '200':
+        "200":
           description: Single xml metadata (application/xml), or a list of namespaces (application/json)
-        '404':
+        "404":
           description: File not found. Also when not authenticated request
       tags:
         - File API
@@ -410,11 +408,11 @@ paths:
           required: true
         - $ref: "#/parameters/dryrun"
       responses:
-        '201':
+        "201":
           description: Return created XML
-        '400':
+        "400":
           description: Parameters contained errors, response includes details (application/json)
-        '403':
+        "403":
           description: Forbidden. Must have permission for resource
       tags:
         - File API
@@ -439,13 +437,13 @@ paths:
           required: true
         - $ref: "#/parameters/dryrun"
       responses:
-        '204':
+        "204":
           description: XML saved
-        '400':
+        "400":
           description: Parameters contained errors, response includes details
-        '403':
+        "403":
           description: Forbidden. Must have permission for resource
-        '404':
+        "404":
           description: File or namespace does not exist
       tags:
         - File API
@@ -464,13 +462,13 @@ paths:
           type: string
         - $ref: "#/parameters/dryrun"
       responses:
-        '204':
+        "204":
           description: XML is deleted
-        '400':
+        "400":
           description: Parameters contained errors, response includes details
-        '403':
+        "403":
           description: Forbidden. Must have permission for resource
-        '404':
+        "404":
           description: File or namespace does not exist
       tags:
         - File API
@@ -489,35 +487,37 @@ paths:
           description: A list of file id's (integers) or identifiers (strings).
           required: true
           schema:
-            $ref: '#/definitions/StringList'
+            $ref: "#/definitions/StringList"
         - $ref: "#/parameters/dryrun"
         - name: keys=datasets
           in: query
-          description: A list of dataset id's (integers) or identifiers (strings).
-                      Returns the files that belong to datasets. If dataset doesn't contain files,
-                      an empty list is returned.
+          description:
+            A list of dataset id's (integers) or identifiers (strings).
+            Returns the files that belong to datasets. If dataset doesn't contain files,
+            an empty list is returned.
           required: false
           schema:
-            $ref: '#/definitions/StringList'
+            $ref: "#/definitions/StringList"
         - name: keys=files
           in: query
           description: A list of file id's (integers) or identifiers (strings).
-                        Returns the datasets that the file belongs to. If a file doesn't belong to any dataset,
-                        an empty list is returned.
+            Returns the datasets that the file belongs to. If a file doesn't belong to any dataset,
+            an empty list is returned.
           required: false
           schema:
-            $ref: '#/definitions/StringList'
+            $ref: "#/definitions/StringList"
         - name: keysonly
           in: query
-          description: Returns those files from original input that belong to a dataset,
-                        or in case of keys=datasets, returns those datasets from original list of datasets
-                        that have files.
+          description:
+            Returns those files from original input that belong to a dataset,
+            or in case of keys=datasets, returns those datasets from original list of datasets
+            that have files.
           required: false
           type: boolean
       responses:
-        '200':
+        "200":
           description: A list of pids. if the files were not found to belong to any datasets, or dataset didn't contain any files, an empty list is returned
-        '403':
+        "403":
           description: Forbidden. Must have permission for resource
       tags:
         - File API
@@ -534,14 +534,14 @@ paths:
           description: A list of file identifiers of files to restore.
           required: true
           schema:
-            $ref: '#/definitions/StringList'
+            $ref: "#/definitions/StringList"
         - $ref: "#/parameters/dryrun"
       responses:
-        '200':
+        "200":
           description: Numbers of files restored.
-        '400':
+        "400":
           description: Request ended in an error, response contains details.
-        '403':
+        "403":
           description: Forbidden. Must have permission for resource
       tags:
         - File API
@@ -557,11 +557,11 @@ paths:
           type: string
         - $ref: "#/parameters/fields"
       responses:
-        '200':
+        "200":
           description: Return directory details
           schema:
-            $ref: '#/definitions/Directory'
-        '404':
+            $ref: "#/definitions/Directory"
+        "404":
           description: Not found. Also when not authenticated request
       tags:
         - File API
@@ -652,12 +652,28 @@ paths:
           required: false
           type: integer
           default: 10
+        - name: file_ordering
+          in: query
+          description: |
+            Sorting field for files. Files can be sorted in reverse order by adding "-" prefix to 
+            the field name eg. "file_ordering=-file_name". Multiple fields can be used by using "," as a separator.
+          required: false
+          type: string
+          default: file_path
+        - name: directory_ordering
+          in: query
+          description: |
+            Sorting field for directories. Directories can be sorted in reverse order by adding "-" prefix to 
+            the field name eg. "directory_ordering=-directory_name". Multiple fields can be used by using "," as a separator.
+          required: false
+          type: string
+          default: directory_path
       responses:
-        '200':
+        "200":
           description: |
             Returns a dict like { 'directories'&#58; [], 'files'&#58; [] }, where the lists contain directory and file objects.
             note&#58; if parameter 'recursive' is used, return value is a flat list of file objects instead.
-        '404':
+        "404":
           description: Directory not found. Also when not authenticated request
       tags:
         - File API
@@ -724,12 +740,28 @@ paths:
           description: Preferred_identifier of a dataset. Browse only files that have been selected for that record.
           required: false
           type: string
+        - name: file_ordering
+          in: query
+          description: |
+            Sorting field for files. Files can be sorted in reverse order by adding "-" prefix to 
+            the field name eg. "file_ordering=-file_name". Multiple fields can be used by using "," as a separator.
+          required: false
+          type: string
+          default: file_path
+        - name: directory_ordering
+          in: query
+          description: |
+            Sorting field for directories. Directories can be sorted in reverse order by adding "-" prefix to 
+            the field name eg. "directory_ordering=-directory_name". Multiple fields can be used by using "," as a separator.
+          required: false
+          type: string
+          default: directory_path
       responses:
-        '200':
+        "200":
           description: |
             Returns a dict like { 'directories'&#58; [], 'files'&#58; [] }, where the lists contain directory and file objects.
             note&#58; If parameter 'recursive' is used, return value is a flat list of file objects instead.
-        '404':
+        "404":
           description: Directory not found. Also when not authenticated request
       tags:
         - File API
@@ -744,19 +776,18 @@ paths:
           required: true
           type: string
       responses:
-        '200':
+        "200":
           description: |
             Returns the root directory for the requested project.
             Returned object additionally contains fields 'directories' and 'files', which contain the child directory and file objects of the root directory, similar to what API /directories/{PID}/files does.
-        '400':
+        "400":
           description: Bad parameters, details in body
-        '404':
+        "404":
           description: Directory not found. Also when not authenticated request
       tags:
         - File API
 
-
-# Data Catalog API
+  # Data Catalog API
   /rest/datacatalogs:
     get:
       summary: List of data catalogs
@@ -782,16 +813,16 @@ paths:
           description: "Object or a list of objects to create."
           required: true
           schema:
-            $ref: '#/definitions/DataCatalog'
+            $ref: "#/definitions/DataCatalog"
         - $ref: "#/parameters/dryrun"
       responses:
-        '201':
+        "201":
           description: New data catalog created
           schema:
-            $ref: '#/definitions/DataCatalog'
-        '401':
+            $ref: "#/definitions/DataCatalog"
+        "401":
           description: Unauthorized. Reserved for admins only
-        '403':
+        "403":
           description: Forbidden. Must have permission for resource
       tags:
         - Data Catalog API
@@ -806,11 +837,11 @@ paths:
           type: string
         - $ref: "#/parameters/fields"
       responses:
-        '200':
+        "200":
           description: Return data catalog metadata
           schema:
-            $ref: '#/definitions/DataCatalog'
-        '404':
+            $ref: "#/definitions/DataCatalog"
+        "404":
           description: Not found
       tags:
         - Data Catalog API
@@ -830,16 +861,16 @@ paths:
           description: "Object to update the resource with"
           required: true
           schema:
-            $ref: '#/definitions/DataCatalog'
+            $ref: "#/definitions/DataCatalog"
         - $ref: "#/parameters/dryrun"
       responses:
-        '200':
+        "200":
           description: Successful operation. modified content returned
-        '400':
+        "400":
           description: Parameters contained errors, response includes details
-        '401':
+        "401":
           description: Unauthorized. Reserved for admins only
-        '403':
+        "403":
           description: Forbidden. Must have permission for resource
       tags:
         - Data Catalog API
@@ -854,7 +885,7 @@ paths:
           description: "(Partial) Object to update the resource with"
           required: true
           schema:
-            $ref: '#/definitions/DataCatalog'
+            $ref: "#/definitions/DataCatalog"
         - name: PID
           in: path
           description: Persistent ID of the resource OR the internal pk
@@ -862,13 +893,13 @@ paths:
           type: string
         - $ref: "#/parameters/dryrun"
       responses:
-        '200':
+        "200":
           description: Successful operation, full content returned
           schema:
-            $ref: '#/definitions/DataCatalog'
-        '400':
+            $ref: "#/definitions/DataCatalog"
+        "400":
           description: Parameters contained errors, response includes details
-        '403':
+        "403":
           description: Forbidden. Must have permission for resource
       tags:
         - Data Catalog API
@@ -882,19 +913,18 @@ paths:
           type: string
         - $ref: "#/parameters/dryrun"
       responses:
-        '204':
+        "204":
           description: Successful operation
-        '401':
+        "401":
           description: Unauthorized. Reserved for admins only
-        '403':
+        "403":
           description: Forbidden. Must have permission for resource
-        '404':
+        "404":
           description: Not found
       tags:
         - Data Catalog API
 
-
-# Dataset API
+  # Dataset API
   /rest/datasets:
     # some of the parameters and returned fields are for TPAS usage only
     get:
@@ -1013,7 +1043,7 @@ paths:
         "200":
           description: Successful operation, returns a list of datasets containing full dataset objects including their data catalog and contract information. When using query parameters, search result can be an empty list.
           schema:
-            $ref: '#/definitions/CatalogRecord'
+            $ref: "#/definitions/CatalogRecord"
       tags:
         - Dataset API
     post:
@@ -1034,15 +1064,15 @@ paths:
           description: "Object or a list of objects to create."
           required: true
           schema:
-            $ref: '#/definitions/CatalogRecord'
+            $ref: "#/definitions/CatalogRecord"
         - $ref: "#/parameters/allowed_projects"
         - $ref: "#/parameters/dryrun"
       responses:
-        '201':
+        "201":
           description: Returns the created object, or if a list was given, a list of objects and errors.
-        '400':
+        "400":
           description: Parameters contained errors, response includes details.
-        '403':
+        "403":
           description: Forbidden. Must have permission for resource
       tags:
         - Dataset API
@@ -1056,15 +1086,15 @@ paths:
           description: "A list of objects to update."
           required: true
           schema:
-            $ref: '#/definitions/CatalogRecordList'
+            $ref: "#/definitions/CatalogRecordList"
         - $ref: "#/parameters/allowed_projects"
         - $ref: "#/parameters/dryrun"
       responses:
-        '200':
+        "200":
           description: Sucessful operation. Return values include a list of errors, if any.
-        '400':
+        "400":
           description: All updates failed. A list of errors is returned.
-        '403':
+        "403":
           description: Forbidden. Must have permission for resource
       tags:
         - Dataset API
@@ -1080,15 +1110,15 @@ paths:
           description: "A list of (partial) objects to update."
           required: true
           schema:
-            $ref: '#/definitions/CatalogRecordList'
+            $ref: "#/definitions/CatalogRecordList"
         - $ref: "#/parameters/allowed_projects"
         - $ref: "#/parameters/dryrun"
       responses:
-        '200':
+        "200":
           description: Some or all objects were updated. Return values contain list of full updated objects, and may include a list of errors.
-        '400':
+        "400":
           description: All updates failed. A list of errors is returned.
-        '403':
+        "403":
           description: Forbidden. Must have permission for resource.
       tags:
         - Dataset API
@@ -1103,16 +1133,16 @@ paths:
           description: A list of ids (integer) OR a list of identifiers (string) to delete.
           required: true
           schema:
-            $ref: '#/definitions/StringList'
+            $ref: "#/definitions/StringList"
         - $ref: "#/parameters/dryrun"
       responses:
-        '204':
+        "204":
           description: Operation successful. At least some datasets are marked as removed.
-        '400':
+        "400":
           description: Parameters contained errors, response includes details.
-        '403':
+        "403":
           description: Forbidden. Must have permission for resource.
-        '404':
+        "404":
           description: None of the provided identifiers were found.
       tags:
         - Dataset API
@@ -1195,7 +1225,7 @@ paths:
           description: A list of dataset IDs (integers) OR a list of datasets identifiers (strings). Returns datasets corresponding queried IDs.
           required: true
           schema:
-            $ref: '#/definitions/StringList'
+            $ref: "#/definitions/StringList"
         - $ref: "#/parameters/fields"
         - $ref: "#/parameters/include_legacy"
       responses:
@@ -1203,7 +1233,7 @@ paths:
           description: Successful operation, returns a list of queried datasets.
         "400":
           description: Received empty list of identifiers
-        '403':
+        "403":
           description: Forbidden. Must have permission for resource
       tags:
         - Dataset API
@@ -1268,11 +1298,11 @@ paths:
         - $ref: "#/parameters/research_dataset_fields"
         - $ref: "#/parameters/include_legacy"
       responses:
-        '200':
+        "200":
           description: Return dataset metadata
           schema:
-            $ref: '#/definitions/CatalogRecord'
-        '404':
+            $ref: "#/definitions/CatalogRecord"
+        "404":
           description: Not found
       tags:
         - Dataset API
@@ -1290,7 +1320,7 @@ paths:
           description: "Object to update the resource with"
           required: true
           schema:
-            $ref: '#/definitions/CatalogRecord'
+            $ref: "#/definitions/CatalogRecord"
         - name: PID
           in: path
           description: Persistent ID of dataset OR the internal pk
@@ -1300,11 +1330,11 @@ paths:
         - $ref: "#/parameters/dryrun"
         - $ref: "#/parameters/include_legacy"
       responses:
-        '200':
+        "200":
           description: Successful operation. Modified content returned
-        '400':
+        "400":
           description: Parameters contained errors, response includes details
-        '403':
+        "403":
           description: Forbidden. Must have permission for resource
       tags:
         - Dataset API
@@ -1322,7 +1352,7 @@ paths:
           description: "(Partial) Object to update the resource with"
           required: true
           schema:
-            $ref: '#/definitions/CatalogRecord'
+            $ref: "#/definitions/CatalogRecord"
         - name: PID
           in: path
           description: Persistent ID of dataset OR the internal pk
@@ -1332,13 +1362,13 @@ paths:
         - $ref: "#/parameters/dryrun"
         - $ref: "#/parameters/include_legacy"
       responses:
-        '200':
+        "200":
           description: Successful operation, full content returned
           schema:
-            $ref: '#/definitions/CatalogRecord'
-        '400':
+            $ref: "#/definitions/CatalogRecord"
+        "400":
           description: Parameters contained errors, response includes details
-        '403':
+        "403":
           description: Forbidden. Must have permission for resource
       tags:
         - Dataset API
@@ -1353,13 +1383,13 @@ paths:
         - $ref: "#/parameters/dryrun"
         - $ref: "#/parameters/include_legacy"
       responses:
-        '204':
+        "204":
           description: Successful operation
-        '401':
+        "401":
           description: Unauthorized. Reserved for admins only
-        '403':
+        "403":
           description: Forbidden. Must have permission for resource
-        '404':
+        "404":
           description: Not found
       tags:
         - Dataset API
@@ -1383,7 +1413,7 @@ paths:
           required: false
           type: boolean
       responses:
-        '200':
+        "200":
           description: Successful operation, return list of full files metadata
       tags:
         - Dataset API
@@ -1400,7 +1430,7 @@ paths:
         "200":
           description: Successful operation, return a list of entries. May return an empty list.
           schema:
-            $ref: '#/definitions/StringList'
+            $ref: "#/definitions/StringList"
       tags:
         - Dataset API
   /rest/datasets/{PID}/metadata_versions/{MVI}:
@@ -1439,7 +1469,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/EditorUserPermission'
+              $ref: "#/definitions/EditorUserPermission"
         "400":
           description: Bad request.
         "404":
@@ -1467,7 +1497,7 @@ paths:
         "201":
           description: Successful operation, return created editor rights.
           schema:
-            $ref: '#/definitions/EditorUserPermission'
+            $ref: "#/definitions/EditorUserPermission"
         "400":
           description: Bad request.
         "404":
@@ -1492,7 +1522,7 @@ paths:
         "200":
           description: Successful operation, return a list of editor rights. May return an empty list.
           schema:
-            $ref: '#/definitions/EditorUserPermission'
+            $ref: "#/definitions/EditorUserPermission"
         "400":
           description: Bad request.
         "404":
@@ -1515,12 +1545,12 @@ paths:
         - name: body
           in: body
           schema:
-            $ref: '#/definitions/EditorUserPermission'
+            $ref: "#/definitions/EditorUserPermission"
       responses:
         "200":
           description: Successful operation, return changed editor rights.
           schema:
-            $ref: '#/definitions/EditorUserPermission'
+            $ref: "#/definitions/EditorUserPermission"
         "400":
           description: Bad request.
         "404":
@@ -1541,17 +1571,17 @@ paths:
           required: true
           type: string
       responses:
-        '200':
+        "200":
           description: Successful operation
-        '400':
+        "400":
           description: Bad request
-        '403':
+        "403":
           description: Forbidden
-        '404':
+        "404":
           description: Not found
       tags:
         - Dataset API
-# Contract API
+  # Contract API
   /rest/contracts:
     get:
       summary: List contracts
@@ -1580,7 +1610,7 @@ paths:
       responses:
         "200":
           description: Successful operation, return list of contracts
-        '403':
+        "403":
           description: Forbidden. Must have permission for resource
       tags:
         - Contract API
@@ -1591,11 +1621,11 @@ paths:
       consumes:
         - application/json
       responses:
-        '201':
+        "201":
           description: New contract metadata created, returns the created object, or if a list was given, a list of objects
-        '400':
+        "400":
           description: Parameters contained errors, response includes details
-        '403':
+        "403":
           description: Forbidden. Must have permission for resource
       tags:
         - Contract API
@@ -1609,11 +1639,11 @@ paths:
           required: true
           type: string
       responses:
-        '200':
+        "200":
           description: Successful operation, return contract metadata
-        '403':
+        "403":
           description: Forbidden. Must have permission for resource
-        '404':
+        "404":
           description: Not found
       tags:
         - Contract API
@@ -1627,11 +1657,11 @@ paths:
           type: string
         - $ref: "#/parameters/dryrun"
       responses:
-        '200':
+        "200":
           description: Successful operation. Modified content returned
-        '400':
+        "400":
           description: Parameters contained errors, response includes details
-        '403':
+        "403":
           description: Forbidden. Must have permission for resource
       tags:
         - Contract API
@@ -1645,11 +1675,11 @@ paths:
           type: string
         - $ref: "#/parameters/dryrun"
       responses:
-        '200':
+        "200":
           description: Successful operation, full content returned
-        '400':
+        "400":
           description: Parameters contained errors, response includes details
-        '403':
+        "403":
           description: Forbidden. Must have permission for resource
       tags:
         - Contract API
@@ -1663,26 +1693,25 @@ paths:
           type: string
         - $ref: "#/parameters/dryrun"
       responses:
-        '204':
+        "204":
           description: Successful operation
-        '401':
+        "401":
           description: Unauthorized. Reserved for admins only
-        '403':
+        "403":
           description: Forbidden. Must have permission for resource
-        '404':
+        "404":
           description: Not found
       tags:
         - Contract API
 
-
-# ApiErrors API
+  # ApiErrors API
   /rest/apierrors:
     get:
       summary: List errors produced during api requests
       responses:
-        '200':
+        "200":
           description: Returns a list of error entries. May return an empty list.
-        '403':
+        "403":
           description: Forbidden. Must have permission for resource
       tags:
         - ApiErrors API
@@ -1696,11 +1725,11 @@ paths:
           required: true
           type: string
       responses:
-        '200':
+        "200":
           description: Return error details as a json object
-        '403':
+        "403":
           description: Forbidden. Must have permission for resource
-        '404':
+        "404":
           description: Not found
       tags:
         - ApiErrors API
@@ -1713,11 +1742,11 @@ paths:
           required: true
           type: string
       responses:
-        '204':
+        "204":
           description: Entry deleted
-        '403':
+        "403":
           description: Forbidden. Must have permission for resource
-        '404':
+        "404":
           description: Not found
       tags:
         - ApiErrors API
@@ -1725,20 +1754,19 @@ paths:
     post:
       summary: "Delete all error entries"
       responses:
-        '200':
+        "200":
           description: All entries deleted. Return a json object telling how many items were deleted.
-        '403':
+        "403":
           description: Forbidden. Must have permission for resource
       tags:
         - ApiErrors API
 
-
-# Schema API
+  # Schema API
   /rest/schemas:
     get:
       summary: "List schemas"
       responses:
-        '200':
+        "200":
           description: Successful operation, return list of schema names
       tags:
         - Schema API
@@ -1752,19 +1780,18 @@ paths:
           required: true
           type: string
       responses:
-        '200':
+        "200":
           description: Return JSON schema
-        '404':
+        "404":
           description: Not found
       tags:
         - Schema API
 
-
-# RPC APIs
+  # RPC APIs
   /rpc/datasets/get_minimal_dataset_template:
     get:
       summary: Get minimal dataset template.
-      description:  Get minimal dataset template that can be used to create datasets. Service and End Users have different kind of templates. It is also possible to fetch PAS templates for Service and End Users. The returned template can be used as-is when creating a dataset into Metax.
+      description: Get minimal dataset template that can be used to create datasets. Service and End Users have different kind of templates. It is also possible to fetch PAS templates for Service and End Users. The returned template can be used as-is when creating a dataset into Metax.
       parameters:
         - name: type
           in: query
@@ -1772,10 +1799,10 @@ paths:
           required: true
           type: string
       responses:
-        '200':
+        "200":
           description: Successful operation, return dataset template as json.
           schema:
-            $ref: '#/definitions/CatalogRecord'
+            $ref: "#/definitions/CatalogRecord"
       tags:
         - Dataset RPC
   /rpc/datasets/set_preservation_identifier:
@@ -1789,10 +1816,10 @@ paths:
           required: true
           type: string
       responses:
-        '200':
+        "200":
           description: Successful operation, return catalog record preservation identifier.
           schema:
-            $ref: '#/definitions/CatalogRecord'
+            $ref: "#/definitions/CatalogRecord"
       tags:
         - Dataset RPC
   /rpc/datasets/refresh_directory_content:
@@ -1809,9 +1836,9 @@ paths:
           in: query
           description: Directory identifier from where the new files will be searched.
       responses:
-        '200':
+        "200":
           description: Successful operation. Files were added and new dataset version was created. Returns information about the new dataset version.
-        '204':
+        "204":
           description: Successful operation. Files were added and new dataset version was not created or no new files were found. Returns no content.
       tags:
         - Dataset RPC
@@ -1826,7 +1853,7 @@ paths:
           required: true
           type: string
       responses:
-        '200':
+        "200":
           description: Successful operation, returns information about the new dataset version.
       tags:
         - Dataset RPC
@@ -1841,11 +1868,11 @@ paths:
           required: true
           type: string
       responses:
-        '204':
+        "204":
           description: Successful operation, returns no content.
-        '400':
+        "400":
           description: Required parameter was missing or API was called in production environment. Response includes details.
-        '404':
+        "404":
           description: No datasets were found for requested user.
       tags:
         - Dataset RPC
@@ -1878,7 +1905,7 @@ paths:
         - $ref: "#/parameters/removed_filter"
         - $ref: "#/parameters/legacy_filter"
       responses:
-        '200':
+        "200":
           description: successful operation.
           schema:
             $ref: "#/examples/count_datasets"
@@ -1905,11 +1932,11 @@ paths:
         - $ref: "#/parameters/removed_filter"
         - $ref: "#/parameters/legacy_filter"
       responses:
-        '200':
+        "200":
           description: Successful operation.
           schema:
             $ref: "#/examples/all_datasets_cumulative"
-        '400':
+        "400":
           description: Parameters contained errors, response includes details
       tags:
         - Statistics RPC
@@ -1988,11 +2015,11 @@ paths:
         - $ref: "#/parameters/removed_filter"
         - $ref: "#/parameters/legacy_filter"
       responses:
-        '200':
+        "200":
           description: Successful operation.
           schema:
             $ref: "#/examples/organization_datasets_cumulative"
-        '400':
+        "400":
           description: Required parameters missing.
       tags:
         - Statistics RPC
@@ -2018,7 +2045,7 @@ paths:
           required: false
           type: string
       responses:
-        '200':
+        "200":
           description: Successful operation
       tags:
         - Statistics RPC
@@ -2033,7 +2060,7 @@ paths:
           required: false
           type: string
       responses:
-        '200':
+        "200":
           description: Successful operation
       tags:
         - Statistics RPC
@@ -2048,9 +2075,9 @@ paths:
           required: true
           type: string
       responses:
-        '200':
+        "200":
           description: Successful operation, returns the number of deleted files.
-        '400':
+        "400":
           description: Unsuccesful operation when project identifier is missing.
       tags:
         - File RPC
@@ -2065,15 +2092,14 @@ paths:
           required: true
           type: string
       responses:
-        '204':
+        "204":
           description: Successful operation, returns no content.
-        '400':
+        "400":
           description: Required parameter was missing or API was called in production environment. Response includes details.
-        '404':
+        "404":
           description: No files or directories were found for requested project.
       tags:
         - File RPC
-
 
 parameters:
   dryrun:
@@ -2207,13 +2233,13 @@ parameters:
 
 definitions:
   CatalogRecord:
-    $ref: 'https://__METAX_ENV_DOMAIN__/apischemas/v1/catalogrecord.json#/definitions/CatalogRecord'
+    $ref: "https://__METAX_ENV_DOMAIN__/apischemas/v1/catalogrecord.json#/definitions/CatalogRecord"
   DataCatalog:
-    $ref: 'https://__METAX_ENV_DOMAIN__/apischemas/v1/datacatalog.json#/definitions/Catalog'
+    $ref: "https://__METAX_ENV_DOMAIN__/apischemas/v1/datacatalog.json#/definitions/Catalog"
   File:
-    $ref: 'https://__METAX_ENV_DOMAIN__/apischemas/v1/file.json#/definitions/File'
+    $ref: "https://__METAX_ENV_DOMAIN__/apischemas/v1/file.json#/definitions/File"
   Directory:
-    $ref: 'https://__METAX_ENV_DOMAIN__/apischemas/v1/file.json#/definitions/Directory'
+    $ref: "https://__METAX_ENV_DOMAIN__/apischemas/v1/file.json#/definitions/Directory"
   StringList:
     type: array
     items:
@@ -2222,11 +2248,11 @@ definitions:
   CatalogRecordList:
     type: array
     items:
-      $ref: '#/definitions/CatalogRecord'
+      $ref: "#/definitions/CatalogRecord"
   FileList:
     type: array
     items:
-      $ref: '#/definitions/File'
+      $ref: "#/definitions/File"
   CumulativeElementWFiles:
     type: object
     properties:
@@ -2305,7 +2331,7 @@ examples:
   all_datasets_cumulative:
     type: array
     items:
-      $ref: '#/definitions/CumulativeElementWFiles'
+      $ref: "#/definitions/CumulativeElementWFiles"
   # catalog_datasets_cumulative:
   #   type: object
   #   properties:
@@ -2343,7 +2369,7 @@ examples:
           identifier:
             type: array
             items:
-              $ref: '#/definitions/CumulativeElementWFiles'
+              $ref: "#/definitions/CumulativeElementWFiles"
   # unused_files:
   #   type: array
   #   items:
