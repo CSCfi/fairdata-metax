@@ -17,8 +17,8 @@ include:
   - project: fairdata/fairdata-ci
     ref: master
     file:
-      - /templates/deploy/deploy-jobs.yml
-      - /templates/test/test-jobs.yml
+      - /templates/deploy/deploy-jobs.yaml
+      - /templates/test/test-jobs.yaml
 
 # ------------------------
 
