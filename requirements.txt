@@ -51,7 +51,7 @@ pika==1.3.0
 prompt-toolkit==3.0.30; python_full_version >= "3.6.2" and python_version >= "3.7"
 psycopg2-binary==2.9.3; python_version >= "3.6"
 ptyprocess==0.7.0; sys_platform != "win32" and python_version >= "3.7"
-pygments==2.12.0; python_version >= "3.7"
+pygments==2.14.0; python_version >= "3.7"
 pyjwt==2.4.0; python_version >= "3.6"
 pyoai @ git+https://github.com/infrae/pyoai@5f6eba12
 pyparsing==3.0.9; python_full_version >= "3.6.8" and python_version >= "3.6"
