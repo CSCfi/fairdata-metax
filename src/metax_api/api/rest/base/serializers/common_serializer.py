@@ -91,8 +91,12 @@ class CommonSerializer(ModelSerializer):
 
         if "only_fields" in kwargs:
             self.requested_fields = kwargs.pop("only_fields")
-
-        elif "request" in self.context and "fields" in self.context["request"].query_params:
+        
+        elif (
+            "view" in self.context
+            and "request" in self.context
+            and "fields" in self.context["request"].query_params
+        ):
             self.requested_fields = self.context["view"].fields
 
     @transaction.atomic
