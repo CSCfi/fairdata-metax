@@ -12,6 +12,8 @@ import requests
 from django.conf import settings
 from rdflib import RDF, Graph, URIRef
 from rdflib.namespace import SKOS
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
 
 from metax_api.tasks.refdata.refdata_indexer.domain.reference_data import ReferenceData
 
@@ -126,13 +128,28 @@ class FintoDataService:
     def _fetch_finto_data(self, data_type):
         url = self.FINTO_REFERENCE_DATA_SOURCE_URLS[data_type]
         _logger.info("Fetching data from url " + url)
+
         sleep_time = 2
         num_retries = 7
+
+        session = requests.Session()
+        retry = Retry(
+            # Retry 7 times
+            total=num_retries,
+            # Backoff factor of 1: each retry doubles the retry delay
+            backoff_factor=1,
+            # Retry on server-side errors as well
+            status_forcelist=range(500, 600)
+        )
+        adapter = HTTPAdapter(
+            max_retries=retry
+        )
+        session.mount("http://finto.fi", adapter)
 
         # Retrieve the XML document and calculate its checksum.
         # If we have already have a corresponding cache file, we can skip
         # parsing it.
-        response = requests.get(url)
+        response = session.get(url)
         checksum = hashlib.sha256(response.content).hexdigest()
 
         cache_dir = Path(settings.CACHE_ROOT) / "finto-cache"
@@ -164,6 +181,8 @@ class FintoDataService:
         for i in range(0, num_retries):
             parse_error = None
             try:
+                # TODO: Is there a way to pass urllib3 parameters to rdflib?
+                # Implementing HTTP retry mechanism manually is cumbersome.
                 graph.parse(url)
             except Exception:  # pylint: disable=broad-except
                 if i + 1 == num_retries:
