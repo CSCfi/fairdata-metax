@@ -176,13 +176,14 @@ DATETIME_INPUT_FORMATS = ["%Y-%m-%dT%H:%M:%S.%fZ"]
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
-# same dir as manage.py
-STATIC_ROOT = os.path.join(os.path.dirname(PROJECT_DIR), "static")
+
+# repo root, aka the directory with README.md
+STATIC_ROOT = env("STATIC_ROOT")
 STATIC_URL = "/static/"
 
 # The cache directory used for temporary files, such as cache files
 # used to speed up 'index_refdata' runs
-CACHE_ROOT = os.path.join(os.path.dirname(PROJECT_DIR), "cache")
+CACHE_ROOT = env("CACHE_ROOT")
 
 API_VERSIONS_ENABLED = []
 if env("ENABLE_V1_ENDPOINTS"):

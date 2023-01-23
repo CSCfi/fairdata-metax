@@ -3,9 +3,9 @@
 *.DS_Store
 /docs/*build/*
 /docs/*/build/*
+/cache/*
+/static/*
 /src/__pycache__/*
-/src/cache/*
-/src/static/*
 /src/.coverage
 /src/coverage_data
 /swagger/*index.html

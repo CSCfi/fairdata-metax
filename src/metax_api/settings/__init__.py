@@ -62,6 +62,7 @@ env = environ.Env(
     REDIS_USE_PASSWORD=(bool, False),
     REMS_ENABLED=(bool, False),
     SERVER_DOMAIN_NAME=(str, "metax.fd-dev.csc.fi"),
+    STATIC_ROOT=(str, join(BASE_DIR.parent, "static")),
     VALIDATE_TOKEN_URL=(str, "https://127.0.0.1/secure/validate_token"),
     WKT_FILENAME=(str, join(REFDATA_INDEXER_PATH, "resources", "uri_to_wkt.json")),
     SWAGGER_YAML_PATH=(str, join(BASE_DIR, "metax_api", "swagger")),
