@@ -180,6 +180,10 @@ PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_ROOT = os.path.join(os.path.dirname(PROJECT_DIR), "static")
 STATIC_URL = "/static/"
 
+# The cache directory used for temporary files, such as cache files
+# used to speed up 'index_refdata' runs
+CACHE_ROOT = os.path.join(os.path.dirname(PROJECT_DIR), "cache")
+
 API_VERSIONS_ENABLED = []
 if env("ENABLE_V1_ENDPOINTS"):
     API_VERSIONS_ENABLED.append("v1")

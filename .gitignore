@@ -4,6 +4,7 @@
 /docs/*build/*
 /docs/*/build/*
 /src/__pycache__/*
+/src/cache/*
 /src/static/*
 /src/.coverage
 /src/coverage_data

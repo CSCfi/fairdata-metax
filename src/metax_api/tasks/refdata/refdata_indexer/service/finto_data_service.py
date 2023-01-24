@@ -1,8 +1,11 @@
 # SPDX-FileCopyrightText: Copyright (c) 2018-2019 Ministry of Education and Culture, Finland
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
+import hashlib
 import json
 import logging
+import pickle
+from pathlib import Path
 from time import sleep
 
 import requests
@@ -125,26 +128,69 @@ class FintoDataService:
         _logger.info("Fetching data from url " + url)
         sleep_time = 2
         num_retries = 7
-        g = Graph()
 
-        for x in range(0, num_retries):
+        # Retrieve the XML document and calculate its checksum.
+        # If we have already have a corresponding cache file, we can skip
+        # parsing it.
+        response = requests.get(url)
+        checksum = hashlib.sha256(response.content).hexdigest()
+
+        cache_dir = Path(settings.CACHE_ROOT) / "finto-cache"
+        cache_dir.mkdir(parents=True, exist_ok=True)
+
+        cache_file = cache_dir / f"{data_type}_{checksum}.pickle"
+
+        if cache_file.is_file():
+            _logger.info(
+                "Cache exists and source is unchanged, loading %s from cache",
+                data_type
+            )
+            pickle_data = cache_file.read_bytes()
             try:
-                g.parse(url)
-                str_error = None
-            except Exception as e:
-                str_error = e
+                graph = pickle.loads(pickle_data)
+                return graph
+            except Exception:  # pylint: disable=broad-except
+                _logger.warning(
+                    "Could not load from cache, the pickle file is probably "
+                    "outdated. Deleting and using source instead."
+                )
+                cache_file.unlink()
 
-            if str_error:
+        _logger.info(
+            "Loading and parsing %s from source",
+            data_type
+        )
+        graph = Graph()
+        for i in range(0, num_retries):
+            parse_error = None
+            try:
+                graph.parse(url)
+            except Exception:  # pylint: disable=broad-except
+                if i + 1 == num_retries:
+                    _logger.error(
+                        "Could not read Finto data of type %s, skipping. "
+                        "Last exception:",
+                        data_type
+                    )
+                    _logger.exception(parse_error)
+                    return None
+
                 sleep(sleep_time)  # wait before trying to fetch the data again
                 sleep_time *= 2  # exponential backoff
-            else:
-                break
+                continue
 
-        if not str_error:
-            return g
-        else:
-            _logger.error("Failed to read Finto data of type %s, skipping.." % data_type)
-            return None
+            # Graph parsed successfully
+            break
+
+        cache_file.write_bytes(pickle.dumps(graph))
+
+        # Remove old cache files
+        for file_ in cache_file.parent.glob(f"{data_type}_*.pickle"):
+            if file_.name != cache_file.name:
+                _logger.info("Removed old cache file %s", str(file_))
+                file_.unlink()
+
+        return graph
 
     def _get_uri_end_part(self, uri):
         return uri[uri.rindex("/") + 1 :].strip()

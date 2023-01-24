@@ -22,6 +22,7 @@ env = environ.Env(
     ALLOWED_HOSTS=(list, []),
     ALWAYS_RELOAD_REFERENCE_DATA_ON_RESTART=(bool, True),
     API_USERS_PATH=(str, "/etc/fairdata-metax/api_users"),
+    CACHE_ROOT=(str, join(BASE_DIR.parent, "cache")),
     DEBUG=(bool, False),
     DEBUG_TOOLBAR_ENABLED=(bool, True),
     DJANGO_ENV=(str, "local"),
