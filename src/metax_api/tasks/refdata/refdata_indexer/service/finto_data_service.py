@@ -27,10 +27,10 @@ class FintoDataService:
     """
 
     FINTO_REFERENCE_DATA_SOURCE_URLS = {
-        ReferenceData.DATA_TYPE_FIELD_OF_SCIENCE: "http://finto.fi/rest/v1/okm-tieteenala/data",
-        ReferenceData.DATA_TYPE_LANGUAGE: "http://finto.fi/rest/v1/lexvo/data",
-        ReferenceData.DATA_TYPE_LOCATION: "http://finto.fi/rest/v1/yso-paikat/data",
-        ReferenceData.DATA_TYPE_KEYWORD: "http://finto.fi/rest/v1/koko/data",
+        ReferenceData.DATA_TYPE_FIELD_OF_SCIENCE: "https://finto.fi/rest/v1/okm-tieteenala/data",
+        ReferenceData.DATA_TYPE_LANGUAGE: "https://finto.fi/rest/v1/lexvo/data",
+        ReferenceData.DATA_TYPE_LOCATION: "https://finto.fi/rest/v1/yso-paikat/data",
+        ReferenceData.DATA_TYPE_KEYWORD: "https://finto.fi/rest/v1/koko/data",
     }
 
     WKT_FILENAME = settings.WKT_FILENAME
@@ -144,7 +144,7 @@ class FintoDataService:
         adapter = HTTPAdapter(
             max_retries=retry
         )
-        session.mount("http://finto.fi", adapter)
+        session.mount("https://finto.fi", adapter)
 
         # Retrieve the XML document and calculate its checksum.
         # If we have already have a corresponding cache file, we can skip
