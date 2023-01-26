@@ -71,8 +71,32 @@ class Command(BaseCommand):
 
         for org in organizations:
             org_id = org["metadata_provider_org"]
-            ret = StatisticService.count_datasets(metadata_provider_org=org_id)
-            stat = OrganizationStatistics(org_id, ret["count"], ret["ida_byte_size"])
+            ida_ret = StatisticService.count_datasets(metadata_provider_org=org_id, data_catalog="urn:nbn:fi:att:data-catalog-ida", removed=False, legacy=False)
+            pas_ret = StatisticService.count_datasets(metadata_provider_org=org_id, data_catalog="urn:nbn:fi:att:data-catalog-pas", removed=False, legacy=False)
+            att_ret = StatisticService.count_datasets(metadata_provider_org=org_id, data_catalog="urn:nbn:fi:att:data-catalog-att", removed=False, legacy=False)
+            total_ret = StatisticService.count_datasets(metadata_provider_org=org_id, removed=False, legacy=False)
+
+            total_count = total_ret["count"]
+            ida_count = ida_ret["count"]
+            pas_count = pas_ret["count"]
+            att_count = att_ret["count"]
+            other_count = total_count - ida_count - pas_count - att_count
+
+            total_byte_size = total_ret["ida_byte_size"]
+            ida_byte_size = ida_ret["ida_byte_size"]
+            pas_byte_size = pas_ret["ida_byte_size"]
+
+            stat = OrganizationStatistics(
+                org_id,
+                total_count,
+                ida_count,
+                pas_count,
+                att_count,
+                other_count,
+                total_byte_size,
+                ida_byte_size,
+                pas_byte_size
+            )
             stat.save()
 
         logger.info("Statistic summary created")
