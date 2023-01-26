@@ -616,12 +616,14 @@ class StatisticService:
         return file_stats
 
     @classmethod
-    def count_files(cls, projects, removed=None, include_pids=False, file_storage=None):
+    def count_files(cls, projects, removed=None, include_pids=False, file_storage=None, ignore_removed_crs=False):
         kwargs = OrderedDict()
         file_query = File.objects_unfiltered.all()
 
         kwargs['project_identifier__in'] = projects
         kwargs['record__state'] = "published"
+        if ignore_removed_crs:
+            kwargs['record__removed'] = False
         if removed is not None:
             kwargs['removed'] = False if removed == 'false' else True
         if file_storage is not None:
@@ -630,7 +632,6 @@ class StatisticService:
         file_query = file_query.filter(**kwargs) \
                                .values("id", "byte_size") \
                                .distinct()
-
         # Coalesce is required to provides default value
         if include_pids:
             return file_query.aggregate(count=Count("id"), byte_size=Coalesce(Sum("byte_size"), 0)), list(file_query.values_list('identifier', flat=True))

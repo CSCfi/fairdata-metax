@@ -39,7 +39,7 @@ class Command(BaseCommand):
             project_id = project["project_identifier"]
 
             ida_files_stats = StatisticService.count_files(
-                [project_id], removed="false", include_pids=True, file_storage=ida_file_storage
+                [project_id], removed="false", include_pids=True, file_storage=ida_file_storage, ignore_removed_crs=True
             )
             ida_count = ida_files_stats[0]["count"]
             ida_size = ida_files_stats[0]["byte_size"]
@@ -47,7 +47,7 @@ class Command(BaseCommand):
             ida_published_catalog_record_pids = self.get_published_cr_pids(ida_file_pids)
 
             pas_files_stats = StatisticService.count_files(
-                [project_id], removed="false", include_pids=True, file_storage=pas_file_storage
+                [project_id], removed="false", include_pids=True, file_storage=pas_file_storage, ignore_removed_crs=True
             )
             pas_count = pas_files_stats[0]["count"]
             pas_size = pas_files_stats[0]["byte_size"]
