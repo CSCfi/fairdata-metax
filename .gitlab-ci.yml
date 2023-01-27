@@ -1,6 +1,27 @@
----
+workflow:
+  name: '$PIPELINE_NAME'
+  rules:
+    - if: $CI_PIPELINE_SOURCE =~ /^(web)$/
+      variables:
+        PIPELINE_NAME: 'Manual pipeline to $GITLAB_ENV'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      variables:
+        PIPELINE_NAME: 'MR pipeline'
+    - if: $CI_COMMIT_BRANCH =~ /^(master)$/
+      variables:
+        PIPELINE_NAME: 'Commit pipeline'
+
+# ------------------------
+
 variables:
-  GITLAB_ENV: test
+  GITLAB_ENV:
+    description: 'Which environment do you want to deploy to?'
+    value: 'test'
+    options:
+      - 'staging'
+      - 'test'
+      - 'demo'
+      - 'stable'
   SERVICE: ${SERVICE}
 
 default:
@@ -19,6 +40,7 @@ include:
     file:
       - /templates/deploy/deploy-jobs.yaml
       - /templates/test/test-jobs.yaml
+      - templates/test/metax-tests.yaml
 
 # ------------------------
 
@@ -56,50 +78,7 @@ update-proxy-feature:
 # ------------------------
 
 integration-test-docker:
-  stage: test
-  tags:
-    - docker
-  image:
-    name: python:3.8
-  interruptible: true
-  services:
-    - postgres:9.6
-    - rabbitmq:3
-    - redis:latest
-    - name: elasticsearch:7.9.2
-      alias: elasticsearch
-      command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
-  variables:
-    POSTGRES_USER: metax_user
-    POSTGRES_PASSWORD: password
-    POSTGRES_DB: metax_db
-    METAX_DATABASE: metax_db
-    METAX_DATABASE_PASSWORD: password
-    METAX_DATABASE_USER: metax_user
-    METAX_DATABASE_HOST: postgres
-    ELASTIC_SEARCH_HOSTS: elasticsearch
-    RABBIT_MQ_HOSTS: rabbitmq
-    REDIS_HOST: redis
-    REDIS_PORT: 6379
-    DJANGO_SECRET_KEY: django-insecure-22388&4#2_#u0e%$%!)5vo3mpys)#f7@vsk9az354!jgze--&e
-    DJANGO_ENV: unittests
-  script:
-    - apt-get update && apt-get install -y xqilla libxerces-c-dev build-essential libssl-dev libffi-dev python-dev libxqilla-dev
-    - mkdir -p /var/log/metax-api/errors
-    - pip install -r requirements.txt
-    - cd src
-    - python manage.py first_time_setup
-    - coverage run manage.py test --parallel
-    - coverage combine
-    - coverage report -m
-    - coverage xml
-  artifacts:
-    reports:
-      coverage_report:
-        coverage_format: cobertura
-        path: src/coverage.xml
-    paths:
-      - src/coverage.xml
+  extends: .integration-test-docker
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
 
@@ -118,8 +97,10 @@ sonarqube:
   needs:
     - job: integration-test-docker
       artifacts: true
+      optional: true
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH =~ /^(master)$/ && $CI_PIPELINE_SOURCE !~ /^(web)$/
 
 fairdata-e2e:
   stage: e2e-test
