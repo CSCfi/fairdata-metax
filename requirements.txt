@@ -30,7 +30,7 @@ idutils==1.1.12
 imagesize==1.4.1; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.4.0" and python_version >= "3.6"
 importlib-metadata==4.12.0; python_version >= "3.7" and python_version < "3.8"
 ipdb==0.13.9; python_version >= "2.7"
-ipython==7.34.0; python_version >= "3.7"
+ipython==8.9.0; python_version >= "3.7"
 isbnlib==3.10.10
 isodate==0.6.1
 isort==5.10.1; python_full_version >= "3.6.1" and python_version < "4.0"
