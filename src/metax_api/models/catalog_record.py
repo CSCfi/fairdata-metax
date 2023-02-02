@@ -24,6 +24,7 @@ from metax_api.tasks.refdata.refdata_indexer import service
 from metax_api.utils import (
     DelayedLog,
     IdentifierType,
+    catalog_allows_datacite_update,
     datetime_to_str,
     executing_test_case,
     extract_doi_from_doi_identifier,
@@ -1226,7 +1227,10 @@ class CatalogRecord(Common):
         elif self.state == self.STATE_PUBLISHED:
             if self.has_alternate_records():
                 self._remove_from_alternate_record_set()
-            if is_metax_generated_doi_identifier(self.research_dataset["preferred_identifier"]):
+            if (
+                catalog_allows_datacite_update(self.get_catalog_identifier())
+                and is_metax_generated_doi_identifier(self.research_dataset["preferred_identifier"])
+            ):
                 self.add_post_request_callable(
                     DataciteDOIUpdate(self, self.research_dataset["preferred_identifier"], "delete")
                 )
@@ -1363,6 +1367,9 @@ class CatalogRecord(Common):
 
     def catalog_is_dft(self):
         return self.data_catalog.catalog_json["identifier"] == DFT_CATALOG
+
+    def get_catalog_identifier(self):
+        return self.data_catalog.catalog_json["identifier"]
 
     def is_published(self):
         return self.state == self.STATE_PUBLISHED
@@ -1589,7 +1596,10 @@ class CatalogRecord(Common):
                 or self.use_doi_for_published is True
             ):
                 self._validate_cr_against_datacite_schema()
-            if is_metax_generated_doi_identifier(self.research_dataset.get("preferred_identifier")):
+            if (
+                catalog_allows_datacite_update(self.get_catalog_identifier())
+                and is_metax_generated_doi_identifier(self.research_dataset["preferred_identifier"])
+            ):
                 self.add_post_request_callable(
                     DataciteDOIUpdate(self, self.research_dataset["preferred_identifier"], "create")
                 )
@@ -1824,7 +1834,10 @@ class CatalogRecord(Common):
             and self.update_datacite
         ):
             self._validate_cr_against_datacite_schema()
-            if is_metax_generated_doi_identifier(self.research_dataset["preferred_identifier"]):
+            if (
+                catalog_allows_datacite_update(self.get_catalog_identifier())
+                and is_metax_generated_doi_identifier(self.research_dataset["preferred_identifier"])
+            ):
                 self.add_post_request_callable(
                     DataciteDOIUpdate(self, self.research_dataset["preferred_identifier"], "update")
                 )
@@ -2464,7 +2477,10 @@ class CatalogRecord(Common):
 
         new_version.calculate_directory_byte_sizes_and_file_counts()
 
-        if is_metax_generated_doi_identifier(self.research_dataset["preferred_identifier"]):
+        if (
+            catalog_allows_datacite_update(self.get_catalog_identifier())
+            and is_metax_generated_doi_identifier(self.research_dataset["preferred_identifier"])
+        ):
             self.add_post_request_callable(
                 DataciteDOIUpdate(
                     new_version,

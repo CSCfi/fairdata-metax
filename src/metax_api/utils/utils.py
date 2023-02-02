@@ -79,6 +79,11 @@ def parse_timestamp_string_to_tz_aware_datetime(timestamp_str):
 def get_tz_aware_now_without_micros():
     return timezone.now().replace(microsecond=0)
 
+def catalog_allows_datacite_update(catalog):
+    if catalog in [settings.PAS_DATA_CATALOG_IDENTIFIER, settings.IDA_DATA_CATALOG_IDENTIFIER]:
+        return True
+    return False
+
 
 def generate_uuid_identifier(urn_prefix=False):
     if urn_prefix:

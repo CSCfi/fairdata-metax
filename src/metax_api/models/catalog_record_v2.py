@@ -17,6 +17,7 @@ from metax_api.exceptions import Http400, Http403
 from metax_api.utils import (
     DelayedLog,
     IdentifierType,
+    catalog_allows_datacite_update,
     datetime_to_str,
     generate_doi_identifier,
     generate_uuid_identifier,
@@ -310,7 +311,10 @@ class CatalogRecordV2(CatalogRecord):
 
             self._validate_cr_against_datacite_schema()
 
-            if is_metax_generated_doi_identifier(self.research_dataset.get("preferred_identifier")):
+            if (
+                catalog_allows_datacite_update(self.get_catalog_identifier())
+                and is_metax_generated_doi_identifier(self.research_dataset.get("preferred_identifier"))
+            ):
                 self.add_post_request_callable(
                     DataciteDOIUpdate(self, self.research_dataset["preferred_identifier"], "create")
                 )
