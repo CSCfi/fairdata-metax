@@ -22,9 +22,14 @@ api_permissions = Box(
     default_box=True,
 )
 
-
+# Associated datacatalog permissions are defined
+# in /src/metax_api/initialdata/datacatalogs.json
+# -----------------------------------------------
 class Role(Enum):
-    END_USERS = "endusers"
+
+    # 1 Baseline
+    # These must be referenced in configurations
+    # ------------------------------------------
     ETSIN = "etsin"
     FDS = "fds"
     IDA = "ida"
@@ -32,15 +37,24 @@ class Role(Enum):
     QVAIN = "qvain"
     QVAIN_LIGHT = "qvain-light"
     TPAS = "tpas"
-    ALL = "all"
-    TEST_USER = "testuser"
-    API_AUTH_USER = "api_auth_user"
-    EXTERNAL = "external"
-    JYU = "jyu"
-    REPORTRONIC = "reportronic"
+
+    # 2 Customer
+    # These must be referenced in configurations
+    # ------------------------------------------
     AALTO = "aalto"
     EUDAT = "eudat"
+    JYU = "jyu"
+    REPORTRONIC = "reportronic"
     SD = "sd"
+
+    # 3 Utility
+    # These do not need configuration definitions
+    # -------------------------------------------
+    ALL = "all"
+    API_AUTH_USER = "api_auth_user"
+    END_USERS = "endusers"
+    EXTERNAL = "external"
+    TEST_USER = "testuser"
 
     def __ge__(self, other):
         if self.__class__ is other.__class__:
