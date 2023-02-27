@@ -82,6 +82,10 @@ class FileService(CommonService, ReferenceDataMixin):
 
         queryset_search_params = {}
 
+        if request.query_params.get("file_storage", False):
+            file_storage_identifier = request.query_params["file_storage"].split(",")
+            queryset_search_params["file_storage__file_storage_json__identifier__in"] =  file_storage_identifier
+
         if request.query_params.get("project_identifier", False):
             project = request.query_params["project_identifier"]
             if not request.user.is_service:

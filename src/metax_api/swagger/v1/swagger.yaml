@@ -137,6 +137,11 @@ paths:
           description: Filters files by path. Requires query parameter project_identifier.
           required: false
           type: string
+        - name: file_storage
+          in: query
+          description: Filters files by file storage. Comma-separated list of file storage identifiers
+          required: false
+          type: string
         - name: offset
           in: query
           description: Offset for paging
