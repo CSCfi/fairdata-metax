@@ -5,11 +5,12 @@ from django.db.models import Sum
 from django.db.models.expressions import RawSQL
 
 from metax_api.models import (
-    File,
     CatalogRecordV2,
+    DataCatalog,
+    File,
+    FileStorage,
     OrganizationStatistics,
     ProjectStatistics,
-    FileStorage,
 )
 from metax_api.api.rest.base.views import FileViewSet
 from metax_api.services import FileService, StatisticService
@@ -68,9 +69,25 @@ class Command(BaseCommand):
         organizations = (
             CatalogRecordV2.objects.all().order_by().values("metadata_provider_org").distinct()
         )
+        organizations_list = [d["metadata_provider_org"] for d in list(organizations)]
 
-        for org in organizations:
-            org_id = org["metadata_provider_org"]
+
+        harvested_organizations = {
+            "syke.fi": "urn:nbn:fi:att:data-catalog-harvest-syke",
+            "fsd.tuni.fi": "urn:nbn:fi:att:data-catalog-harvest-fsd",
+            "kielipankki.fi": "urn:nbn:fi:att:data-catalog-harvest-kielipankki",
+        }
+
+        # Add harvested organizations to organizations list (if they aren't there already)
+        for org in harvested_organizations.keys():
+            if org not in organizations_list:
+                organizations_list.append(org)
+
+        if "fairdata.fi" in organizations_list:
+            organizations_list.remove("fairdata.fi")
+
+
+        for org_id in organizations_list:
             ida_ret = StatisticService.count_datasets(metadata_provider_org=org_id, data_catalog="urn:nbn:fi:att:data-catalog-ida", removed=False, legacy=False)
             pas_ret = StatisticService.count_datasets(metadata_provider_org=org_id, data_catalog="urn:nbn:fi:att:data-catalog-pas", removed=False, legacy=False)
             att_ret = StatisticService.count_datasets(metadata_provider_org=org_id, data_catalog="urn:nbn:fi:att:data-catalog-att", removed=False, legacy=False)
@@ -80,24 +97,33 @@ class Command(BaseCommand):
             ida_count = ida_ret["count"]
             pas_count = pas_ret["count"]
             att_count = att_ret["count"]
+
+            # If organization is harvested, check the stats from corresponding catalog, and add them to the total_count
+            if org_id in harvested_organizations.keys():
+                if DataCatalog.objects.filter(catalog_json__identifier=harvested_organizations[org_id]).exists():
+                    harvested_ret = StatisticService.count_datasets(data_catalog=harvested_organizations[org_id], removed=False, legacy=False)
+                    total_count += harvested_ret["count"]
+
             other_count = total_count - ida_count - pas_count - att_count
 
             total_byte_size = total_ret["ida_byte_size"]
             ida_byte_size = ida_ret["ida_byte_size"]
             pas_byte_size = pas_ret["ida_byte_size"]
 
-            stat = OrganizationStatistics(
-                org_id,
-                total_count,
-                ida_count,
-                pas_count,
-                att_count,
-                other_count,
-                total_byte_size,
-                ida_byte_size,
-                pas_byte_size
-            )
-            stat.save()
+            if total_count > 0:
+
+                stat = OrganizationStatistics(
+                    org_id,
+                    total_count,
+                    ida_count,
+                    pas_count,
+                    att_count,
+                    other_count,
+                    total_byte_size,
+                    ida_byte_size,
+                    pas_byte_size
+                )
+                stat.save()
 
         logger.info("Statistic summary created")
 
