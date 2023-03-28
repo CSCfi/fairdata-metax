@@ -18,7 +18,11 @@ from rest_framework.response import Response
 from metax_api.api.rest.base.serializers import CatalogRecordSerializer
 from metax_api.exceptions import Http400, Http403
 from metax_api.models import CatalogRecord
-from metax_api.models.catalog_record import DataciteDOIUpdate
+from metax_api.models.catalog_record import (
+    DataciteDOIUpdate,
+    RabbitMQPublishRecord,
+    ResearchDatasetVersion,
+)
 from metax_api.services.datacite_service import (
     DataciteException,
     DataciteService,
@@ -222,21 +226,28 @@ class DatasetRPC(CommonRPC):
             )
         """
 
-        sql_delete_datasets = """
-            delete from metax_api_catalogrecord where metadata_provider_user = %s
-        """
-
         _logger.info(
             "Flushing datasets for user %s on the request of user: %s" % (user, request.user.username)
         )
 
         with connection.cursor() as cr:
             cr.execute(sql_delete_cr_files, [user])
-            cr.execute(sql_delete_datasets, [user])
-            if cr.rowcount == 0:
-                _logger.info("No datasets found for user %s" % user)
-                return Response(user, status=status.HTTP_404_NOT_FOUND)
+
+        crs = CatalogRecord.objects_unfiltered.filter(metadata_provider_user=user)
+
+        rdvs = ResearchDatasetVersion.objects.filter(catalog_record_id__in=crs.values_list("id"))
+
+        for rdv in rdvs:
+            rdv.delete()
+        
+        for cr in crs:
+            cr.delete(hard=True)
+            cr.add_post_request_callable(RabbitMQPublishRecord(cr, "delete"))
+
+
+        if len(crs) == 0:
+            _logger.info(f"No datasets found by user: {user}")
+            return Response(f"No datasets found by user: {user}", status=status.HTTP_404_NOT_FOUND)
 
         _logger.info("Permanently deleted all datasets created by user %s" % user)
-
         return Response(data=None, status=status.HTTP_204_NO_CONTENT)
