@@ -14,11 +14,34 @@ import structlog
 from dateutil import parser
 from django.conf import settings
 from django.utils import timezone
+from rest_framework.filters import OrderingFilter
 
 
 class IdentifierType(Enum):
     URN = "urn"
     DOI = "doi"
+
+class EnforcingOrdering(OrderingFilter):
+
+    def get_ordering(self, request, queryset, view):
+        """
+        Standard rest_framework OrderingFilter with a minor modification.
+        If 'id' is not included in the ordering parameter, add it to the end
+        of the ordering. If no ordering parameter is given, order by id.
+        This ordering function will ensure that results are always ordered
+        and paginated results are deterministic.
+        """
+        params = request.query_params.get(self.ordering_param)
+        if params:
+            fields = [param.strip() for param in params.split(',')]
+            if "id" not in fields:
+                fields.append("id")
+            ordering = self.remove_invalid_fields(queryset, fields, view, request)
+            if ordering:
+                return ordering
+
+        # If no ordering parameter is given, order by id
+        return ["id"]
 
 
 class DelayedLog:
