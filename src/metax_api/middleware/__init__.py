@@ -7,5 +7,6 @@
 
 from .add_last_modified_header_to_response import AddLastModifiedHeaderToResponse
 from .identifyapicaller import IdentifyApiCaller
+from .metrics_tracking import MetricsTracking
 from .request_logging import RequestLogging
 from .stream_http_response import StreamHttpResponse

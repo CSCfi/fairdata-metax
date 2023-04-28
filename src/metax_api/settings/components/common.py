@@ -70,6 +70,7 @@ if DEBUG:
 
 MIDDLEWARE = [
     "metax_api.middleware.RequestLogging",
+    "metax_api.middleware.MetricsTracking",
     # note: not strictly necessary if running in a private network
     # https://docs.djangoproject.com/en/1.11/ref/middleware/#module-django.middleware.security
     "django.middleware.security.SecurityMiddleware",

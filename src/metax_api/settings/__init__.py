@@ -37,6 +37,8 @@ env = environ.Env(
     ENABLE_DJANGO_WATCHMAN=(bool, True),
     ERROR_FILES_PATH=(str, join("/var", "log", "metax-api", "errors")),
     ES_CONFIG_DIR=(str, join(REFDATA_INDEXER_PATH, "resources", "es-config/")),
+    METRICS_API_ADDRESS=(str, None),
+    METRICS_API_TOKEN=(str, None),
     LOCAL_REF_DATA_FOLDER=(
         str,
         join(REFDATA_INDEXER_PATH, "resources", "local-refdata/"),
@@ -83,6 +85,7 @@ base_settings = [
     "components/externals.py",
     "components/monitoring.py",
     "components/rems.py",
+    "components/metrics.py",
     "environments/{0}.py".format(ENV),
     # Optionally override some settings:
     # optional('environments/legacy.py'),
