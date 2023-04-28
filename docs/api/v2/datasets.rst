@@ -31,8 +31,8 @@ Dataset schemas
 
 JSON schema files dataset metadata descriptions (field ``research_dataset``):
 
-    * `IDA datasets <https://raw.githubusercontent.com/CSCfi/metax-api/__METAX_ENV_BRANCH__/src/metax_api/api/rest/v2/schemas/ida_dataset_schema.json>`_ (schema used in IDA data catalog)
-    * `ATT datasets <https://raw.githubusercontent.com/CSCfi/metax-api/__METAX_ENV_BRANCH__/src/metax_api/api/rest/v2/schemas/att_dataset_schema.json>`_ (schema used in ATT data catalog)
+    * `IDA datasets <https://raw.githubusercontent.com/CSCfi/fairdata-metax/master/src/metax_api/api/rest/v2/schemas/ida_dataset_schema.json>`_ (schema used in IDA data catalog)
+    * `ATT datasets <https://raw.githubusercontent.com/CSCfi/fairdata-metax/master/src/metax_api/api/rest/v2/schemas/att_dataset_schema.json>`_ (schema used in ATT data catalog)
 
 There are also other schemas for datasets in other data catalogs for specialized use, such as for harvesting.
 
