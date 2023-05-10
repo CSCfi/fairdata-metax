@@ -42,6 +42,13 @@ class Directory(Common):
             models.Index(fields=["project_identifier"]),
         ]
 
+        constraints = [
+            models.UniqueConstraint(
+                name="directory_path_and_project",
+                fields=["directory_path", "project_identifier"]
+            )
+        ]
+
     def delete(self):
         # Actual delete
         super().delete()
