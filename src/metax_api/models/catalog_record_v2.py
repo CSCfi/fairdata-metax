@@ -578,7 +578,7 @@ class CatalogRecordV2(CatalogRecord):
             if self.preservation_state in (
                 self.PRESERVATION_STATE_INVALID_METADATA,  # 40
                 self.PRESERVATION_STATE_METADATA_VALIDATION_FAILED,  # 50
-                self.PRESERVATION_STATE_VALID_METADATA,
+                self.PRESERVATION_STATE_REJECTED_BY_USER,
             ):  # 70
 
                 # notifies the user in Hallintaliittyma that the metadata needs to be re-validated

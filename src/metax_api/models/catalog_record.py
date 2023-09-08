@@ -271,7 +271,7 @@ class CatalogRecord(Common):
     PRESERVATION_STATE_METADATA_VALIDATION_FAILED = 50
     PRESERVATION_STATE_VALIDATED_METADATA_UPDATED = 60
     PRESERVATION_STATE_VALIDATING_METADATA = 65
-    PRESERVATION_STATE_VALID_METADATA = 70
+    PRESERVATION_STATE_REJECTED_BY_USER = 70
     PRESERVATION_STATE_METADATA_CONFIRMED = 75
     PRESERVATION_STATE_ACCEPTED_TO_PAS = 80
     PRESERVATION_STATE_IN_PACKAGING_SERVICE = 90
@@ -296,7 +296,7 @@ class CatalogRecord(Common):
         (PRESERVATION_STATE_METADATA_VALIDATION_FAILED, "Metadata validation failed"),
         (PRESERVATION_STATE_VALIDATED_METADATA_UPDATED, "Validated metadata updated"),
         (PRESERVATION_STATE_VALIDATING_METADATA, "Validating metadata"),
-        (PRESERVATION_STATE_VALID_METADATA, "Valid metadata"),
+        (PRESERVATION_STATE_REJECTED_BY_USER, "Rejected by user"),
         (PRESERVATION_STATE_METADATA_CONFIRMED, "Metadata confirmed"),
         (PRESERVATION_STATE_ACCEPTED_TO_PAS, "Accepted to digital preservation"),
         (PRESERVATION_STATE_IN_PACKAGING_SERVICE, "in packaging service"),
@@ -1730,7 +1730,7 @@ class CatalogRecord(Common):
             if self.preservation_state in (
                 self.PRESERVATION_STATE_INVALID_METADATA,  # 40
                 self.PRESERVATION_STATE_METADATA_VALIDATION_FAILED,  # 50
-                self.PRESERVATION_STATE_VALID_METADATA,
+                self.PRESERVATION_STATE_REJECTED_BY_USER,
             ):  # 70
                 # notifies the user in Hallintaliittyma that the metadata needs to be re-validated
                 self.preservation_state = self.PRESERVATION_STATE_VALIDATED_METADATA_UPDATED  # 60
