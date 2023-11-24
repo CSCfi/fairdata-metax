@@ -18,6 +18,7 @@ if ENABLE_DJANGO_WATCHMAN:
         WATCHMAN_CHECKS = watchman_constants.DEFAULT_CHECKS + (
             "metax_api.checks.elasticsearch_check",
             "metax_api.checks.redis_check",
+            "metax_api.checks.finto_check",
         )
         WATCHMAN_CONFIGURED = True
 

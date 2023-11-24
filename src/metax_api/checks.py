@@ -1,4 +1,5 @@
 import logging
+import requests
 
 from watchman.decorators import check
 
@@ -43,3 +44,24 @@ def redis_check():
     except Exception as e:
         logger.error(e)
         return {"redis": {"ok": False, "error": str(e), "traceback": str(e.__traceback__)}}
+
+@check
+def finto_check():
+    finto_api_urls = {
+        "location": "https://api.finto.fi/download/yso-paikat/yso-paikat-skos.rdf",
+        "language": "https://api.finto.fi/download/lexvo/lexvo-skos.rdf",
+        "field_of_science": "https://api.finto.fi/download/okm-tieteenala/okm-tieteenala-skos.rdf",
+        "keyword": "https://api.finto.fi/download/koko/koko-skos.rdf"
+    }
+    status_dict = {"finto": []}
+    try:
+
+        for key, value in finto_api_urls.items():
+            res = requests.head(value)
+            status_dict["finto"].append({key: {"ok": res.ok, "status_code": res.status_code}})
+        return status_dict
+
+    except Exception as e:
+        logger.error(e)
+        return {"finto": {"ok": False, "error": str(e), "traceback": str(e.__traceback__)}}
+
