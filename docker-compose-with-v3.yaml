@@ -1,0 +1,146 @@
+version: "3.8"
+
+services:
+  metax-web:
+    image: fairdata-docker.artifactory.ci.csc.fi/fairdata-metax-web
+    hostname: metax-web
+    ports:
+      - 8008:8008
+      - 8000:8000
+    environment:
+      DEBUG: 'true'
+      METAX_DATABASE: metax_db_2_test
+      METAX_DATABASE_PASSWORD: YMDLekQMqrVKcs3
+      METAX_DATABASE_USER: metax_test
+      METAX_DATABASE_HOST: metax-2-db
+      ELASTIC_SEARCH_HOSTS: metax-elasticsearch
+      RABBIT_MQ_HOSTS: metax-rabbitmq
+      REDIS_HOST: metax-redis
+      METAX_V3_HOST: http://metax-v3:8002
+      METAX_V3_TOKEN: secret
+      METAX_V3_INTEGRATION_ENABLED: 'true'
+    volumes:
+      - ./src:/code
+    configs:
+      - source: metax-web-config
+        target: /code/metax_api/settings/.env
+    stdin_open: True
+    tty: True
+
+  metax-v3:
+    image: fairdata-docker.artifactory.ci.csc.fi/fairdata-metax-service
+    hostname: metax-v3
+    ports:
+      - 8002:8002
+    environment:
+      DEBUG: 'true'
+      POSTGRES_DATABASE_NAME: metax_db_3_test
+      POSTGRES_USER: metax_test
+      POSTGRES_PASS: YMDLekQMqrVKcs3
+      POSTGRES_HOST: metax-3-db
+      ENABLE_MEMCACHED: 'false'
+    volumes:
+      - ./v3:/code
+    stdin_open: True
+    tty: True
+
+  metax-redis:
+    image: redis
+    hostname: metax-redis
+    volumes:
+      - metax-redis:/data
+
+  metax-2-db:
+    image: postgres:12
+    hostname: metax-2-db
+    environment:
+      POSTGRES_USER: metax_test
+      POSTGRES_PASSWORD: YMDLekQMqrVKcs3
+      POSTGRES_DB: metax_db_2_test
+    volumes:
+      - metax-2-postgres:/var/lib/postgresql/data
+
+  metax-3-db:
+    image: postgres:12
+    hostname: metax-3-db
+    environment:
+      POSTGRES_USER: metax_test
+      POSTGRES_PASSWORD: YMDLekQMqrVKcs3
+      POSTGRES_DB: metax_db_3_test
+    volumes:
+      - metax-3-postgres:/var/lib/postgresql/data
+
+  metax-elasticsearch:
+    image: elasticsearch:7.9.2
+    hostname: metax-elasticsearch
+    environment:
+      discovery.type: single-node
+    volumes:
+      - metax-es:/usr/share/elasticsearch/data
+
+  metax-rabbitmq:
+    image: rabbitmq:3-management
+    hostname: metax-rabbitmq
+    ports:
+      - 8050:15672
+    volumes:
+      - metax-rabbitmq:/var/lib/rabbitmq
+
+  metax-auth:
+    image: fairdata-docker.artifactory.ci.csc.fi/fairdata-metax-httpd
+    configs:
+      - source: metax-httpd-config
+        target: /usr/local/apache2/conf/extra/httpd-metax.conf
+    hostname: metax-auth
+
+  metax-docs:
+    image: fairdata-docker.artifactory.ci.csc.fi/fairdata-metax-sphinx
+    hostname: metax-docs
+    environment:
+      DOMAIN: metax.fd-dev.csc.fi
+      REMS_ENABLED: "true"
+    ports:
+      - 8088:8000
+    volumes:
+      - ./docs/api:/sphinx
+
+  fairdata-nginx:
+    image: nginx:latest
+    configs:
+      - source: fairdata-nginx-config
+        target: /etc/nginx/nginx.conf
+      - source: fairdata-ssl-certificate
+        target: /etc/pki/tls/certs/ssl.crt.pem
+      - source: fairdata-ssl-certificate-key
+        target: /etc/pki/tls/private/ssl.key.pem
+      - source: metax-nginx-config
+        target: /etc/nginx/sites-enabled/metax
+    ports:
+      - 443:443
+
+volumes:
+  metax-rabbitmq:
+    external: True
+  metax-es:
+    external: True
+  metax-2-postgres:
+    external: True
+  metax-3-postgres:
+    external: True
+  metax-redis:
+    external: True
+
+configs:
+  metax-web-config:
+    external: True
+  metax-httpd-config:
+    external: True
+
+  fairdata-nginx-config:
+    external: True
+  fairdata-ssl-certificate:
+    external: True
+  fairdata-ssl-certificate-key:
+    external: True
+  metax-nginx-config:
+    external: True

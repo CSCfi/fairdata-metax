@@ -46,6 +46,9 @@ env = environ.Env(
     LOGGING_PATH=(str, join("/var", "log", "metax-api")),
     METAX_DATABASE_HOST=(str, "localhost"),
     METAX_DATABASE_PORT=(str, 5432),
+    METAX_V3_HOST=(str, "http://metax-v3:8002"),
+    METAX_V3_INTEGRATION_ENABLED=(bool, False),
+    METAX_V3_TOKEN=(str, "token"),
     ORG_FILE_PATH=(
         str,
         join(REFDATA_INDEXER_PATH, "resources", "organizations", "organizations.csv"),
@@ -86,6 +89,7 @@ base_settings = [
     "components/monitoring.py",
     "components/rems.py",
     "components/metrics.py",
+    "components/metax_v3.py",
     "environments/{0}.py".format(ENV),
     # Optionally override some settings:
     # optional('environments/legacy.py'),

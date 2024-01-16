@@ -31,6 +31,7 @@ from .catalog_record import (
     DataciteDOIUpdate,
     DatasetVersionSet,
     RabbitMQPublishRecord,
+    V3Integration,
 )
 from .common import Common
 from .directory import Directory
@@ -180,6 +181,7 @@ class CatalogRecordV2(CatalogRecord):
         }
 
         self.add_post_request_callable(DelayedLog(**log_args))
+        self.add_post_request_callable(V3Integration(self, "create"))
 
     def is_draft_for_another_dataset(self):
         return hasattr(self, "draft_of") and self.draft_of is not None

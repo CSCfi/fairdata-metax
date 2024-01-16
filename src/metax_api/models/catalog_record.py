@@ -1209,6 +1209,7 @@ class CatalogRecord(Common):
         )
 
     def delete(self, *args, **kwargs):
+        self.add_post_request_callable(V3Integration(self, "delete"))
         if kwargs.get("hard"):
             super().delete()
             return self.id
@@ -1611,6 +1612,7 @@ class CatalogRecord(Common):
             super().save()
 
             self.add_post_request_callable(RabbitMQPublishRecord(self, "create"))
+            self.add_post_request_callable(V3Integration(self, "create"))
 
         _logger.info(
             "Created a new <CatalogRecord id: %d, "
@@ -1843,6 +1845,7 @@ class CatalogRecord(Common):
                 )
 
         self.add_post_request_callable(RabbitMQPublishRecord(self, "update"))
+        self.add_post_request_callable(V3Integration(self, "update"))
 
         log_args = {
             "event": "dataset_updated",
@@ -2869,11 +2872,14 @@ class CatalogRecord(Common):
         """
         Wrapper in order to import CommonService in one place only...
         In case of drafts, skip other than logging
+        In case of V3 integration, skip if integration is not enabled
         """
-        if not self.is_published() and not isinstance(callable, DelayedLog):
+        if not self.is_published() and not isinstance(callable, (DelayedLog, V3Integration)):
             _logger.debug(
-                f"{self.identifier} is a draft, skipping non-logging post request callables"
+                f"{self.identifier} is a draft, skipping other than logging and v3 integration post request callables"
             )
+            return
+        if isinstance(callable, V3Integration) and not settings.METAX_V3["INTEGRATION_ENABLED"]:
             return
 
         from metax_api.services import CallableService
@@ -3389,3 +3395,30 @@ class DataciteDOIUpdate:
         # "findable" state
         self.dcs.create_doi_metadata(datacite_xml)
         self.dcs.register_doi_url(doi, settings.DATACITE["ETSIN_URL_TEMPLATE"] % self.cr.identifier)
+
+class V3Integration:
+    def __init__(self, cr, action):
+        from metax_api.services.metax_v3_service import MetaxV3Service
+        self.v3Service = MetaxV3Service()
+        self.cr = cr
+        self.action = action
+
+    def __call__(self):
+        from metax_api.services.metax_v3_service import MetaxV3UnavailableError
+        try:
+            if self.action == "create":
+                cr_json = self._to_json()
+                self.v3Service.create_dataset(cr_json)
+            if self.action == "delete":
+                self.v3Service.delete_dataset(self.cr.identifier)
+            if self.action == "update":
+                cr_json = self._to_json()
+                self.v3Service.update_dataset(self.cr.identifier, cr_json)
+        except MetaxV3UnavailableError as e:
+            raise Http503(
+                {"detail": ["Metax V3 temporarily unavailable, please try again later."]}
+            )
+
+    def _to_json(self):
+        serializer_class = self.cr.serializer_class
+        return serializer_class(self.cr).data

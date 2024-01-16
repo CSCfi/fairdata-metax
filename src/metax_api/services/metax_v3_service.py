@@ -1,0 +1,54 @@
+import logging
+import requests
+
+from django.conf import settings
+
+_logger = logging.getLogger(__name__)
+
+class MetaxV3Service:
+    def __init__(self):
+        if not hasattr(settings, "METAX_V3"):
+            raise Exception("Missing configuration from settings.py: METAX_V3")
+        self.metaxV3Url = settings.METAX_V3["HOST"]
+        self.token = settings.METAX_V3["TOKEN"]
+
+    def create_dataset(self, dataset_json):
+        payload = {"dataset_json": dataset_json}
+        try:
+            res = requests.post(
+                f"{self.metaxV3Url}/v3/migrated-datasets",
+                json=payload,
+                headers={"Authorization": f"Token {self.token}"},
+            )
+            res.raise_for_status()
+        except Exception as e:
+            _logger.error(f"Exception in Metax V3: {e}")
+            raise MetaxV3UnavailableError()
+
+    def delete_dataset(self, dataset_id):
+        try:
+            res = requests.delete(
+                f"{self.metaxV3Url}/v3/migrated-datasets/{dataset_id}",
+                headers={"Authorization": f"Token {self.token}"},
+            )
+            res.raise_for_status()
+        except Exception as e:
+            _logger.error(f"Exception in Metax V3: {e}")
+            raise MetaxV3UnavailableError()
+
+    def update_dataset(self, dataset_id, dataset_json):
+        payload = {"dataset_json": dataset_json}
+        try:
+            res = requests.put(
+                f"{self.metaxV3Url}/v3/migrated-datasets/{dataset_id}",
+                json=payload,
+                headers={"Authorization": f"Token {self.token}"},
+            )
+            res.raise_for_status()
+        except Exception as e:
+            _logger.error(f"Exception in Metax V3: {e}")
+            raise MetaxV3UnavailableError()
+
+
+class MetaxV3UnavailableError(Exception):
+    pass
