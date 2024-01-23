@@ -28,3 +28,6 @@ DEBUG_TOOLBAR_CONFIG = {
 api_permissions.rest.apierrors.create += [Role.METAX]
 
 API_ACCESS = prepare_perm_values(api_permissions.to_dict())
+
+from metax_api.settings.components.metax_v3 import METAX_V3
+METAX_V3["PROTOCOL"] = "http"

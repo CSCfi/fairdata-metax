@@ -16,7 +16,7 @@ services:
       ELASTIC_SEARCH_HOSTS: metax-elasticsearch
       RABBIT_MQ_HOSTS: metax-rabbitmq
       REDIS_HOST: metax-redis
-      METAX_V3_HOST: http://metax-v3:8002
+      METAX_V3_HOST: metax-v3:8002
       METAX_V3_TOKEN: secret
       METAX_V3_INTEGRATION_ENABLED: 'true'
     volumes:

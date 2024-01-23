@@ -9,7 +9,7 @@ class MetaxV3Service:
     def __init__(self):
         if not hasattr(settings, "METAX_V3"):
             raise Exception("Missing configuration from settings.py: METAX_V3")
-        self.metaxV3Url = settings.METAX_V3["HOST"]
+        self.metaxV3Url = f"{settings.METAX_V3['PROTOCOL']}://{settings.METAX_V3['HOST']}"
         self.token = settings.METAX_V3["TOKEN"]
 
     def create_dataset(self, dataset_json):

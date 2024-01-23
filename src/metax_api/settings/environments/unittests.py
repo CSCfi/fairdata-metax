@@ -74,3 +74,6 @@ REMS.update(
         "ORGANIZATION": "rems-test-org",
     }
 )
+
+from metax_api.settings.components.metax_v3 import METAX_V3
+METAX_V3["PROTOCOL"] = "http"
