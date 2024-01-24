@@ -76,4 +76,5 @@ REMS.update(
 )
 
 from metax_api.settings.components.metax_v3 import METAX_V3
+METAX_V3["INTEGRATION_ENABLED"] = False
 METAX_V3["PROTOCOL"] = "http"
