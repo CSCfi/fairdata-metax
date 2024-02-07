@@ -14,6 +14,7 @@ from django.conf import settings as django_settings
 from django.http import HttpResponseForbidden
 
 from metax_api.exceptions import Http403
+from metax_api.settings.components.access_control import Role
 from metax_api.utils import executing_test_case
 
 _logger = logging.getLogger(__name__)
@@ -162,6 +163,7 @@ class _IdentifyApiCaller:
             raise Http403({"detail": ["Access denied."]})
 
         request.user.username = username
+        request.user.is_metax_v3 = username == Role.METAX_SERVICE.value
         request.user.is_service = True
 
     def _auth_bearer(self, request, auth_b64):
@@ -195,6 +197,7 @@ class _IdentifyApiCaller:
             raise Http403({"detail": ["Access denied."]})
 
         request.user.is_service = False
+        request.user.is_metax_v3 = False
         request.user.token = token
 
     def _extract_id_token(self, id_token_string):

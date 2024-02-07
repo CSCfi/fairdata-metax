@@ -31,7 +31,8 @@ class MetaxV3Service:
                 f"{self.metaxV3Url}/v3/migrated-datasets/{dataset_id}",
                 headers={"Authorization": f"Token {self.token}"},
             )
-            res.raise_for_status()
+            if res.status_code != 404:
+                res.raise_for_status()
         except Exception as e:
             _logger.error(f"Exception in Metax V3: {e}")
             raise MetaxV3UnavailableError()

@@ -204,6 +204,7 @@ API_USERS = [
     {"password": "test-eudat", "username": "eudat"},
     {"password": "test-jyu", "username": "jyu"},
     {"password": "test-sd", "username": "sd"},
+    {"password": "test-metax_service", "username": "metax_service"},
 ]
 
 SWAGGER_YAML_PATH = env('SWAGGER_YAML_PATH')

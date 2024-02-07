@@ -1448,13 +1448,24 @@ class CatalogRecord(Common):
             _logger.warning(f"no api_meta found for {self.identifier}")
             return
 
-        if not self.api_meta["version"] == self.api_version:
+        if self.api_meta["version"] > self.api_version:
             raise Http400("Please use the correct api version to edit this dataset")
 
     def _set_api_version(self):
         # TODO: Can possibly be deleted when v1 api is removed from use and all
         # datasets have been migrated to v2
+
+        # If the user is metax_service,
+        # Check that api_meta["version"] is 3
+        # If using another user,
+        # use the model's api_version and set it to api_meta
+        if self.request and self.request.user.is_metax_v3 == True:
+            if self.api_meta.get("version") != 3:
+                raise Http400("When using metax_service, api_meta['version'] needs to be 3 ")
+            return
         self.api_meta["version"] = self.api_version
+        
+
 
     def _pre_create_operations(self, pid_type=None):
         if not self._check_catalog_permissions(
@@ -1597,6 +1608,7 @@ class CatalogRecord(Common):
                 or self.use_doi_for_published is True
             ):
                 self._validate_cr_against_datacite_schema()
+            self.add_post_request_callable(V3Integration(self, "create"))
             if (
                 catalog_allows_datacite_update(self.get_catalog_identifier())
                 and is_metax_generated_doi_identifier(self.research_dataset["preferred_identifier"])
@@ -1612,7 +1624,6 @@ class CatalogRecord(Common):
             super().save()
 
             self.add_post_request_callable(RabbitMQPublishRecord(self, "create"))
-            self.add_post_request_callable(V3Integration(self, "create"))
 
         _logger.info(
             "Created a new <CatalogRecord id: %d, "
@@ -1831,6 +1842,7 @@ class CatalogRecord(Common):
                 self._handle_preferred_identifier_changed()
 
     def _post_update_operations(self):
+        self.add_post_request_callable(V3Integration(self, "update"))
         if (
             get_identifier_type(self.preferred_identifier) == IdentifierType.DOI
             and self.update_datacite
@@ -1845,7 +1857,6 @@ class CatalogRecord(Common):
                 )
 
         self.add_post_request_callable(RabbitMQPublishRecord(self, "update"))
-        self.add_post_request_callable(V3Integration(self, "update"))
 
         log_args = {
             "event": "dataset_updated",
@@ -2480,6 +2491,7 @@ class CatalogRecord(Common):
 
         new_version.calculate_directory_byte_sizes_and_file_counts()
 
+        new_version.add_post_request_callable(V3Integration(new_version, "create"))
         if (
             catalog_allows_datacite_update(self.get_catalog_identifier())
             and is_metax_generated_doi_identifier(self.research_dataset["preferred_identifier"])
@@ -2804,6 +2816,7 @@ class CatalogRecord(Common):
         # need to validate ref data again for origin_version
         CRS.validate_reference_data(origin_version.research_dataset, cache)
 
+        self.add_post_request_callable(V3Integration(pas_version, "create"))
         self.add_post_request_callable(RabbitMQPublishRecord(pas_version, "create"))
 
         _logger.info("PAS dataset version created with identifier: %s" % pas_version.identifier)
@@ -2873,6 +2886,7 @@ class CatalogRecord(Common):
         Wrapper in order to import CommonService in one place only...
         In case of drafts, skip other than logging
         In case of V3 integration, skip if integration is not enabled
+        If the request was made by metax_service, skip V3 integration and Datacite 
         """
         if not self.is_published() and not isinstance(callable, (DelayedLog, V3Integration)):
             _logger.debug(
@@ -2880,6 +2894,9 @@ class CatalogRecord(Common):
             )
             return
         if isinstance(callable, V3Integration) and not settings.METAX_V3["INTEGRATION_ENABLED"]:
+            return
+        if self.request != None and self.request.user.is_metax_v3 and isinstance(callable, (V3Integration, DataciteDOIUpdate)):
+            _logger.debug("Request made by metax_service, skip V3 integration and Datacite update")
             return
 
         from metax_api.services import CallableService
@@ -2996,6 +3013,7 @@ class CatalogRecord(Common):
 
             super().save()
 
+        self.add_post_request_callable(V3Integration(self, "update"))
         self.add_post_request_callable(RabbitMQPublishRecord(self, "update"))
 
         return True if new_state == self.CUMULATIVE_STATE_YES else False
@@ -3057,6 +3075,7 @@ class CatalogRecord(Common):
 
         super().save()
 
+        self.add_post_request_callable(V3Integration(self, "update"))
         self.add_post_request_callable(RabbitMQPublishRecord(self, "update"))
 
         return (self.cumulative_state != self.CUMULATIVE_STATE_YES, len(added_file_ids))
@@ -3099,6 +3118,7 @@ class CatalogRecord(Common):
         self._copy_undeleted_files_from_old_version()
         self._create_new_dataset_version()
         super().save()
+        self.add_post_request_callable(V3Integration(self, "update"))
         self.add_post_request_callable(RabbitMQPublishRecord(self, "update"))
 
     def _fix_deprecated_research_dataset(self):

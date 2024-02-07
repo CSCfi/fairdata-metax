@@ -46,6 +46,7 @@ class Role(Enum):
     JYU = "jyu"
     REPORTRONIC = "reportronic"
     SD = "sd"
+    METAX_SERVICE = "metax_service"
 
     # 3 Utility
     # These do not need configuration definitions
@@ -95,6 +96,7 @@ api_permissions.rest.datasets.create = [
     Role.ETSIN,
     Role.EUDAT,
     Role.JYU,
+    Role.METAX_SERVICE,
 ]
 api_permissions.rest.datasets.read = [Role.ALL]
 api_permissions.rest.datasets["update"] = [
@@ -103,6 +105,7 @@ api_permissions.rest.datasets["update"] = [
     Role.TPAS,
     Role.QVAIN,
     Role.ETSIN,
+    Role.METAX_SERVICE,
 ]
 api_permissions.rest.datasets.delete = [
     Role.METAX,
@@ -110,6 +113,7 @@ api_permissions.rest.datasets.delete = [
     Role.TPAS,
     Role.QVAIN,
     Role.ETSIN,
+    Role.METAX_SERVICE,
 ]
 
 api_permissions.rest.editorpermissions.create = [
@@ -146,6 +150,9 @@ api_permissions.rest.directories.read = [
     Role.FDS,
     Role.END_USERS,
 ]
+
+
+api_permissions.rest.directories.delete = [Role.METAX, Role.IDA, Role.TPAS]
 
 api_permissions.rest.files.create = [Role.METAX, Role.IDA, Role.TPAS]
 api_permissions.rest.files.read = [

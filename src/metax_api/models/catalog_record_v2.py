@@ -452,9 +452,11 @@ class CatalogRecordV2(CatalogRecord):
                 {"detail": ["You are not permitted to edit datasets in this data catalog."]}
             )
 
+        
         if self.field_changed("api_meta"):
             self.api_meta = self._initial_data["api_meta"]
 
+        self._assert_api_version()
         self._set_api_version()
 
         if self.field_changed("identifier"):
@@ -1285,6 +1287,7 @@ class CatalogRecordV2(CatalogRecord):
         Create a new draft of a published dataset, that can later be merged back to the original published dataset.
         """
         _logger.info("Creating a draft of a published dataset...")
+        self._assert_api_version()
 
         if self.is_draft_for_another_dataset():
             raise Http400("Dataset is already a draft for another published dataset.")
@@ -1342,6 +1345,7 @@ class CatalogRecordV2(CatalogRecord):
         RPC API endpoint.
         """
         _logger.info("Creating a new dataset version...")
+        self._assert_api_version()
 
         if self.is_draft_for_another_dataset():
             raise Http400(
@@ -1456,6 +1460,9 @@ class CatalogRecordV2(CatalogRecord):
             "previous_version_preferred_identifier"
         ] = new_version.previous_dataset_version.preferred_identifier
 
+
+        self.add_post_request_callable(V3Integration(new_version, "create"))
+        self.add_post_request_callable(V3Integration(old_version, "update"))
         self.add_post_request_callable(DelayedLog(**log_args))
 
     def _is_newest_non_removed_version(self):

@@ -334,12 +334,14 @@ class CommonViewSet(ModelViewSet):
         """
         username = request.user.username if hasattr(request.user, "username") else None
         is_service = request.user.is_service if hasattr(request.user, "is_service") else False
+        is_metax_v3 = request.user.is_metax_v3 if hasattr(request.user, "is_metax_v3") else False
         token = request.user.token if hasattr(request.user, "token") else None
 
         drf_req = super(CommonViewSet, self).initialize_request(request, *args, **kwargs)
 
         drf_req.user.username = username
         drf_req.user.is_service = is_service
+        drf_req.user.is_metax_v3 = is_metax_v3
         drf_req.user.token = token
         return drf_req
 
