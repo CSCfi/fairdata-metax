@@ -631,6 +631,8 @@ class CatalogRecord(Common):
         :param instance:
         :return:
         """
+        if request == None:
+            return False
         if request.user.is_service:
             if request.method == "GET":
                 if not self._check_catalog_permissions(
@@ -1448,7 +1450,11 @@ class CatalogRecord(Common):
             _logger.warning(f"no api_meta found for {self.identifier}")
             return
 
-        if self.api_meta["version"] > self.api_version:
+        if (
+            self._initial_data["api_meta"] != None
+            and self._initial_data["api_meta"]["version"] > self.api_version
+            and self.api_meta["version"] != 3
+        ):
             raise Http400("Please use the correct api version to edit this dataset")
 
     def _set_api_version(self):
@@ -1459,6 +1465,11 @@ class CatalogRecord(Common):
         # Check that api_meta["version"] is 3
         # If using another user,
         # use the model's api_version and set it to api_meta
+
+        if self.api_meta.get("version") == 3:
+            if self.request and self.request.user.is_metax_v3 == False:
+                raise Http400("Only metax_service user can set api version to 3")
+
         if self.request and self.request.user.is_metax_v3 == True:
             if self.api_meta.get("version") != 3:
                 raise Http400("When using metax_service, api_meta['version'] needs to be 3 ")
@@ -1477,7 +1488,13 @@ class CatalogRecord(Common):
             )
 
         self.research_dataset["metadata_version_identifier"] = generate_uuid_identifier()
-        self.identifier = generate_uuid_identifier()
+        if self.request.user.is_metax_v3:
+            if not self.identifier:
+                raise Http400(
+                    {"detail": ["Incoming datasets from Metax V3 need to have an identifier"]}
+                )
+        else:
+            self.identifier = generate_uuid_identifier()
 
         if self.catalog_is_pas():
             # todo: default identifier type could probably be a parameter of the data catalog
@@ -1662,9 +1679,7 @@ class CatalogRecord(Common):
                 {"detail": ["You are not permitted to edit datasets in this data catalog."]}
             )
 
-        if self.field_changed("api_meta"):
-            self.api_meta = self._initial_data["api_meta"]
-
+        
         # possibly raises 400
         self._assert_api_version()
 

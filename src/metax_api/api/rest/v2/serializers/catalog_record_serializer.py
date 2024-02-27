@@ -74,13 +74,13 @@ class CatalogRecordSerializerV2(CatalogRecordSerializer):
                 res.get("research_dataset", {}).pop("directories", None)
 
         if "draft_of" in res:
-            if instance.user_is_privileged(instance.request or self.context["request"]):
+            if instance.user_is_privileged(instance.request or self.context.get("request")):
                 res["draft_of"] = instance.draft_of.identifiers_dict
             else:
                 del res["draft_of"]
 
         if "next_draft" in res:
-            if instance.user_is_privileged(instance.request or self.context["request"]):
+            if instance.user_is_privileged(instance.request or self.context.get("request")):
                 res["next_draft"] = instance.next_draft.identifiers_dict
             else:
                 del res["next_draft"]

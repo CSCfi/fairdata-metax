@@ -116,7 +116,13 @@ class CatalogRecordV2(CatalogRecord):
             )
 
         self.research_dataset["metadata_version_identifier"] = generate_uuid_identifier()
-        self.identifier = generate_uuid_identifier()
+        if self.request.user.is_metax_v3:
+            if not self.identifier:
+                raise Http400(
+                    {"detail": ["Incoming datasets from Metax V3 need to have an identifier"]}
+                )
+        else:
+            self.identifier = generate_uuid_identifier()
 
         if not ("files" in self.research_dataset or "directories" in self.research_dataset) and "total_files_byte_size" in self.research_dataset:
             self.research_dataset.pop("total_files_byte_size")
@@ -451,10 +457,6 @@ class CatalogRecordV2(CatalogRecord):
             raise Http403(
                 {"detail": ["You are not permitted to edit datasets in this data catalog."]}
             )
-
-        
-        if self.field_changed("api_meta"):
-            self.api_meta = self._initial_data["api_meta"]
 
         self._assert_api_version()
         self._set_api_version()
@@ -1312,6 +1314,7 @@ class CatalogRecordV2(CatalogRecord):
         draft_cr.research_dataset["preferred_identifier"] = "draft:%s" % draft_cr.identifier
 
         super(CatalogRecord, draft_cr).save()
+        self.add_post_request_callable(V3Integration(draft_cr, "create"))
 
         if origin_cr.files.exists():
             # note: _directory_data field is already copied when the template is made
@@ -1323,6 +1326,7 @@ class CatalogRecordV2(CatalogRecord):
         self._set_api_version()
 
         super(CatalogRecord, origin_cr).save()
+        self.add_post_request_callable(V3Integration(origin_cr, "update"))
 
         log_args = {
             "event": "dataset_draft_created",

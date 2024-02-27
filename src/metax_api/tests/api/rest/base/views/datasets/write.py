@@ -9,6 +9,7 @@ import unittest
 from copy import deepcopy
 from datetime import datetime, timedelta
 from time import sleep
+from uuid import uuid4
 
 import responses
 from django.conf import settings as django_settings
@@ -5434,3 +5435,56 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
             "New Name",
             "access_granter should not be changed",
         )
+
+
+class CatalogRecordMetaxServiceIntegration(CatalogRecordApiWriteCommon):
+    """
+    Test Metax Service related access restriction rules
+    """
+
+    def setUp(self):
+        super().setUp()
+        self._use_http_authorization(username="metax_service")
+
+    def test_create_v3_dataset(self):
+        """
+        User api_auth_user should have read access to files api.
+        """
+        cr_id = str(uuid4())
+        self.cr_test_data["identifier"] = cr_id
+        self.cr_test_data["api_meta"] = {"version": 3}
+        response = self.client.post("/rest/datasets", self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual("research_dataset" in response.data.keys(), True)
+        self.assertEqual(cr_id, response.json()["identifier"])
+        self.assertEqual(3, response.json()["api_meta"]["version"])
+
+    def test_v3_dataset_requires_api_meta(self):
+        """
+        User api_auth_user should have read access to files api.
+        """
+        cr_id = str(uuid4())
+        self.cr_test_data["identifier"] = cr_id
+        response = self.client.post("/rest/datasets", self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+
+    def test_v3_dataset_requires_metax_service(self):
+        """
+        User api_auth_user should have read access to files api.
+        """
+        self._use_http_authorization()
+        cr_id = str(uuid4())
+        self.cr_test_data["identifier"] = cr_id
+        self.cr_test_data["api_meta"] = {"version": 3}
+        response = self.client.post("/rest/datasets", self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+
+    def test_v3_dataset_requires_identifier(self):
+        """
+        User api_auth_user should have read access to files api.
+        """
+        self.cr_test_data["api_meta"] = {"version": 3}
+        response = self.client.post("/rest/datasets", self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+
+

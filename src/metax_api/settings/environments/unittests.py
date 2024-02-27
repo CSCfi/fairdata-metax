@@ -2,11 +2,12 @@ from metax_api.settings.components.access_control import Role, api_permissions, 
 
 API_TEST_USER = {"username": "testuser", "password": "testuserpassword"}
 API_METAX_USER = {"username": "metax", "password": "metaxpassword"}
+API_METAX_SERVICE_USER = {"username": "metax_service", "password": "metaxservicepassword"}
 API_AUTH_TEST_USER = {"username": "api_auth_user", "password": "password"}
 
 API_EXT_USER = {"username": "external", "password": "externalpassword"}
 
-API_TEST_USERS = [API_TEST_USER, API_METAX_USER, API_AUTH_TEST_USER, API_EXT_USER]
+API_TEST_USERS = [API_TEST_USER, API_METAX_USER, API_AUTH_TEST_USER, API_EXT_USER, API_METAX_SERVICE_USER]
 
 ADDITIONAL_USER_PROJECTS_PATH = "/tmp/user_projects.json"
 

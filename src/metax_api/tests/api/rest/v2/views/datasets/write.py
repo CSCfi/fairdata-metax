@@ -6,6 +6,7 @@
 # :license: MIT
 
 from copy import deepcopy
+from uuid import uuid4
 
 from django.conf import settings as django_settings
 from django.core.management import call_command
@@ -740,3 +741,163 @@ class CatalogRecordRabbitMQPublish(CatalogRecordApiWriteCommon):
 
                 RabbitMQService.messages = []
 
+
+
+class CatalogRecordMetaxServiceIntegration(CatalogRecordApiWriteCommon):
+    """
+    Test Metax Service related access restriction rules
+    """
+
+    def setUp(self):
+        super().setUp()
+        self._use_http_authorization(username="metax_service")
+
+    def test_create_v3_dataset(self):
+        """
+        User api_auth_user should have read access to files api.
+        """
+        cr_id = str(uuid4())
+        self.cr_test_data["identifier"] = cr_id
+        self.cr_test_data["api_meta"] = {"version": 3}
+        response = self.client.post("/rest/v2/datasets", self.cr_test_data, format="json")
+        
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual("research_dataset" in response.data.keys(), True)
+        self.assertEqual(cr_id, response.json()["identifier"])
+        self.assertEqual(3, response.json()["api_meta"]["version"])
+
+    def test_v3_dataset_requires_api_meta(self):
+        """
+        User api_auth_user should have read access to files api.
+        """
+        cr_id = str(uuid4())
+        self.cr_test_data["identifier"] = cr_id
+        response = self.client.post("/rest/v2/datasets", self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+
+    def test_v3_dataset_requires_metax_service(self):
+        """
+        User api_auth_user should have read access to files api.
+        """
+        self._use_http_authorization()
+        cr_id = str(uuid4())
+        self.cr_test_data["identifier"] = cr_id
+        self.cr_test_data["api_meta"] = {"version": 3}
+        response = self.client.post("/rest/v2/datasets", self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+
+    def test_v3_dataset_requires_identifier(self):
+        """
+        User api_auth_user should have read access to files api.
+        """
+        self.cr_test_data["api_meta"] = {"version": 3}
+        response = self.client.post("/rest/v2/datasets", self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+
+    def test_v2_cant_create_draft_of_v3_dataset(self):
+        cr_id = str(uuid4())
+        self.cr_test_data["identifier"] = cr_id
+        self.cr_test_data["api_meta"] = {"version": 3}
+        response = self.client.post("/rest/v2/datasets", self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual(cr_id, response.json()["identifier"])
+        self._use_http_authorization()
+        response = self.client.post(f"/rpc/v2/datasets/create_draft?identifier={cr_id}", format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+
+    def test_update_v2_dataset_with_v3(self):
+        self._use_http_authorization()
+        response = self.client.post("/rest/v2/datasets", self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self._use_http_authorization(username="metax_service")
+        cr_id = response.json()["identifier"]
+        cr_pid = response.json()["research_dataset"]["preferred_identifier"]
+        self.cr_test_data["research_dataset"]["title"]["en"] = "new title"
+        self.cr_test_data["api_meta"] = {"version": 3}
+        self.cr_test_data["research_dataset"]["preferred_identifier"] = cr_pid
+
+        response = self.client.put(f"/rest/v2/datasets/{cr_id}", self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(cr_id, response.json()["identifier"])
+        self.assertEqual(3, response.json()["api_meta"]["version"])
+
+        self._use_http_authorization()
+        self.cr_test_data["research_dataset"]["title"]["en"] = "yet another new title"
+
+        response = self.client.put(f"/rest/v2/datasets/{cr_id}", self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+
+    def test_update_v3_dataset_with_v3(self):
+        cr_id = str(uuid4())
+        self.cr_test_data["identifier"] = cr_id
+        self.cr_test_data["api_meta"] = {"version": 3}
+        response = self.client.post("/rest/v2/datasets", self.cr_test_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        cr_pid = response.json()["research_dataset"]["preferred_identifier"]
+
+        self.cr_test_data["research_dataset"]["title"]["en"] = "new title"
+        self.cr_test_data["research_dataset"]["preferred_identifier"] = cr_pid
+
+        response = self.client.put(f"/rest/v2/datasets/{cr_id}", self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(cr_id, response.json()["identifier"])
+        self.assertEqual(3, response.json()["api_meta"]["version"])
+
+    def test_try_to_update_v3_dataset_identifier_v3(self):
+        cr_id = str(uuid4())
+        self.cr_test_data["identifier"] = cr_id
+        self.cr_test_data["api_meta"] = {"version": 3}
+        response = self.client.post("/rest/v2/datasets", self.cr_test_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        cr_pid = response.json()["research_dataset"]["preferred_identifier"]
+
+        cr_new_id = str(uuid4())
+        self.cr_test_data["identifier"] = cr_new_id
+        self.cr_test_data["research_dataset"]["title"]["en"] = "new title"
+        self.cr_test_data["research_dataset"]["preferred_identifier"] = cr_pid
+
+        response = self.client.put(f"/rest/v2/datasets/{cr_id}", self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(cr_id, response.json()["identifier"])
+        self.assertEqual(3, response.json()["api_meta"]["version"])
+
+    def test_v2_cant_create_new_version_of_v3_dataset(self):
+        cr_id = str(uuid4())
+        self.cr_test_data["identifier"] = cr_id
+        self.cr_test_data["api_meta"] = {"version": 3}
+        response = self.client.post("/rest/v2/datasets", self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual(cr_id, response.json()["identifier"])
+        self._use_http_authorization()
+        response = self.client.post(f"/rpc/v2/datasets/create_new_version?identifier={cr_id}", format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+
+
+    def test_delete_v3_dataset_with_v3(self):
+        cr_id = str(uuid4())
+        self.cr_test_data["identifier"] = cr_id
+        self.cr_test_data["api_meta"] = {"version": 3}
+        response = self.client.post("/rest/v2/datasets", self.cr_test_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        response = self.client.delete(f"/rest/v2/datasets/{cr_id}", format="json")
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
+
+    # Waiting until we clarify if we want to restrict dataset deletions with incorrect api versions
+    # def test_try_to_delete_v3_dataset_with_v2(self):
+    #     cr_id = str(uuid4())
+    #     self.cr_test_data["identifier"] = cr_id
+    #     self.cr_test_data["api_meta"] = {"version": 3}
+    #     response = self.client.post("/rest/v2/datasets", self.cr_test_data, format="json")
+
+    #     self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+    #     cr_pid = response.json()["research_dataset"]["preferred_identifier"]
+
+    #     self._use_http_authorization()
+
+    #     response = self.client.delete(f"/rest/v2/datasets/{cr_id}", format="json")
+    #     print(response)
+    #     self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)

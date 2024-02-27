@@ -194,6 +194,10 @@ class TestClassUtils:
                 user = django_settings.API_METAX_USER
                 username = user["username"]
                 password = user["password"]
+            elif username == "metax_service":
+                user = django_settings.API_METAX_SERVICE_USER
+                username = user["username"]
+                password = user["password"]
             elif username == "api_auth_user":
                 user = django_settings.API_AUTH_TEST_USER
                 username = user["username"]
