@@ -745,7 +745,7 @@ class CatalogRecordDraftsOfPublished(CatalogRecordApiWriteCommon):
 
     def test_deprecated_draft(self):
         """
-        Draft cannot be published if deprecated
+        Draft can be merged even if original is deprecated
         """
         cr = self._create_dataset(with_files=True)
 
@@ -768,6 +768,43 @@ class CatalogRecordDraftsOfPublished(CatalogRecordApiWriteCommon):
 
         response = self.client.post(
             "/rpc/v2/datasets/merge_draft?identifier=%d" % draft_cr.data["id"],
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Check dataset is still deprecated
+        deprecated = self.client.get("/rest/v2/datasets/%s" % cr["id"], format="json")
+        self.assertEqual(deprecated.status_code, status.HTTP_200_OK, deprecated.data)
+        self.assertTrue(deprecated.data["deprecated"])
+
+    def test_merge_added_files_to_deprecated_cumulative_dataset(self):
+        """
+        Merging draft to deprecated cumulative dataset should fail if
+        it would add new files to the deprecated dataset.
+        """
+        cr = self._create_dataset(cumulative=True, with_files=True)
+        draft_cr = self._create_draft(cr["id"])
+
+        cr_files = self.client.get(
+            "/rest/v2/datasets/%s?include_user_metadata&file_details" % cr["id"],
+            format="json",
+        )
+        cr_files = [f["identifier"] for f in cr_files.data["research_dataset"]["files"]]
+
+        # now add files to draft
+        file_changes = {"files": [{"identifier": "pid:urn:10"}]}
+        response = self.client.post(
+            "/rest/v2/datasets/%d/files" % draft_cr["id"], file_changes, format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        # remove files from original
+        delete_files = self.client.delete("/rest/v2/files", cr_files, format="json")
+        self.assertEqual(delete_files.status_code, status.HTTP_200_OK, delete_files.data)
+
+        # try to merge draft
+        response = self.client.post(
+            "/rpc/v2/datasets/merge_draft?identifier=%d" % draft_cr["id"],
             format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)

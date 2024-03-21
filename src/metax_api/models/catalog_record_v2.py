@@ -372,16 +372,20 @@ class CatalogRecordV2(CatalogRecord):
         origin_cr.date_modified = get_tz_aware_now_without_micros()
         origin_cr.user_modified = draft_cr.user_modified
 
+        draft_files_count = draft_cr.files.count()
+        origin_files_count = origin_cr.files.count()
+        if self.draft_of.deprecated and (draft_files_count != origin_files_count):
+            raise Http400(
+                "The origin dataset of this draft is deprecated. Changing files of a deprecated "
+                "dataset is not permitted. Please create a new dataset version first."
+            )
+
         if (
             origin_cr.cumulative_state == self.CUMULATIVE_STATE_YES
             or origin_cr._files_added_for_first_time()
         ):
             # ^ these checks should already be in place when files are added using change_files() method,
             # but checking here again.
-
-            draft_files_count = draft_cr.files.count()
-            origin_files_count = origin_cr.files.count()
-
             if self.draft_of.removed:
                 _logger.info(
                     "Origin dataset is marked as removed - merging other changes to the published dataset, "
@@ -414,12 +418,6 @@ class CatalogRecordV2(CatalogRecord):
                 )
             else:
                 _logger.info("No new files to add in draft")
-
-        if self.draft_of.deprecated:
-            raise Http400(
-                "The origin dataset of this draft is deprecated. Changing files of a deprecated "
-                "dataset is not permitted. Please create a new dataset version first."
-            )
 
         # cumulative period can be closed. opening it is prevented through
         # versioning related rules elsewhere.
