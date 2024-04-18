@@ -546,7 +546,7 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
             return transformed_xml
 
     @classmethod
-    def validate_reference_data(cls, research_dataset, cache):
+    def validate_reference_data(cls, research_dataset, cache, request=None):
         """
         Validate certain fields from the received dataset against reference data, which contains
         the allowed values for these fields.
@@ -559,6 +559,9 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
         - label (usually to object's field 'pref_label')
 
         """
+        if request and request.user.is_metax_v3:
+            return # Accept all reference data values from Metax V3
+
         reference_data = cls.get_reference_data(cache)
         # ic(reference_data)
         refdata = reference_data["reference_data"]

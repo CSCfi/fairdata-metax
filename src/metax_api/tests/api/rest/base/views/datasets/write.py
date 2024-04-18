@@ -1891,6 +1891,44 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         self.assertEqual("research_dataset" in response.data.keys(), True)
         self.assertEqual(len(response.data["research_dataset"]), 3)
 
+    def test_create_catalog_record_with_invalid_reference_data_metax_v3(self):
+        self._use_http_authorization(username="metax_service")
+        rd_ida = self.cr_full_ida_test_data["research_dataset"]
+        self.cr_full_ida_test_data['identifier'] = "0d7e4c09-1cb4-464f-949d-4ddbeae9ac3b"
+        self.cr_full_ida_test_data['api_meta'] = {"version": 3}
+        rd_ida["theme"][0]["identifier"] = "nonexisting"
+        rd_ida["field_of_science"][0]["identifier"] = "nonexisting"
+        rd_ida["language"][0]["identifier"] = "nonexisting"
+        rd_ida["access_rights"]["access_type"]["identifier"] = "nonexisting"
+        rd_ida["access_rights"]["license"][0]["identifier"] = "nonexisting"
+        rd_ida["other_identifier"][0]["type"]["identifier"] = "nonexisting"
+        rd_ida["spatial"][0]["place_uri"]["identifier"] = "nonexisting"
+        rd_ida["files"][0]["file_type"]["identifier"] = "nonexisting"
+        rd_ida["files"][0]["use_category"]["identifier"] = "nonexisting"
+        rd_ida["infrastructure"][0]["identifier"] = "nonexisting"
+        rd_ida["creator"][0]["contributor_role"][0]["identifier"] = "nonexisting"
+        rd_ida["curator"][0]["contributor_type"][0]["identifier"] = "nonexisting"
+        rd_ida["is_output_of"][0]["funder_type"]["identifier"] = "nonexisting"
+        rd_ida["directories"][0]["use_category"]["identifier"] = "nonexisting"
+        rd_ida["relation"][0]["relation_type"]["identifier"] = "nonexisting"
+        rd_ida["relation"][0]["entity"]["type"]["identifier"] = "nonexisting"
+        rd_ida["provenance"][0]["lifecycle_event"]["identifier"] = "nonexisting"
+        rd_ida["provenance"][1]["preservation_event"]["identifier"] = "nonexisting"
+        rd_ida["provenance"][0]["event_outcome"]["identifier"] = "nonexisting"
+        response = self.client.post("/rest/datasets", self.cr_full_ida_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["research_dataset"]["theme"][0]["identifier"], "nonexisting")
+
+        rd_att = self.cr_full_att_test_data["research_dataset"]
+        self.cr_full_att_test_data['identifier'] = "0d7e4c09-1cb4-464f-949d-4ddbeae9ac3c"
+        self.cr_full_att_test_data['api_meta'] = {"version": 3}
+        rd_att["remote_resources"][0]["license"][0]["identifier"] = "nonexisting"
+        rd_att["remote_resources"][1]["resource_type"]["identifier"] = "nonexisting"
+        rd_att["remote_resources"][0]["use_category"]["identifier"] = "nonexisting"
+        response = self.client.post("/rest/datasets", self.cr_full_att_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["research_dataset"]["remote_resources"][0]["use_category"]["identifier"], "nonexisting")
+
     def test_create_catalog_record_populate_fields_from_reference_data(self):
         """
         1) Insert codes from cached reference data to dataset identifier fields

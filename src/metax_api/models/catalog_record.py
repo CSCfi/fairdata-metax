@@ -1475,7 +1475,7 @@ class CatalogRecord(Common):
                 raise Http400("When using metax_service, api_meta['version'] needs to be 3 ")
             return
         self.api_meta["version"] = self.api_version
-        
+
 
 
     def _pre_create_operations(self, pid_type=None):
@@ -1679,7 +1679,7 @@ class CatalogRecord(Common):
                 {"detail": ["You are not permitted to edit datasets in this data catalog."]}
             )
 
-        
+
         # possibly raises 400
         self._assert_api_version()
 
@@ -2798,7 +2798,7 @@ class CatalogRecord(Common):
         # validate/populate fields according to reference data
         from metax_api.services import CatalogRecordService as CRS, RedisCacheService as cache
 
-        CRS.validate_reference_data(params["research_dataset"], cache)
+        CRS.validate_reference_data(params["research_dataset"], cache, request=origin_version.request)
 
         # finally create the pas copy dataset
         pas_version = self.__class__(**params)
@@ -2829,7 +2829,7 @@ class CatalogRecord(Common):
             origin_version.research_dataset["other_identifier"] = [other_identifiers_info_pas]
 
         # need to validate ref data again for origin_version
-        CRS.validate_reference_data(origin_version.research_dataset, cache)
+        CRS.validate_reference_data(origin_version.research_dataset, cache, request=origin_version.request)
 
         self.add_post_request_callable(V3Integration(pas_version, "create"))
         self.add_post_request_callable(RabbitMQPublishRecord(pas_version, "create"))
@@ -2901,7 +2901,7 @@ class CatalogRecord(Common):
         Wrapper in order to import CommonService in one place only...
         In case of drafts, skip other than logging
         In case of V3 integration, skip if integration is not enabled
-        If the request was made by metax_service, skip V3 integration and Datacite 
+        If the request was made by metax_service, skip V3 integration and Datacite
         """
         if not self.is_published() and not isinstance(callable, (DelayedLog, V3Integration)):
             _logger.debug(

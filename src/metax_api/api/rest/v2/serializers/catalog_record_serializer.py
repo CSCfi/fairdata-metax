@@ -99,7 +99,7 @@ class CatalogRecordSerializerV2(CatalogRecordSerializer):
         """
         self._populate_file_and_dir_titles(value)
 
-        CRS.validate_reference_data(value, cache)
+        CRS.validate_reference_data(value, cache, request=self.context.get("request"))
 
         rd_files_schema = CS.get_json_schema(self._schemas_directory_path, "dataset_files")
 

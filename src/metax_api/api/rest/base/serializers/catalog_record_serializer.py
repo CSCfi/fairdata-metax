@@ -474,7 +474,7 @@ class CatalogRecordSerializer(CommonSerializer):
         if self._operation_is_create or self._preferred_identifier_is_changed():
             self._validate_research_dataset_uniqueness(value)
 
-        CRS.validate_reference_data(value, cache)
+        CRS.validate_reference_data(value, cache, request=self.context.get("request"))
         self._validate_org_name_is_set(self.initial_data["research_dataset"])
 
         return value
