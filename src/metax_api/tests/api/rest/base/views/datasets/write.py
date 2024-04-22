@@ -515,6 +515,25 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertTrue(len(response.data["research_dataset"]["preferred_identifier"]) > 0)
 
+    def test_parameter_migration_override_no_source_organization(self):
+        """
+        Projects should not require organization when ?migration_override is used.
+        """
+        self.cr_test_data["research_dataset"]["is_output_of"] = [
+            {
+                "name": {"en": "some project"},
+                "source_organization": []
+            }
+        ]
+        response = self.client.post(
+            "/rest/datasets", self.cr_test_data, format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+        response = self.client.post(
+            "/rest/datasets?migration_override", self.cr_test_data, format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
     def test_create_catalog_record_using_pid_type(self):
         # Test with pid_type = urn
         self.cr_test_data["research_dataset"]["preferred_identifier"] = ""

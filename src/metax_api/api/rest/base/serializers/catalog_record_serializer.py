@@ -5,6 +5,7 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
+import copy
 import logging
 from os import path
 
@@ -496,6 +497,8 @@ class CatalogRecordSerializer(CommonSerializer):
     def validate_json_schema(self, value):
         self._set_dataset_schema()
 
+        schema = self.json_schema
+
         if self._operation_is_create:
             if not value.get("preferred_identifier", None):
                 if DataCatalogService.is_harvested(self.initial_data.get("data_catalog")):
@@ -511,38 +514,17 @@ class CatalogRecordSerializer(CommonSerializer):
                 # use temporary value and remove after schema validation.
                 value["preferred_identifier"] = "temp"
 
-            if self._migration_override_requested():
-                for is_output_of in value.get("is_output_of", []):
-                    if (
-                        "source_organization" not in is_output_of
-                        or not is_output_of["source_organization"]
-                    ):
-                        is_output_of["source_organization"] = [
-                            {
-                                "@type": "Organization",
-                                "identifier": "MIGRATION_OVERRIDE",
-                                "name": {"und": "temp"},
-                            }
-                        ]
+        if self._migration_override_requested():
+            # Don't require source_organization when ?migration_override is set
+            schema = copy.deepcopy(schema)
+            if project_def := schema["definitions"].get("Project"):
+                project_def["required"] = [p for p in project_def["required"] if p != "source_organization"]
+                project_def["properties"]["source_organization"]["minItems"] = 0
 
-            validate_json(value, self.json_schema)
+        validate_json(value, schema)
 
-            if value["preferred_identifier"] == "temp":
-                value.pop("preferred_identifier")
-
-            if self._migration_override_requested():
-                for is_output_of in value.get("is_output_of", []):
-                    if (
-                        "source_organization" in is_output_of
-                        and len(is_output_of["source_organization"]) == 1
-                        and is_output_of["source_organization"][0]["identifier"]
-                        == "MIGRATION_OVERRIDE"
-                    ):
-                        is_output_of.pop("source_organization", None)
-
-        else:
-            # update operations
-            validate_json(value, self.json_schema)
+        if self._operation_is_create and value["preferred_identifier"] == "temp":
+            value.pop("preferred_identifier")
 
     def _validate_org_name_is_set(self, obj):
         """
