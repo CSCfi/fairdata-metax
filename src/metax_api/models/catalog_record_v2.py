@@ -86,9 +86,24 @@ class CatalogRecordV2(CatalogRecord):
             self._post_update_operations()
 
     def delete(self, *args, **kwargs):
-        if kwargs.get("hard"):
+        from metax_api.services import CommonService
+
+        if kwargs.get("hard") or (
+            self.catalog_is_harvested()
+            and self.request.user.is_metax_v3
+            and CommonService.get_boolean_query_param(self.request, "hard")
+        ):
             super().delete(*args, **kwargs)
             return self.id
+            
+        if CommonService.get_boolean_query_param(self.request, "hard"):
+            raise ValidationError(
+                {
+                    "detail": [
+                        "Hard-deleting datasets is allowed only for metax_service service user and in harvested catalogs"
+                    ]
+                }
+            )
 
         if self.next_draft:
             self.next_draft.delete()

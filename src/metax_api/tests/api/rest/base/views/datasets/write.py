@@ -5545,3 +5545,123 @@ class CatalogRecordMetaxServiceIntegration(CatalogRecordApiWriteCommon):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
 
 
+
+
+class CatalogRecordAPIWritewHardDeleteTests(CatalogRecordApiWriteCommon):
+    """
+    Test hard deleting harvested datasets using Metax Service
+    """
+
+    def setUp(self):
+        self._use_http_authorization()
+        super().setUp()
+
+    def test_hard_delete_harvested_dataset_with_metax_service(self):
+        """
+        Dataset should be hard-deleted if it is in harvested catalog,
+        the request is made by metax_service and query_param 'hard' is true
+        """
+        self.cr_test_data["data_catalog"] = 3  # 3 is harvested catalog
+        self.cr_test_data["research_dataset"]["preferred_identifier"] = "test_pid"
+        cr_response = self.client.post(
+            "/rest/datasets/", self.cr_test_data, format="json"
+        )
+        cr_id = cr_response.json()["identifier"]
+
+        self._use_http_authorization(username="metax_service")
+        response = self.client.delete(f"/rest/datasets/{cr_id}?hard=true")
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        self._assert_hard_delete(cr_id)
+
+    def test_hard_delete_non_harvested_dataset_with_metax_service(self):
+        """
+        If query_param 'hard' is true, but the dataset is not in a harvested
+        catalog, API should return a validation error.
+        """
+        cr_response = self.client.post(
+            "/rest/datasets/", self.cr_test_data, format="json"
+        )
+        cr_id = cr_response.json()["identifier"]
+
+        self._use_http_authorization(username="metax_service")
+        response = self.client.delete(f"/rest/datasets/{cr_id}?hard=true")
+
+        self._assert_delete_error(response)
+
+    def test_hard_delete_harvested_dataset_with_test_user(self):
+        """
+        If query_param 'hard' is true, but the request is not made by
+        metax_service, API should return a validation error.
+        """
+        self.cr_test_data["data_catalog"] = 3  # 3 is harvested catalog
+        self.cr_test_data["research_dataset"]["preferred_identifier"] = "test_pid"
+        cr_response = self.client.post(
+            "/rest/datasets/", self.cr_test_data, format="json"
+        )
+        cr_id = cr_response.json()["identifier"]
+
+        response = self.client.delete(f"/rest/datasets/{cr_id}?hard=true")
+
+        self._assert_delete_error(response)
+
+    def test_hard_delete_non_harvested_dataset_with_test_user(self):
+        """
+        If query_param 'hard' is true, but the dataset is not in a harvested catalog
+        and the request is not made by metax_service, API should return a validation error.
+        """
+        cr_response = self.client.post(
+            "/rest/datasets/", self.cr_test_data, format="json"
+        )
+        cr_id = cr_response.json()["identifier"]
+
+        response = self.client.delete(f"/rest/datasets/{cr_id}?hard=true")
+
+        self._assert_delete_error(response)
+
+    def test_hard_delete_false_harvested_dataset_with_metax_service(self):
+        """
+        Dataset should be soft-deleted if it is in harvested catalog,
+        the request is made by metax_service and query_param 'hard' is false
+        """
+        self.cr_test_data["data_catalog"] = 3  # 3 is harvested catalog
+        self.cr_test_data["research_dataset"]["preferred_identifier"] = "test_pid"
+        cr_response = self.client.post(
+            "/rest/datasets/", self.cr_test_data, format="json"
+        )
+        cr_id = cr_response.json()["identifier"]
+
+        self._use_http_authorization(username="metax_service")
+        response = self.client.delete(f"/rest/datasets/{cr_id}?hard=false")
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        self._assert_soft_delete(cr_id)
+
+    def _assert_hard_delete(self, cr_id):
+        deleted_catalog_record = CatalogRecord.objects_unfiltered.filter(
+            identifier=cr_id
+        )
+        self.assertEqual(
+            len(deleted_catalog_record),
+            0,
+            "Deleted CatalogRecord should be deleted from the db",
+        )
+
+    def _assert_soft_delete(self, cr_id):
+        try:
+            deleted_catalog_record = CatalogRecord.objects_unfiltered.get(
+                identifier=cr_id
+            )
+        except CatalogRecord.DoesNotExist:
+            raise Exception(
+                "Deleted CatalogRecord should not be deleted from the db, but marked as removed"
+            )
+
+        self.assertEqual(deleted_catalog_record.removed, True)
+
+    def _assert_delete_error(self, response):
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            "Hard-deleting datasets is allowed only for metax_service service user and in harvested catalogs",
+            response.json()["detail"][0],
+        )

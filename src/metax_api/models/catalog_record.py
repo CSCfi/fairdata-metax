@@ -1211,10 +1211,26 @@ class CatalogRecord(Common):
         )
 
     def delete(self, *args, **kwargs):
+        from metax_api.services import CommonService
+        
         self.add_post_request_callable(V3Integration(self, "delete"))
-        if kwargs.get("hard"):
+
+        if kwargs.get("hard") or (
+            self.catalog_is_harvested()
+            and self.request.user.is_metax_v3
+            and CommonService.get_boolean_query_param(self.request, "hard")
+        ):
             super().delete()
             return self.id
+            
+        if self.request and CommonService.get_boolean_query_param(self.request, "hard"):
+            raise ValidationError(
+                {
+                    "detail": [
+                        "Hard-deleting datasets is allowed only for metax_service service user and in harvested catalogs"
+                    ]
+                }
+            )
 
         if self.state == self.STATE_DRAFT:
             _logger.info("Deleting draft dataset %s permanently" % self.identifier)
