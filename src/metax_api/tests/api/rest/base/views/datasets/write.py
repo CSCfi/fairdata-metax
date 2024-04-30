@@ -5505,12 +5505,14 @@ class CatalogRecordMetaxServiceIntegration(CatalogRecordApiWriteCommon):
 
     def test_create_v3_dataset(self):
         """
-        User api_auth_user should have read access to files api.
+        Create a dataset as metax_service and api_meta['version'] = 3
+        Assert that the dataset is created
         """
         cr_id = str(uuid4())
         self.cr_test_data["identifier"] = cr_id
         self.cr_test_data["api_meta"] = {"version": 3}
-        response = self.client.post("/rest/datasets", self.cr_test_data, format="json")
+        response = self.client.post("/rest/datasets?migration_override", self.cr_test_data, format="json")
+        
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual("research_dataset" in response.data.keys(), True)
         self.assertEqual(cr_id, response.json()["identifier"])
@@ -5518,16 +5520,26 @@ class CatalogRecordMetaxServiceIntegration(CatalogRecordApiWriteCommon):
 
     def test_v3_dataset_requires_api_meta(self):
         """
-        User api_auth_user should have read access to files api.
+        Create a dataset as metax_service, but don't provide api_meta
+        Assert that correct error is raised
+        Create a dataset as metax_service, but api_meta['version'] is 1
+        Assert that correct error is raised
         """
         cr_id = str(uuid4())
         self.cr_test_data["identifier"] = cr_id
-        response = self.client.post("/rest/datasets", self.cr_test_data, format="json")
+        response = self.client.post("/rest/datasets?migration_override", self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+        self.assertEqual("When using metax_service, api_meta['version'] needs to be 3", response.json()["detail"][0])
+
+        self.cr_test_data["api_meta"] = {"version": 1}
+        response = self.client.post("/rest/datasets?migration_override", self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+        self.assertEqual("When using metax_service, api_meta['version'] needs to be 3", response.json()["detail"][0])
 
     def test_v3_dataset_requires_metax_service(self):
         """
-        User api_auth_user should have read access to files api.
+        Try to create a dataset with api_meta['version'] = 3, but as a testuser
+        Assert that correct error is raised
         """
         self._use_http_authorization()
         cr_id = str(uuid4())
@@ -5535,16 +5547,131 @@ class CatalogRecordMetaxServiceIntegration(CatalogRecordApiWriteCommon):
         self.cr_test_data["api_meta"] = {"version": 3}
         response = self.client.post("/rest/datasets", self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+        self.assertEqual("Only metax_service user can set api version to 3", response.json()["detail"][0])
 
     def test_v3_dataset_requires_identifier(self):
         """
-        User api_auth_user should have read access to files api.
+        Try to create a dataset as metax_service and api_meta['version'] = 3, but without identifier
+        Assert that correct error is raised
         """
         self.cr_test_data["api_meta"] = {"version": 3}
         response = self.client.post("/rest/datasets", self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+        self.assertEqual("Incoming datasets from Metax V3 need to have an identifier", response.json()["detail"][0])
+
+    def test_update_v1_dataset_with_v3(self):
+        """
+        Create a dataset in V1
+        Update it as metax_service
+        Assert that the dataset is updated
+
+        """
+        self._use_http_authorization()
+        response = self.client.post("/rest/datasets", self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        self._use_http_authorization(username="metax_service")
+        cr_id = response.json()["identifier"]
+        cr_pid = response.json()["research_dataset"]["preferred_identifier"]
+        self.cr_test_data["research_dataset"]["title"]["en"] = "new title"
+        self.cr_test_data["api_meta"] = {"version": 3}
+        self.cr_test_data["research_dataset"]["preferred_identifier"] = cr_pid
+
+        response = self.client.put(f"/rest/datasets/{cr_id}?migration_override", self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(cr_id, response.json()["identifier"])
+        self.assertEqual(3, response.json()["api_meta"]["version"])
+        self.assertEqual("new title", response.json()["research_dataset"]["title"]["en"])
+
+    def test_update_v3_dataset_with_v1_without_api_meta(self):
+        """
+        Create dataset from V3
+        Try to update it from V1 without api_meta
+        Assert that correct error is raised
+        """
+        cr_id = str(uuid4())
+        self.cr_test_data["identifier"] = cr_id
+        self.cr_test_data["api_meta"] = {"version": 3}
+        response = self.client.post("/rest/datasets?migration_override", self.cr_test_data, format="json")
+        
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        self._use_http_authorization()
+        self.cr_test_data["research_dataset"]["title"]["en"] = "new title"
+        self.cr_test_data.pop("api_meta")
+
+        response = self.client.put(f"/rest/datasets/{cr_id}", self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+        self.assertEqual("Please use the correct api version to edit this dataset", response.json()["detail"][0])
 
 
+    def test_update_v3_dataset_with_v1_with_api_meta(self):
+        """
+        Create dataset from V3
+        Try to update it from V1 with api_meta
+        Assert that correct error is raised
+        """
+        cr_id = str(uuid4())
+        self.cr_test_data["identifier"] = cr_id
+        self.cr_test_data["api_meta"] = {"version": 3}
+        response = self.client.post("/rest/datasets?migration_override", self.cr_test_data, format="json")
+        
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        self._use_http_authorization()
+        self.cr_test_data["research_dataset"]["title"]["en"] = "new title"
+        self.cr_test_data["api_meta"] = {"version": 1}
+
+        response = self.client.put(f"/rest/datasets/{cr_id}", self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+        self.assertEqual("Please use the correct api version to edit this dataset", response.json()["detail"][0])
+
+
+    def test_update_v3_dataset_with_v3(self):
+        """
+        Create dataset from V3
+        Update it from V3
+        Assert that dataset is updated
+        """
+        cr_id = str(uuid4())
+        self.cr_test_data["identifier"] = cr_id
+        self.cr_test_data["api_meta"] = {"version": 3}
+        response = self.client.post("/rest/datasets", self.cr_test_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        cr_pid = response.json()["research_dataset"]["preferred_identifier"]
+
+        self.cr_test_data["research_dataset"]["title"]["en"] = "new title"
+        self.cr_test_data["research_dataset"]["preferred_identifier"] = cr_pid
+
+        response = self.client.put(f"/rest/datasets/{cr_id}", self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(cr_id, response.json()["identifier"])
+        self.assertEqual(3, response.json()["api_meta"]["version"])
+
+    def test_try_to_update_v3_dataset_identifier_v3(self):
+        """
+        Create a dataset from V3
+        Update it and its identifier from V3
+        Assert that the identifier has not changed
+        """
+        cr_id = str(uuid4())
+        self.cr_test_data["identifier"] = cr_id
+        self.cr_test_data["api_meta"] = {"version": 3}
+        response = self.client.post("/rest/datasets", self.cr_test_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        cr_pid = response.json()["research_dataset"]["preferred_identifier"]
+
+        cr_new_id = str(uuid4())
+        self.cr_test_data["identifier"] = cr_new_id
+        self.cr_test_data["research_dataset"]["title"]["en"] = "new title"
+        self.cr_test_data["research_dataset"]["preferred_identifier"] = cr_pid
+
+        response = self.client.put(f"/rest/datasets/{cr_id}", self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(cr_id, response.json()["identifier"])
+        self.assertEqual(3, response.json()["api_meta"]["version"])
 
 
 class CatalogRecordAPIWritewHardDeleteTests(CatalogRecordApiWriteCommon):

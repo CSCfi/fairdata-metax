@@ -1466,10 +1466,29 @@ class CatalogRecord(Common):
             _logger.warning(f"no api_meta found for {self.identifier}")
             return
 
+        # RPC endpoints are disabled if the dataset has been created or updated with V3
+        if (
+            self.request
+            and self.request.path.split("/")[1].lower() == "rpc"
+            and self.api_meta["version"] == 3
+        ):
+            raise Http400("RPC endpoints are disabled for datasets that have been created or updated with API version 3")
+
+        # Raise an error if the dataset has been created or updated with version that is greater than self.api_version
+        # and payload includes api_meta version and the version is not 3
         if (
             self._initial_data["api_meta"] != None
             and self._initial_data["api_meta"]["version"] > self.api_version
             and self.api_meta["version"] != 3
+        ):
+            raise Http400("Please use the correct api version to edit this dataset")
+
+        # Raise an error if the payload doesn't include api_meta, and the dataset has been updated or created with V3
+        if (
+            self.request
+            and isinstance(self.request.data, dict)
+            and self.request.data.get("api_meta") == None
+            and self.api_meta["version"] == 3
         ):
             raise Http400("Please use the correct api version to edit this dataset")
 
@@ -1488,7 +1507,7 @@ class CatalogRecord(Common):
 
         if self.request and self.request.user.is_metax_v3 == True:
             if self.api_meta.get("version") != 3:
-                raise Http400("When using metax_service, api_meta['version'] needs to be 3 ")
+                raise Http400("When using metax_service, api_meta['version'] needs to be 3")
             return
         self.api_meta["version"] = self.api_version
 
