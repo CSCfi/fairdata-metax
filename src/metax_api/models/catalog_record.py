@@ -1215,6 +1215,17 @@ class CatalogRecord(Common):
         
         self.add_post_request_callable(V3Integration(self, "delete"))
 
+        if (self.api_meta["version"] == 3
+            and not self.request.user.is_metax_v3
+        ):
+            raise ValidationError(
+                {
+                    "detail": [
+                        "Deleting datasets that have been created or updated with API version 3 is allowed only for metax_service"
+                    ]
+                }
+            )
+
         if kwargs.get("hard") or (
             self.catalog_is_harvested()
             and self.request.user.is_metax_v3

@@ -5673,6 +5673,25 @@ class CatalogRecordMetaxServiceIntegration(CatalogRecordApiWriteCommon):
         self.assertEqual(cr_id, response.json()["identifier"])
         self.assertEqual(3, response.json()["api_meta"]["version"])
 
+    def test_v1_cant_delete_v3_dataset(self):
+        """
+        Create a dataset from V3
+        Try to delete it using V1
+        Assert that correct error is raised and the dataset has not been deleted
+        """
+        cr_id = str(uuid4())
+        self.cr_test_data["identifier"] = cr_id
+        self.cr_test_data["api_meta"] = {"version": 3}
+        response = self.client.post("/rest/datasets", self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        self._use_http_authorization()
+        response = self.client.delete(f"/rest/datasets/{cr_id}")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+        self.assertEqual("Deleting datasets that have been created or updated with API version 3 is allowed only for metax_service", response.json()["detail"][0])
+        catalog_record = CatalogRecord.objects_unfiltered.get(identifier=cr_id)
+        self.assertEqual(catalog_record.removed, False)
+
 
 class CatalogRecordAPIWritewHardDeleteTests(CatalogRecordApiWriteCommon):
     """
@@ -5763,6 +5782,40 @@ class CatalogRecordAPIWritewHardDeleteTests(CatalogRecordApiWriteCommon):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
         self._assert_soft_delete(cr_id)
+
+    def test_v3_soft_deletes_v3_dataset(self):
+        """
+        Create a dataset from V3
+        Soft-delete it using metax_service
+        Assert that dataset is soft-deleted
+        """
+        self._use_http_authorization("metax_service")
+        cr_id = str(uuid4())
+        self.cr_test_data["identifier"] = cr_id
+        self.cr_test_data["api_meta"] = {"version": 3}
+        response = self.client.post("/rest/datasets", self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        response = self.client.delete(f"/rest/datasets/{cr_id}")
+        self._assert_soft_delete(cr_id)
+
+    def test_v3_hard_deletes_v3_dataset(self):
+        """
+        Create a harvested dataset from V3
+        Hard-delete it using metax_service
+        Assert that dataset is hard-deleted
+        """
+        self._use_http_authorization("metax_service")
+        cr_id = str(uuid4())
+        self.cr_test_data["data_catalog"] = 3  # 3 is harvested catalog
+        self.cr_test_data["research_dataset"]["preferred_identifier"] = "test_pid"
+        self.cr_test_data["identifier"] = cr_id
+        self.cr_test_data["api_meta"] = {"version": 3}
+        response = self.client.post("/rest/datasets", self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        response = self.client.delete(f"/rest/datasets/{cr_id}?hard=true")
+        self._assert_hard_delete(cr_id)
 
     def _assert_hard_delete(self, cr_id):
         deleted_catalog_record = CatalogRecord.objects_unfiltered.filter(
