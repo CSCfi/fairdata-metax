@@ -305,7 +305,7 @@
             "title":"File Characteristics",
             "type":"object",
             "@id":"http://www.loc.gov/premis/rdf/v1#ObjectCharacteristics",
-            "description":"This class is used as extension point to additional file charasteristics",
+            "description":"This class is used as extension point to additional file characteristics",
             "minProperties":1,
             "properties":{
                 "title":{

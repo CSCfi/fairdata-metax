@@ -104,12 +104,13 @@ class FileSerializer(CommonSerializer):
                 "parent_directory", self._get_parent_directory_relation
             )
 
-        if (
-            "file_characteristics" in self.initial_data
-            and "format_version" in self.initial_data["file_characteristics"]
-        ):
-            if self.initial_data["file_characteristics"]["format_version"] == "":
-                self.initial_data["file_characteristics"].pop("format_version", None)
+        if "file_characteristics" in self.initial_data:
+            file_characteristics = self.initial_data["file_characteristics"]
+            if isinstance(file_characteristics, dict) and file_characteristics.get("format_version") == "":
+                file_characteristics.pop("format_version")
+            if file_characteristics == {}:
+                # Remove file characteristics if the object is empty
+                self.initial_data["file_characteristics"] = None
 
         super(FileSerializer, self).is_valid(raise_exception=raise_exception)
 
@@ -140,8 +141,9 @@ class FileSerializer(CommonSerializer):
         return res
 
     def validate_file_characteristics(self, value):
-        validate_json(value, self.context["view"].json_schema)
-        FS.validate_file_characteristics_reference_data(value, self.context["view"].cache)
+        if value is not None:
+            validate_json(value, self.context["view"].json_schema)
+            FS.validate_file_characteristics_reference_data(value, self.context["view"].cache)
         return value
 
     def validate_file_path(self, value):
