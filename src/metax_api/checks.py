@@ -54,14 +54,96 @@ def finto_check():
         "keyword": "https://api.finto.fi/download/koko/koko-skos.rdf"
     }
     status_dict = {"finto": []}
-    try:
+    for key, value in finto_api_urls.items():
+        try:
 
-        for key, value in finto_api_urls.items():
-            res = requests.head(value)
+            res = requests.head(value, timeout=5)
             status_dict["finto"].append({key: {"ok": res.ok, "status_code": res.status_code}})
+
+        except Exception as e:
+            logger.error(e)
+            status_dict["finto"].append({key: {"ok": False, "error": str(e), "traceback": str(e.__traceback__)}})
+    return status_dict
+
+@check
+def v3_sync_check():
+    v3_catalogs_response = requests.get("https://metax.fairdata.fi/v3/data-catalogs")
+    v3_catalogs_json = v3_catalogs_response.json()["results"]
+    synced_catalogs = [catalog["id"] for catalog in v3_catalogs_json]
+
+
+    v2_url = f"https://metax.fairdata.fi/rest/v2/datasets"
+    v3_url = f"https://metax.fairdata.fi/v3/datasets"
+    v2_params = {"limit": "1", "fields": "identifier"}
+    v3_params = {"limit": "1"}
+
+    status_dict = {"v3 synchronization": []}
+
+    try:
+        for dc_id in synced_catalogs:
+            params = {**v2_params, "data_catalog": dc_id}
+            v2_count = requests.get(v2_url, params).json()["count"]
+
+            params = {**v3_params, "data_catalog__id": dc_id}
+            v3_count = requests.get(v3_url, params).json()["count"]
+
+            if v2_count == v3_count:
+                status_dict["v3 synchronization"].append(
+                    {
+                        dc_id: {
+                            "ok": True,
+                            "V2 Dataset count": v2_count,
+                            "V3 Dataset count": v3_count,
+                        }
+                    }
+                )
+            else:
+                status_dict["v3 synchronization"].append(
+                    {
+                        dc_id: {
+                            "ok": False,
+                            "V2 Dataset count": v2_count,
+                            "V3 Dataset count": v3_count,
+                        }
+                    }
+                )
+
+            params = {**v2_params, "data_catalog": dc_id, "removed": "true"}
+            v2_removed_count = requests.get(v2_url, params).json()["count"]
+
+            params = {**v3_params, "data_catalog__id": dc_id, "include_removed": "true"}
+            v3_removed_count = requests.get(v3_url, params).json()["count"] - v3_count
+
+            if v2_count == v3_count:
+                status_dict["v3 synchronization"].append(
+                    {
+                        f"{dc_id} removed": {
+                            "ok": True,
+                            "V2 Removed Dataset count": v2_removed_count,
+                            "V3 Removed Dataset count": v3_removed_count,
+                        }
+                    }
+                )
+            else:
+                status_dict["v3 synchronization"].append(
+                    {
+                        f"{dc_id} removed": {
+                            "ok": False,
+                            "V2 Removed Dataset count": v2_removed_count,
+                            "V3 Removed Dataset count": v3_removed_count,
+                        }
+                    }
+                )
+
         return status_dict
 
     except Exception as e:
         logger.error(e)
-        return {"finto": {"ok": False, "error": str(e), "traceback": str(e.__traceback__)}}
+        return {
+            "v3 synchronization": {
+                "ok": False,
+                "error": str(e),
+                "traceback": str(e.__traceback__),
+            }
+        }
 
