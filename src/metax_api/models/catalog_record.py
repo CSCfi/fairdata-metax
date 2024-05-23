@@ -1231,6 +1231,8 @@ class CatalogRecord(Common):
             and self.request.user.is_metax_v3
             and CommonService.get_boolean_query_param(self.request, "hard")
         ):
+            _logger.info("Deleting dataset %s permanently" % self.identifier)
+            self.add_post_request_callable(RabbitMQPublishRecord(self, "delete"))
             super().delete()
             return self.id
             

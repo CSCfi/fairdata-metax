@@ -706,8 +706,10 @@ class CatalogRecordRabbitMQPublish(CatalogRecordApiWriteCommon):
         param_list = [(True, True), (True, False), (False, True), (False, False)]
         for publish_to_etsin, publish_to_ttv in param_list:
             with self.subTest():
+                RabbitMQService.messages = []
                 
                 # Create the data catalog
+                self._use_http_authorization()
                 dc = self._get_object_from_test_data("datacatalog", 4)
                 dc_id = f"urn:nbn:fi:att:data-catalog-att-{publish_to_etsin}-{publish_to_ttv}"
                 dc["catalog_json"]["identifier"] = dc_id
@@ -735,11 +737,35 @@ class CatalogRecordRabbitMQPublish(CatalogRecordApiWriteCommon):
 
                 RabbitMQService.messages = []
 
-                # Delete the catalog record
+                # Soft-delete the catalog record
                 response = self.client.delete(f"/rest/v2/datasets/{cr['id']}")
                 self._check_rabbitmq_queue("delete", publish_to_etsin, publish_to_ttv)
 
                 RabbitMQService.messages = []
+
+                # Create a harvested data catalog
+                dc = self._get_object_from_test_data("datacatalog", 3) # 3 is harvested catalog
+                dc_id = f"urn:nbn:fi:att:data-catalog-harvested-{publish_to_etsin}-{publish_to_ttv}"
+                dc["catalog_json"]["identifier"] = dc_id
+                dc["publish_to_etsin"] = publish_to_etsin
+                dc["publish_to_ttv"] = publish_to_ttv
+                dc = self.client.post("/rest/v2/datacatalogs", dc, format="json").data
+
+                # Create harvested dataset
+                self._use_http_authorization("metax_service")
+                cr_id = str(uuid4())
+                self.cr_test_data["data_catalog"] = dc
+                self.cr_test_data["research_dataset"]["preferred_identifier"] = "test_pid"
+                self.cr_test_data["identifier"] = cr_id
+                self.cr_test_data["api_meta"] = {"version": 3}
+                response = self.client.post("/rest/v2/datasets?migration_override", self.cr_test_data, format="json")
+                self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+                # Hard-delete the catalog record
+                response = self.client.delete(f"/rest/v2/datasets/{cr_id}?hard=true")
+                self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+                self._check_rabbitmq_queue("delete", publish_to_etsin, publish_to_ttv)
+
 
 
 
