@@ -114,7 +114,7 @@ def v3_sync_check():
             params = {**v3_params, "data_catalog__id": dc_id, "include_removed": "true"}
             v3_removed_count = requests.get(v3_url, params).json()["count"] - v3_count
 
-            if v2_count == v3_count:
+            if v2_removed_count == v3_removed_count:
                 status_dict["v3 synchronization"].append(
                     {
                         f"{dc_id} removed": {
