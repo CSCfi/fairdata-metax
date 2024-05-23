@@ -130,9 +130,10 @@ class Command(BaseCommand):
             for cr_id in cr_ids:
                 if cr_id not in crs.values_list("identifier", flat=True):
                     cr_json = {"identifier": cr_id}  # Create dummy cr_json
-                    logger.info(
-                        f"Republishing {cr_id} to exchange: {exchange} with routing_key: {routing_key}"
-                    )
-                    RabbitMQService.publish(cr_json, routing_key=routing_key, exchange=exchange)
+                    for exchange in exchanges:
+                        logger.info(
+                            f"Republishing {cr_id} to exchange: {exchange} with routing_key: {routing_key}"
+                        )
+                        RabbitMQService.publish(cr_json, routing_key=routing_key, exchange=exchange)
 
         logger.info("Republished catalog records to RabbitMQ")
