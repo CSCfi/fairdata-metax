@@ -410,30 +410,30 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
             file_fields.append("identifier")
             file_identifier_requested = False
 
-        for file in File.objects.filter(identifier__in=file_identifiers).values(*file_fields):
+        for file in File.objects_unfiltered.filter(identifier__in=file_identifiers).values(*file_fields):
             for f in rd["files"]:
                 if f["identifier"] == file["identifier"]:
                     f["details"] = LightFileSerializer.serialize(file)
-                    continue
+                    break
 
         dir_identifiers = [dr["identifier"] for dr in rd.get("directories", [])]
 
-        for directory in Directory.objects.filter(identifier__in=dir_identifiers).values(
+        for directory in Directory.objects_unfiltered.filter(identifier__in=dir_identifiers).values(
             *directory_fields
         ):
             for dr in rd["directories"]:
                 if dr["identifier"] == directory["identifier"]:
                     dr["details"] = LightDirectorySerializer.serialize(directory)
-                    continue
+                    break
 
         # cleanup identifiers, if they were not actually requested
         if not dir_identifier_requested:
             for dr in rd.get("directories", []):
-                del dr["details"]["identifier"]
+                dr.get("details", {}).pop("identifier", None)
 
         if not file_identifier_requested:
             for f in rd.get("files", []):
-                del f["details"]["identifier"]
+                f.get("details", {}).pop("identifier", None)
 
         # if the dataset doesn't contain directories, return
         if not dir_identifiers:
