@@ -65,12 +65,25 @@ def finto_check():
             status_dict["finto"].append({key: {"ok": False, "error": str(e), "traceback": str(e.__traceback__)}})
     return status_dict
 
+
+def check_metax_availability(v2_url, v3_url):
+    try:
+        requests.head(v2_url, timeout=10)
+    except Exception as e:
+        logger.error(e)
+        return False, "Metax V2 is not available"
+
+    try:
+        requests.head(v3_url, timeout=10)
+    except Exception as e:
+        logger.error(e)
+        return False, "Metax V3 is not available"
+
+    return True, "OK"
+
+
 @check
 def v3_sync_check():
-    v3_catalogs_response = requests.get("https://metax.fairdata.fi/v3/data-catalogs")
-    v3_catalogs_json = v3_catalogs_response.json()["results"]
-    synced_catalogs = [catalog["id"] for catalog in v3_catalogs_json]
-
 
     v2_url = f"https://metax.fairdata.fi/rest/v2/datasets"
     v3_url = f"https://metax.fairdata.fi/v3/datasets"
@@ -79,13 +92,28 @@ def v3_sync_check():
 
     status_dict = {"v3 synchronization": []}
 
+    metaxes_available, response = check_metax_availability(v2_url, v3_url)
+    if metaxes_available == False:
+
+        status_dict["v3 synchronization"].append(
+            {
+                "ok": False,
+                "details": response,
+            }
+        )
+        return status_dict
+
+    v3_catalogs_response = requests.get("https://metax.fairdata.fi/v3/data-catalogs", timeout=10)
+    v3_catalogs_json = v3_catalogs_response.json()["results"]
+    synced_catalogs = [catalog["id"] for catalog in v3_catalogs_json]
+
     try:
         for dc_id in synced_catalogs:
             params = {**v2_params, "data_catalog": dc_id}
-            v2_count = requests.get(v2_url, params).json()["count"]
+            v2_count = requests.get(v2_url, params, timeout=10).json()["count"]
 
             params = {**v3_params, "data_catalog__id": dc_id}
-            v3_count = requests.get(v3_url, params).json()["count"]
+            v3_count = requests.get(v3_url, params, timeout=10).json()["count"]
 
             if v2_count == v3_count:
                 status_dict["v3 synchronization"].append(
@@ -109,10 +137,10 @@ def v3_sync_check():
                 )
 
             params = {**v2_params, "data_catalog": dc_id, "removed": "true"}
-            v2_removed_count = requests.get(v2_url, params).json()["count"]
+            v2_removed_count = requests.get(v2_url, params, timeout=10).json()["count"]
 
             params = {**v3_params, "data_catalog__id": dc_id, "include_removed": "true"}
-            v3_removed_count = requests.get(v3_url, params).json()["count"] - v3_count
+            v3_removed_count = requests.get(v3_url, params, timeout=10).json()["count"] - v3_count
 
             if v2_removed_count == v3_removed_count:
                 status_dict["v3 synchronization"].append(
