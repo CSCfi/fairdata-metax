@@ -520,6 +520,27 @@ class CatalogRecordFileHandling(CatalogRecordApiWriteAssignFilesCommonV2):
         response = self.client.get("/rest/v2/datasets/%d/projects" % cr_id, format="json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
 
+    def test_dataset_files_id_list(self):
+        self._add_file(self.cr_test_data, "/TestExperiment/Directory_1/file_05.txt")
+        self._add_file(
+            self.cr_test_data,
+            "/TestExperiment/Directory_1/file_06.txt",
+        )
+        response = self.client.post("/rest/v2/datasets", self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        file1 = File.objects.get(file_path="/TestExperiment/Directory_1/file_05.txt")
+        file2 = File.objects.get(file_path="/TestExperiment/Directory_1/file_06.txt")
+        file2.delete() # soft delete
+
+        cr_id = response.data["id"]
+        response = self.client.get(
+            f"/rest/v2/datasets/{cr_id}/files?id_list=true", format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(response.data, [file1.id, file2.id])
+
+
     def test_include_user_metadata_parameter(self):
         """
         When retrieving datasets, by default the "user metadata", or "dataset-specific file metadata" stored

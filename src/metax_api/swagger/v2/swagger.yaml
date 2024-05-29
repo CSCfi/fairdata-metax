@@ -1445,6 +1445,11 @@ paths:
           description: Return only deleted files
           required: false
           type: boolean
+        - name: id_list
+          in: query
+          description: Return list of file id values including removed files
+          required: false
+          type: boolean
       responses:
         "200":
           description: Successful operation, return list of full files metadata.

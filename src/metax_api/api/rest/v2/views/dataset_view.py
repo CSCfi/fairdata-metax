@@ -108,6 +108,10 @@ class DatasetViewSet(DatasetViewSet):
         if not cr.authorized_to_see_catalog_record_files(request):
             raise Http403(UNAUTHORIZED_TO_SEE_FILES_MSG)
 
+        if CS.get_boolean_query_param(request, "id_list"):
+            queryset = cr.files(manager="objects_unfiltered").order_by("id").values_list("id", flat=True)
+            return Response(data=list(queryset), status=status.HTTP_200_OK)
+
         if CS.get_boolean_query_param(request, "removed_files"):
             params["removed"] = True
             manager = "objects_unfiltered"
