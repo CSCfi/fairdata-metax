@@ -78,7 +78,7 @@ class Organization:
 
 def get_orgs_from_api() -> List[Organization]:
     res = requests.get(
-        "https://researchfi-api-production-researchfi.rahtiapp.fi/portalapi/organization/_search?size=100"
+        "https://researchfi-api-production.2.rahtiapp.fi/portalapi/organization/_search?size=100"
     )
     data = res.json()
 
