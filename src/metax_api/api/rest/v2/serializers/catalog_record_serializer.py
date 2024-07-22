@@ -70,6 +70,8 @@ class CatalogRecordSerializerV2(CatalogRecordSerializer):
                 # keep user metadata and possible file_details that have been populated in super().to_representation()
                 pass
             else:
+                # Copy research_dataset before removing fields from it to avoid modifying the original object
+                res["research_dataset"] = {**res.get("research_dataset", {})}
                 res.get("research_dataset", {}).pop("files", None)
                 res.get("research_dataset", {}).pop("directories", None)
 

@@ -13,8 +13,8 @@ class MetaxV3Service:
         self.metaxV3Url = f"{settings.METAX_V3['PROTOCOL']}://{settings.METAX_V3['HOST']}"
         self.token = settings.METAX_V3["TOKEN"]
 
-    def create_dataset(self, dataset_json):
-        payload = {"dataset_json": dataset_json}
+    def create_dataset(self, dataset_json, legacy_file_ids=None):
+        payload = {"dataset_json": dataset_json, "legacy_file_ids": legacy_file_ids}
         try:
             res = requests.post(
                 f"{self.metaxV3Url}/v3/migrated-datasets",
@@ -38,8 +38,8 @@ class MetaxV3Service:
             _logger.error(f"Exception in Metax V3: {e}")
             raise MetaxV3UnavailableError()
 
-    def update_dataset(self, dataset_id, dataset_json):
-        payload = {"dataset_json": dataset_json}
+    def update_dataset(self, dataset_id, dataset_json, legacy_file_ids=None):
+        payload = {"dataset_json": dataset_json, "legacy_file_ids": legacy_file_ids}
         try:
             res = requests.put(
                 f"{self.metaxV3Url}/v3/migrated-datasets/{dataset_id}",

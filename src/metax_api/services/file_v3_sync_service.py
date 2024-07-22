@@ -374,8 +374,8 @@ class DirectoryMetadataSerializer(StrictSyncSerializer):
 
 
 class CatalogUserMetadataSyncFromV3Serializer(StrictSyncSerializer):
-    files = FileMetadataSerializer(required=False, many=True)
-    directories = DirectoryMetadataSerializer(required=False, many=True)
+    files = FileMetadataSerializer(default=list, many=True)
+    directories = DirectoryMetadataSerializer(default=list, many=True)
 
     def save(self, validated_data, catalog_record):
         from metax_api.api.rest.v2.serializers import CatalogRecordSerializerV2

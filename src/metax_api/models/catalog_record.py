@@ -3498,12 +3498,12 @@ class V3Integration:
         try:
             if self.action == "create":
                 cr_json = self._to_json()
-                self.v3Service.create_dataset(cr_json)
+                self.v3Service.create_dataset(cr_json, self._get_file_ids())
             if self.action == "delete":
                 self.v3Service.delete_dataset(self.cr.identifier)
             if self.action == "update":
                 cr_json = self._to_json()
-                self.v3Service.update_dataset(self.cr.identifier, cr_json)
+                self.v3Service.update_dataset(self.cr.identifier, cr_json, self._get_file_ids())
         except MetaxV3UnavailableError as e:
             raise Http503(
                 {"detail": ["Metax V3 temporarily unavailable, please try again later."]}
@@ -3515,6 +3515,10 @@ class V3Integration:
         # Create request context for serializer
         http_request = HttpRequest()
         http_request.method = "GET"
+        http_request.GET["include_user_metadata"] = "true"
+        http_request.GET["file_details"] = "true"
+        http_request.GET["file_fields"] = "file_path"
+        http_request.GET["directory_path"] = "directory_path"
         http_request.GET["include_editor_permissions"] = "true"
         request = Request(http_request)
         request.user = AnonymousUser()

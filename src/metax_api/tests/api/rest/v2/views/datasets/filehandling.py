@@ -5,8 +5,11 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
+import re
+import json
 from copy import deepcopy
 
+from django.test import override_settings
 import responses
 from rest_framework import status
 
@@ -405,7 +408,6 @@ class CatalogRecordApiWriteAssignFilesCommon(CatalogRecordApiWriteCommon, TestCl
 
 
 class CatalogRecordApiWriteAssignFilesCommonV2(CatalogRecordApiWriteAssignFilesCommon):
-
     """
     Note !!!
 
@@ -531,15 +533,12 @@ class CatalogRecordFileHandling(CatalogRecordApiWriteAssignFilesCommonV2):
 
         file1 = File.objects.get(file_path="/TestExperiment/Directory_1/file_05.txt")
         file2 = File.objects.get(file_path="/TestExperiment/Directory_1/file_06.txt")
-        file2.delete() # soft delete
+        file2.delete()  # soft delete
 
         cr_id = response.data["id"]
-        response = self.client.get(
-            f"/rest/v2/datasets/{cr_id}/files?id_list=true", format="json"
-        )
+        response = self.client.get(f"/rest/v2/datasets/{cr_id}/files?id_list=true", format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(response.data, [file1.id, file2.id])
-
 
     def test_include_user_metadata_parameter(self):
         """
@@ -845,9 +844,7 @@ class CatalogRecordFileHandling(CatalogRecordApiWriteAssignFilesCommonV2):
         file_changes = {}
 
         self._add_file(file_changes, "/TestExperiment/Directory_1/Group_1/file_01.txt")
-        response = self.client.post(
-            f"/rest/v2/datasets/{cr_id}/files", file_changes, format="json"
-        )
+        response = self.client.post(f"/rest/v2/datasets/{cr_id}/files", file_changes, format="json")
         self.assertEqual(response.data.get("files_added"), 1, response.data)
         self.assert_file_count(cr_id, 1)
         response = self.client.get(f"/rest/v2/datasets/{cr_id}")
@@ -868,7 +865,6 @@ class CatalogRecordFileHandling(CatalogRecordApiWriteAssignFilesCommonV2):
 
 
 class CatalogRecordUserMetadata(CatalogRecordApiWriteAssignFilesCommonV2):
-
     """
     Dataset-specific metadata aka User Metadata related tests.
     """
@@ -1201,7 +1197,6 @@ class CatalogRecordUserMetadata(CatalogRecordApiWriteAssignFilesCommonV2):
 
 
 class CatalogRecordFileHandlingCumulativeDatasets(CatalogRecordApiWriteAssignFilesCommonV2):
-
     """
     Cumulative datasets should allow adding new files to a published dataset,
     but prevent removing files.
@@ -1441,3 +1436,138 @@ class CatalogRecordFileHandlingCumulativeDatasets(CatalogRecordApiWriteAssignFil
         cr = {"preservation_state": 10}
         response = self.client.patch("/rest/v2/datasets/%s" % self.cr_id, cr, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+
+
+class CatalogRecordFilesSyncToV3(CatalogRecordApiWriteAssignFilesCommonV2):
+    """
+    Dataset-specific metadata aka User Metadata related tests.
+    """
+
+    def mock_responses(self):
+        responses.add(
+            responses.POST,
+            url="https://metax-test/v3/migrated-datasets",
+            json={},
+        )
+        responses.add(
+            responses.PUT,
+            url=re.compile("https://metax-test/v3/migrated-datasets/([\w-]+)$"),
+            json={},
+        )
+
+    def integration_enabled(self):
+        """Context manager that enables mock V3 integration."""
+        self.mock_responses()
+        return override_settings(
+            METAX_V3={
+                "HOST": "metax-test",
+                "TOKEN": "test-token",
+                "INTEGRATION_ENABLED": True,
+                "PROTOCOL": "https",
+            }
+        )
+
+    @responses.activate
+    def test_sync_create_dataset_with_directories_to_v3(self):
+        """Test that new dataset with directory metadata is synced to V3."""
+        with self.integration_enabled():
+            cr = self.cr_test_data
+            self._add_directory(cr, "/TestExperiment/Directory_1/Group_1", with_metadata=True)
+            self._add_directory(cr, "/TestExperiment/Directory_1/Group_2", with_metadata=True)
+
+            response = self.client.post("/rest/v2/datasets?draft=true", cr, format="json")
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+            self.assertEqual(len(responses.calls), 1)
+            data = json.loads(responses.calls[0].request.body)
+            self.assertEqual(response.data["identifier"], data["dataset_json"]["identifier"])
+
+            dir_data = data["dataset_json"]["research_dataset"]["directories"]
+            self.assertEqual(len(dir_data), 2)
+            self.assertEqual(dir_data[0]["details"]["directory_path"], "/TestExperiment/Directory_1/Group_1")
+            self.assertEqual(dir_data[1]["details"]["directory_path"], "/TestExperiment/Directory_1/Group_2")
+
+            synced_files = list(
+                File.objects.filter(id__in=data["legacy_file_ids"])
+                .order_by("file_path")
+                .values_list("file_path", flat=True)
+            )
+            self.assertEqual(
+                synced_files,
+                [
+                    "/TestExperiment/Directory_1/Group_1/file_01.txt",
+                    "/TestExperiment/Directory_1/Group_1/file_02.txt",
+                    "/TestExperiment/Directory_1/Group_2/file_03.txt",
+                    "/TestExperiment/Directory_1/Group_2/file_04.txt",
+                ],
+            )
+
+    @responses.activate
+    def test_sync_create_dataset_with_files_to_v3(self):
+        """Test that new dataset with file metadata is synced to V3."""
+        with self.integration_enabled():
+            cr = self.cr_test_data
+            self._add_file(cr, "/TestExperiment/Directory_1/Group_1/file_01.txt", with_metadata=True)
+            self._add_file(cr, "/TestExperiment/Directory_1/Group_2/file_03.txt", with_metadata=True)
+
+            response = self.client.post("/rest/v2/datasets?draft=true", cr, format="json")
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+            self.assertEqual(len(responses.calls), 1)
+            data = json.loads(responses.calls[0].request.body)
+            self.assertEqual(response.data["identifier"], data["dataset_json"]["identifier"])
+
+            file_data = data["dataset_json"]["research_dataset"]["files"]
+            self.assertEqual(len(file_data), 2)
+            self.assertEqual(file_data[0]["details"]["file_path"], "/TestExperiment/Directory_1/Group_1/file_01.txt")
+            self.assertEqual(file_data[1]["details"]["file_path"], "/TestExperiment/Directory_1/Group_2/file_03.txt")
+
+            synced_files = list(
+                File.objects.filter(id__in=data["legacy_file_ids"])
+                .order_by("file_path")
+                .values_list("file_path", flat=True)
+            )
+            self.assertEqual(
+                synced_files,
+                [
+                    "/TestExperiment/Directory_1/Group_1/file_01.txt",
+                    "/TestExperiment/Directory_1/Group_2/file_03.txt",
+                ],
+            )
+
+
+    @responses.activate
+    def test_sync_update_dataset_files_sync_to_v3(self):
+        """Test that updating dataset files is synced to V3."""
+        cr = self.cr_test_data
+        response = self.client.post("/rest/v2/datasets?draft=true", cr, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        cr_id = response.data["id"]
+
+        file_actions = {"files": [], "directories": []}
+        self._add_file(file_actions, "/TestExperiment/Directory_1/Group_1/file_01.txt", with_metadata=True)
+        self._add_file(file_actions, "/TestExperiment/Directory_1/Group_2/file_03.txt", with_metadata=True)
+        with self.integration_enabled():
+            response = self.client.post(f"/rest/v2/datasets/{cr_id}/files", file_actions, format="json")
+            self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+            self.assertEqual(len(responses.calls), 1)
+            data = json.loads(responses.calls[0].request.body)
+
+            response = self.client.get(f"/rest/v2/datasets/{cr_id}", format="json")
+            self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+            self.assertEqual(response.data["identifier"], data["dataset_json"]["identifier"])
+            file_data = data["dataset_json"]["research_dataset"]["files"]
+            self.assertEqual(len(file_data), 2)
+            self.assertEqual(file_data[0]["details"]["file_path"], "/TestExperiment/Directory_1/Group_1/file_01.txt")
+            self.assertEqual(file_data[1]["details"]["file_path"], "/TestExperiment/Directory_1/Group_2/file_03.txt")
+
+            synced_files = list(
+                File.objects.filter(id__in=data["legacy_file_ids"])
+                .order_by("file_path")
+                .values_list("file_path", flat=True)
+            )
+            self.assertEqual(
+                synced_files,
+                [
+                    "/TestExperiment/Directory_1/Group_1/file_01.txt",
+                    "/TestExperiment/Directory_1/Group_2/file_03.txt",
+                ],
+            )

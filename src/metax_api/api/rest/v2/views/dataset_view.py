@@ -17,6 +17,7 @@ from metax_api.api.rest.base.views import DatasetViewSet
 from metax_api.api.rest.v2.serializers import CatalogRecordSerializerV2
 from metax_api.exceptions import Http400, Http403
 from metax_api.models import CatalogRecordV2
+from metax_api.models.catalog_record import V3Integration
 from metax_api.services import CatalogRecordServiceV2, CommonService as CS
 from metax_api.services.file_v3_sync_service import CatalogRecordFilesSyncFromV3Serializer
 
@@ -143,7 +144,7 @@ class DatasetViewSet(DatasetViewSet):
         cr = self.get_object()
 
         result = cr.change_files(request.data)
-
+        cr.add_post_request_callable(V3Integration(cr, "update"))
         return Response(data=result, status=status.HTTP_200_OK)
 
     @action(
