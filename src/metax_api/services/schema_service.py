@@ -33,7 +33,7 @@ class SchemaService:
             if isfile(join(schema_dir, f)) and f.endswith("_schema.json")
         ]
         return Response(
-            data={"count": len(schema_files), "results": schema_files},
+            data={"count": len(schema_files), "results": sorted(schema_files)},
             status=status.HTTP_200_OK,
         )
 

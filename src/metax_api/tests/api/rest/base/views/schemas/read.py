@@ -30,6 +30,10 @@ class SchemaApiReadTests(APITestCase, TestClassUtils):
         response = self.client.get("/rest/schemas/%s" % list_response.data["results"][0])
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_read_schema_retrieve_datacite(self):
+        response = self.client.get("/rest/schemas/datacite_4.1")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
     def test_read_schema_not_exists(self):
         response = self.client.get("/rest/schemas/thisshouldnotexist")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

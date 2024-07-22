@@ -17,6 +17,7 @@ class SchemaViewSet(viewsets.ReadOnlyModelViewSet):
     authentication_classes = ()
     permission_classes = (ServicePermissions,)
     api_type = "rest"
+    lookup_value_regex = '[^/]+'
 
     def list(self, request, *args, **kwargs):
         return SchemaService.get_all_schemas()
