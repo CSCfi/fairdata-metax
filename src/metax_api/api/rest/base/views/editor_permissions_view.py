@@ -15,11 +15,11 @@ from rest_framework.response import Response
 
 from metax_api.exceptions import Http403
 from metax_api.models import CatalogRecord
-from metax_api.models.catalog_record import PermissionRole, EditorUserPermission
+from metax_api.models.catalog_record import PermissionRole, EditorUserPermission, V3Integration
 from metax_api.permissions import ServicePermissions, EndUserPermissions
 from metax_api.services import CommonService
 
-from ..serializers import EditorPermissionsSerializer
+from ..serializers import EditorPermissionsUserSerializer
 from .common_view import CommonViewSet
 
 _logger = logging.getLogger(__name__)
@@ -31,7 +31,7 @@ class EditorPermissionViewSet(CommonViewSet):
         ServicePermissions,
         EndUserPermissions,
     ]
-    serializer_class = EditorPermissionsSerializer
+    serializer_class = EditorPermissionsUserSerializer
 
     def __init__(self, *args, **kwargs):
         super(EditorPermissionViewSet, self).__init__(*args, **kwargs)
@@ -54,18 +54,26 @@ class EditorPermissionViewSet(CommonViewSet):
         # unknown user
         return False
 
-    def get_queryset(self):
+    def _get_catalog_record(self):
         if CommonService.is_primary_key(self.kwargs["cr_identifier"]):
             cr = get_object_or_404(CatalogRecord, pk=int(self.kwargs["cr_identifier"]))
         else:
             cr = get_object_or_404(CatalogRecord, identifier=self.kwargs["cr_identifier"])
         if not self._user_has_access_to_permissions(cr):
             raise Http403({"detail": ["You do not have access to permissions of this dataset."]})
+        return cr
+
+    def _add_v3_callable(self):
+        cr = self._get_catalog_record()
+        cr.add_post_request_callable(V3Integration(cr, "update"))
+
+    def get_queryset(self):
+        cr = self._get_catalog_record()
         return cr.editor_permissions.users
 
     def list(self, request, *args, **kwargs):
         users = self.get_queryset()
-        editorserializer = EditorPermissionsSerializer(users.all(), many=True)
+        editorserializer = EditorPermissionsUserSerializer(users.all(), many=True)
         return Response(editorserializer.data)
 
     def create(self, request, *args, **kwargs):
@@ -87,7 +95,7 @@ class EditorPermissionViewSet(CommonViewSet):
             data['date_modified'] = datetime.datetime.now()
             data['date_removed'] = None
             data['removed'] = False
-            editorserializer = EditorPermissionsSerializer(removed_user, data=data, partial=True)
+            editorserializer = EditorPermissionsUserSerializer(removed_user, data=data, partial=True)
         elif removed_user not in EMPTY_VALUES and removed_user.removed is False:
             return Response(
                 {'user_id': "User_id already exists"}, status=status.HTTP_400_BAD_REQUEST
@@ -95,9 +103,10 @@ class EditorPermissionViewSet(CommonViewSet):
         else:
             data['editor_permissions'] = perms_id
             data['date_created'] = datetime.datetime.now()
-            editorserializer = EditorPermissionsSerializer(data=data)
+            editorserializer = EditorPermissionsUserSerializer(data=data)
         if editorserializer.is_valid():
             editorserializer.save()
+            self._add_v3_callable()
             return Response(editorserializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(editorserializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -113,6 +122,7 @@ class EditorPermissionViewSet(CommonViewSet):
             )
         else:
             user.remove()
+            self._add_v3_callable()
         return Response(status=status.HTTP_200_OK)
 
     def partial_update(self, request, **kwargs):
@@ -126,9 +136,10 @@ class EditorPermissionViewSet(CommonViewSet):
                 return Response({"error": "Can't change last creator"}, status=status.HTTP_400_BAD_REQUEST)
 
         data['date_modified'] = datetime.datetime.now()
-        serializer = EditorPermissionsSerializer(user, data=data, partial=True)
+        serializer = EditorPermissionsUserSerializer(user, data=data, partial=True)
         if serializer.is_valid():
             serializer.save()
+            self._add_v3_callable()
             return Response(serializer.data)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

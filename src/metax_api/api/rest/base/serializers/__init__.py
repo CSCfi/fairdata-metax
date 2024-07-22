@@ -13,4 +13,7 @@ from .file_serializer import FileSerializer, LightFileSerializer
 from .file_storage_serializer import FileStorageSerializer
 from .serializer_utils import validate_json
 from .xml_metadata_serializer import XmlMetadataSerializer
-from .editor_permissions_serializer import EditorPermissionsSerializer
+from .editor_permissions_serializer import (
+    EditorPermissionsSerializer,
+    EditorPermissionsUserSerializer,
+)

@@ -12,14 +12,17 @@ from json import dumps as json_dumps, loads
 from time import sleep
 
 import pika
-
-from django.core import serializers
-from django.db import DatabaseError
 from django.conf import settings
+from django.core import serializers
 from django.core.serializers.json import DjangoJSONEncoder
+from django.db import DatabaseError
 
 from metax_api.models import ApiError
-from metax_api.utils.utils import executing_test_case, datetime_to_str, parse_timestamp_string_to_tz_aware_datetime
+from metax_api.utils.utils import (
+    datetime_to_str,
+    executing_test_case,
+    parse_timestamp_string_to_tz_aware_datetime,
+)
 
 _logger = logging.getLogger(__name__)
 

@@ -12,11 +12,14 @@ from copy import deepcopy
 from datetime import datetime, timedelta
 
 from django.conf import settings
+from django.contrib.auth.models import AnonymousUser
 from django.contrib.postgres.fields import ArrayField
 from django.db import connection, models, transaction
 from django.db.models import JSONField, Q, Sum
 from django.http import Http404
+from django.http.request import HttpRequest
 from django.utils.crypto import get_random_string
+from rest_framework.request import Request
 from rest_framework.serializers import ValidationError
 
 from metax_api.exceptions import Http400, Http403, Http503
@@ -71,6 +74,10 @@ class EditorPermissions(models.Model):
     """
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
+    @property
+    def all_users(self):
+        return self.users(manager="objects_unfiltered").all()
 
 
 class PermissionRole(models.TextChoices):
@@ -1212,7 +1219,7 @@ class CatalogRecord(Common):
 
     def delete(self, *args, **kwargs):
         from metax_api.services import CommonService
-        
+
         self.add_post_request_callable(V3Integration(self, "delete"))
 
         if (self.api_meta["version"] == 3
@@ -1235,7 +1242,7 @@ class CatalogRecord(Common):
             self.add_post_request_callable(RabbitMQPublishRecord(self, "delete"))
             super().delete()
             return self.id
-            
+
         if self.request and CommonService.get_boolean_query_param(self.request, "hard"):
             raise ValidationError(
                 {
@@ -3504,4 +3511,19 @@ class V3Integration:
 
     def _to_json(self):
         serializer_class = self.cr.serializer_class
-        return serializer_class(self.cr).data
+
+        # Create request context for serializer
+        http_request = HttpRequest()
+        http_request.method = "GET"
+        http_request.GET["include_editor_permissions"] = "true"
+        request = Request(http_request)
+        request.user = AnonymousUser()
+        request.user.is_service = True
+        request.user.username = "metax"
+
+        return serializer_class(self.cr, context={"request": request}).data
+
+    def _get_file_ids(self):
+        """Serialize dataset files in same format as /datasets/<id>/files?id_list=true."""
+        queryset = self.cr.files(manager="objects_unfiltered").order_by("id").values_list("id", flat=True)
+        return list(queryset)

@@ -1434,7 +1434,7 @@ class CatalogRecordV2(CatalogRecord):
         new_version.research_dataset["metadata_version_identifier"] = generate_uuid_identifier()
 
         # temporary "pid" until draft is published
-        new_version.research_dataset["preferred_identifier"] = "draft:%s" % self.identifier
+        new_version.research_dataset["preferred_identifier"] = "draft:%s" % new_version.identifier
 
         if old_version.files.exists():
             # copy all files from previous version to new version.

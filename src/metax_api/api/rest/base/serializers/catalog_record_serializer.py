@@ -21,6 +21,9 @@ from metax_api.services import (
     RedisCacheService as cache,
 )
 
+from metax_api.api.rest.base.serializers.editor_permissions_serializer import (
+    EditorPermissionsWithAllUsersSerializer, EditorPermissionsSerializer, EditorPermissionsUserSerializer,
+)
 from .common_serializer import CommonSerializer
 from .contract_serializer import ContractSerializer
 from .data_catalog_serializer import DataCatalogSerializer
@@ -358,6 +361,15 @@ class CatalogRecordSerializer(CommonSerializer):
 
         res = self._filter_research_dataset_fields(res)
         res = self._check_and_strip_sensitive_fields(instance, res)
+
+        # Include editor_permissions in the response when ?include_editor_permissions=true
+        if "request" in self.context and (
+            CommonService.get_boolean_query_param(
+                self.context["request"], "include_editor_permissions"
+            )
+            and instance.user_is_privileged(instance.request or self.context.get("request"))
+        ):
+            res["editor_permissions"] = EditorPermissionsWithAllUsersSerializer(instance.editor_permissions).data
 
         return res
 

@@ -7,13 +7,20 @@
 
 import logging
 from collections import OrderedDict
+
 from django.conf import settings
 from django.db import connection
 from django.db.models import Count, Sum
 from django.db.models.functions import Coalesce
 
 from metax_api.exceptions import Http400
-from metax_api.models import CatalogRecord, DataCatalog, File, ProjectStatistics, OrganizationStatistics
+from metax_api.models import (
+    CatalogRecord,
+    DataCatalog,
+    File,
+    OrganizationStatistics,
+    ProjectStatistics,
+)
 
 _logger = logging.getLogger(__name__)
 

@@ -1233,6 +1233,7 @@ paths:
             $ref: "#/definitions/StringList"
         - $ref: "#/parameters/fields"
         - $ref: "#/parameters/include_legacy"
+        - $ref: "#/parameters/include_editor_permissions"
       responses:
         "200":
           description: Successful operation, returns a list of queried datasets.
@@ -1302,6 +1303,7 @@ paths:
         - $ref: "#/parameters/fields"
         - $ref: "#/parameters/research_dataset_fields"
         - $ref: "#/parameters/include_legacy"
+        - $ref: "#/parameters/include_editor_permissions"
       responses:
         "200":
           description: Return dataset metadata
@@ -2213,6 +2215,14 @@ parameters:
     description: Only return legacy datasets. If set to false, return non-legacy datasets. When parameter is not given, return both legacy and non-legacy datasets.
     required: false
     type: boolean
+
+  include_editor_permissions:
+    name: include_editor_permissions
+    in: query
+    description: Include editor_permissions (also includes removed editors) in dataset response. Requires special privileges to the dataset.
+    required: false
+    type: boolean
+    default: false
 
   fields:
     name: fields

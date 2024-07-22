@@ -1050,6 +1050,7 @@ paths:
         - $ref: "#/parameters/fields"
         - $ref: "#/parameters/research_dataset_fields"
         - $ref: "#/parameters/include_legacy"
+        - $ref: "#/parameters/include_editor_permissions"
       responses:
         "200":
           description: Successful operation, returns a list of datasets containing full dataset objects including their data catalog and contract information. When using query parameters, search result can be an empty list.
@@ -1322,6 +1323,7 @@ paths:
         - $ref: "#/parameters/fields"
         - $ref: "#/parameters/research_dataset_fields"
         - $ref: "#/parameters/include_legacy"
+        - $ref: "#/parameters/include_editor_permissions"
       responses:
         "200":
           description: Return dataset metadata
@@ -2507,6 +2509,14 @@ parameters:
     name: include_user_metadata
     in: query
     description: Include user metadata for files (dataset-specific metadata) (fields research_dataset.files and research_dataset.directories)
+    required: false
+    type: boolean
+    default: false
+
+  include_editor_permissions:
+    name: include_editor_permissions
+    in: query
+    description: Include editor_permissions (also includes removed editors) in dataset response. Requires special privileges to the dataset.
     required: false
     type: boolean
     default: false
