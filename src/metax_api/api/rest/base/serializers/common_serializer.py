@@ -91,7 +91,7 @@ class CommonSerializer(ModelSerializer):
 
         if "only_fields" in kwargs:
             self.requested_fields = kwargs.pop("only_fields")
-        
+
         elif (
             "view" in self.context
             and "request" in self.context

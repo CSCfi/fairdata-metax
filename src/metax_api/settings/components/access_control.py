@@ -154,7 +154,7 @@ api_permissions.rest.directories.read = [
 
 api_permissions.rest.directories.delete = [Role.METAX, Role.IDA, Role.TPAS]
 
-api_permissions.rest.files.create = [Role.METAX, Role.IDA, Role.TPAS]
+api_permissions.rest.files.create = [Role.METAX, Role.IDA, Role.TPAS, Role.METAX_SERVICE]
 api_permissions.rest.files.read = [
     Role.METAX,
     Role.IDA,
@@ -163,6 +163,7 @@ api_permissions.rest.files.read = [
     Role.END_USERS,
     Role.QVAIN,
     Role.QVAIN_LIGHT,
+    Role.METAX_SERVICE,
 ]
 api_permissions.rest.files["update"] = [
     Role.METAX,
@@ -172,8 +173,9 @@ api_permissions.rest.files["update"] = [
     Role.END_USERS,
     Role.QVAIN,
     Role.QVAIN_LIGHT,
+    Role.METAX_SERVICE,
 ]
-api_permissions.rest.files.delete = [Role.METAX, Role.IDA, Role.TPAS]
+api_permissions.rest.files.delete = [Role.METAX, Role.IDA, Role.TPAS, Role.METAX_SERVICE]
 
 api_permissions.rest.filestorages.create = [Role.METAX]
 api_permissions.rest.filestorages.read = [Role.METAX]

@@ -232,9 +232,9 @@ class FileApiWriteReferenceDataValidationTests(FileApiWriteCommon):
         self.test_new_data["file_characteristics"]["file_format"] = self.ff_with_version[
             "input_file_format"
         ]
-        self.test_new_data["file_characteristics"][
-            "format_version"
-        ] = self.ff_with_different_version["output_format_version"]
+        self.test_new_data["file_characteristics"]["format_version"] = (
+            self.ff_with_different_version["output_format_version"]
+        )
         response = self.client.post("/rest/files", self.test_new_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -481,7 +481,6 @@ class FileApiWriteCreateTests(FileApiWriteCommon):
 
 
 class FileApiWriteCreateDirectoriesTests(FileApiWriteCommon):
-
     """
     Only checking directories related stuff in these tests
     """
@@ -1644,7 +1643,6 @@ class FileApiWriteEndUserAccess(FileApiWriteCommon):
 
 
 class FileApiWriteDryrunTest(FileApiWriteCommon):
-
     """
     Test query param ?dryrun=bool separately for post /rest/files api, due to special
     behavior in POST /rest/files.
@@ -1668,3 +1666,208 @@ class FileApiWriteDryrunTest(FileApiWriteCommon):
             False,
             "file should not get truly created when using parameter dryrun",
         )
+
+
+class FileApiWriteSyncFromV3(FileApiWriteCommon):
+    """Tests for /rest/files/sync_from_v3 endpoint."""
+
+    @property
+    def storage_identifier(self):
+        return self._get_object_from_test_data("filestorage", requested_index=0)[
+            "file_storage_json"
+        ]["identifier"]
+
+    def get_file_json(self, name, date_removed=None, **kwargs):
+        return {
+            "id": None,
+            "identifier": f"file_{name}",
+            "file_path": f"/data/{name}",
+            "file_uploaded": "2022-11-12T10:34:00Z",
+            "file_modified": "2022-11-12T10:34:00Z",
+            "file_frozen": "2022-11-12T11:20:01Z",
+            "byte_size": 1024,
+            "file_storage": self.storage_identifier,
+            "project_identifier": "fd_test_project",
+            "user_modified": "fd_user",
+            "date_created": "2024-08-01T07:44:04.688Z",
+            "date_modified": "2024-08-01T07:44:04.688Z",
+            "date_removed": date_removed,
+            "file_deleted": date_removed,
+            "removed": bool(date_removed),
+            "checksum_checked": "2022-11-12T10:34:00Z",
+            "checksum_algorithm": "MD5",
+            "checksum_value": "bd0f1dff407071e5db8eb57dde4847a3",
+            **kwargs,
+        }
+
+    def test_sync_create_from_v3(self):
+        """Test creating new file from v3."""
+        last_id = File.objects.last().id
+        files_json = [self.get_file_json("file1.txt")]
+        self._use_http_authorization(username="metax_service")
+        response = self.client.post("/rest/files/sync_from_v3", files_json, format="json")
+        self.assertEqual(
+            response.json(),
+            [
+                {
+                    "id": last_id + 1,
+                    "identifier": "file_file1.txt",
+                    "file_storage": self.storage_identifier,
+                }
+            ],
+        )
+
+        file = File.objects.get(id=last_id + 1)
+        self.assertEqual(file.identifier, "file_file1.txt")
+        self.assertEqual(file.file_path, "/data/file1.txt")
+        self.assertEqual(file.file_name, "file1.txt")
+        self.assertEqual(file.file_format, "txt")
+        self.assertFalse(file.removed)
+
+    def test_sync_update_from_v3_with_id(self):
+        """Testupdating existing file from v3 using id."""
+        files_json = [self.get_file_json("file1.txt", date_removed="2024-08-02T14:15:00Z")]
+        self._use_http_authorization(username="metax_service")
+        self.client.post("/rest/files/sync_from_v3", files_json, format="json")
+        file = File.objects_unfiltered.get(identifier="file_file1.txt")
+        self.assertEqual(file.byte_size, 1024)
+        self.assertTrue(file.removed)
+
+        # Update with id should work even for removed files
+        files_json = [self.get_file_json("file1.txt", id=file.id, byte_size=1337)]
+        self.client.post("/rest/files/sync_from_v3", files_json, format="json")
+        file.refresh_from_db()
+        self.assertEqual(file.byte_size, 1337)
+        self.assertFalse(file.removed)  # file no longer removed
+
+    def test_sync_removed_from_v3(self):
+        """Test creating a removed file from v3."""
+        last_id = File.objects.last().id
+        files_json = [self.get_file_json("file1.txt", date_removed="2024-08-02T14:15:00Z")]
+        self._use_http_authorization(username="metax_service")
+        response = self.client.post("/rest/files/sync_from_v3", files_json, format="json")
+        self.assertEqual(
+            response.json(),
+            [
+                {
+                    "id": last_id + 1,
+                    "identifier": "file_file1.txt",
+                    "file_storage": self.storage_identifier,
+                }
+            ],
+        )
+
+        file = File.objects_unfiltered.get(id=last_id + 1)
+        self.assertEqual(file.identifier, "file_file1.txt")
+        self.assertEqual(file.file_path, "/data/file1.txt")
+        self.assertEqual(file.file_name, "file1.txt")
+        self.assertEqual(file.file_format, "txt")
+        self.assertTrue(file.removed)
+
+
+    def test_sync_update_from_v3_with_identifier(self):
+        """Test creating/updating file from v3 using identifier."""
+        files_json = [self.get_file_json("file1.txt")]
+        self._use_http_authorization(username="metax_service")
+        self.client.post("/rest/files/sync_from_v3", files_json, format="json")
+        file = File.objects.get(identifier="file_file1.txt")
+        self.assertEqual(file.byte_size, 1024)
+
+        # Update without id should work if file is not removed
+        files_json = [self.get_file_json("file1.txt", byte_size=1337, date_removed="2024-08-02T14:15:00Z")]
+        self.client.post("/rest/files/sync_from_v3", files_json, format="json")
+        file.refresh_from_db()
+        self.assertEqual(file.byte_size, 1337)
+        self.assertTrue(file.removed)  # file is now removed
+
+        # Update without id should create new file if no non-removed file matches identifier
+        files_json = [self.get_file_json("file1.txt", byte_size=123)]
+        resp = self.client.post("/rest/files/sync_from_v3", files_json, format="json")
+        self.assertEqual(resp.json()[0]["id"], file.id + 1) # New file has been created
+        file.refresh_from_db()
+        self.assertEqual(file.byte_size, 1337)
+        self.assertTrue(file.removed)  # file is now removed
+
+    def test_sync_create_with_manual_id(self):
+        """Test creating a file with manually provided id from v3."""
+        last_id = File.objects.last().id
+        files_json = [
+            self.get_file_json("file1.txt", id=123456789),
+        ]
+        self._use_http_authorization(username="metax_service")
+        response = self.client.post("/rest/files/sync_from_v3", files_json, format="json")
+        self.assertEqual(
+            response.json(),
+            [
+                {
+                    "id": 123456789,
+                    "identifier": "file_file1.txt",
+                    "file_storage": self.storage_identifier,
+                },
+            ],
+        )
+        file = File.objects.get(id=123456789)
+        self.assertEqual(file.identifier, "file_file1.txt")
+
+        # File with manully set id should not alter next value in id sequence
+        files_json = [
+            self.get_file_json("file2.txt"),
+        ]
+        response = self.client.post("/rest/files/sync_from_v3", files_json, format="json")
+        self.assertEqual(
+            response.json(),
+            [
+                {
+                    "id": last_id + 1,
+                    "identifier": "file_file2.txt",
+                    "file_storage": self.storage_identifier,
+                },
+            ],
+        )
+
+    def test_sync_multiple_actions(self):
+        """Test combination of create, update and soft delete file from v3."""
+        self._use_http_authorization(username="metax_service")
+        response = self.client.post(
+            "/rest/files/sync_from_v3",
+            [self.get_file_json("file1.txt"), self.get_file_json("file2.txt")],
+            format="json",
+        )
+        file1_id = response.json()[0]["id"]
+        file2_id = response.json()[1]["id"]
+
+        # Perform multiple file actions at once
+        files_json = [
+            self.get_file_json("file1.txt", id=file1_id, byte_size=123),  # update
+            self.get_file_json(
+                "file2.txt", id=file2_id, date_removed="2024-08-02T14:15:00Z"
+            ),  # remove
+            self.get_file_json("file3.txt", byte_size=456),  # create
+        ]
+        response = self.client.post("/rest/files/sync_from_v3", files_json, format="json")
+        self.assertEqual(
+            response.json(),
+            [
+                {
+                    "id": file1_id,
+                    "identifier": "file_file1.txt",
+                    "file_storage": self.storage_identifier,
+                },
+                {
+                    "id": file2_id,
+                    "identifier": "file_file2.txt",
+                    "file_storage": self.storage_identifier,
+                },
+                {
+                    "id": file2_id + 1,
+                    "identifier": "file_file3.txt",
+                    "file_storage": self.storage_identifier,
+                },
+            ],
+        )
+        file1 = File.objects.get(id=file1_id)
+        file2 = File.objects_unfiltered.get(id=file2_id)
+        file3 = File.objects.get(id=file2_id + 1)
+        self.assertEqual(file1.byte_size, 123)
+        self.assertTrue(file2.removed)
+        self.assertEqual(file3.byte_size, 456)

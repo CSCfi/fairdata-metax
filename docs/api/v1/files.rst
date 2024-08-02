@@ -110,7 +110,6 @@ Example payload to create a file in Metax (``POST /rest/files``).
         "identifier": "abc123",
         "file_name": "file.pdf",
         "file_path": "/some/file/path/file.pdf",
-        "replication_path": "/path/of/replication/file.pdf",
         "file_uploaded": "2017-09-27T12:38:18.700Z",
         "file_modified": "2017-09-27T12:38:18.700Z",
         "file_frozen": "2017-09-27T12:38:18.700Z",

@@ -660,7 +660,7 @@ paths:
         - name: file_ordering
           in: query
           description: |
-            Sorting field for files. Files can be sorted in reverse order by adding "-" prefix to 
+            Sorting field for files. Files can be sorted in reverse order by adding "-" prefix to
             the field name eg. "file_ordering=-file_name". Multiple fields can be used by using "," as a separator.
           required: false
           type: string
@@ -668,7 +668,7 @@ paths:
         - name: directory_ordering
           in: query
           description: |
-            Sorting field for directories. Directories can be sorted in reverse order by adding "-" prefix to 
+            Sorting field for directories. Directories can be sorted in reverse order by adding "-" prefix to
             the field name eg. "directory_ordering=-directory_name". Multiple fields can be used by using "," as a separator.
           required: false
           type: string
@@ -748,7 +748,7 @@ paths:
         - name: file_ordering
           in: query
           description: |
-            Sorting field for files. Files can be sorted in reverse order by adding "-" prefix to 
+            Sorting field for files. Files can be sorted in reverse order by adding "-" prefix to
             the field name eg. "file_ordering=-file_name". Multiple fields can be used by using "," as a separator.
           required: false
           type: string
@@ -756,7 +756,7 @@ paths:
         - name: directory_ordering
           in: query
           description: |
-            Sorting field for directories. Directories can be sorted in reverse order by adding "-" prefix to 
+            Sorting field for directories. Directories can be sorted in reverse order by adding "-" prefix to
             the field name eg. "directory_ordering=-directory_name". Multiple fields can be used by using "," as a separator.
           required: false
           type: string
@@ -791,6 +791,26 @@ paths:
           description: Directory not found. Also when not authenticated request
       tags:
         - File API
+  /rest/files/sync_from_v3:
+    post:
+      summary: Synchronize files from Metax V3
+      description: |
+        Endpoint for updating files from V3. Fairdata internal use.
+      produces:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          description: A list of file objects in format accepted by FileSyncFromV3Serializer.
+          required: true
+      responses:
+        "200":
+          description: |
+            List of file id, identifier and file_storage identifier values.
+        "400":
+          description: Bad parameters, details in body
+      tags:
+      - File API
 
   # Data Catalog API
   /rest/datacatalogs:

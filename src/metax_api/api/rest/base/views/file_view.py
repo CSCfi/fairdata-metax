@@ -19,8 +19,10 @@ from rest_framework.response import Response
 
 from metax_api.exceptions import Http400, Http403
 from metax_api.models import File, XmlMetadata
+from metax_api.models.file_storage import FileStorage
 from metax_api.renderers import XMLRenderer
 from metax_api.services import AuthService, CommonService, FileService
+from metax_api.services.file_v3_sync_service import FilesSyncFromV3Service, FileSyncFromV3Serializer
 
 from ..serializers import FileSerializer, XmlMetadataSerializer
 from .common_view import CommonViewSet
@@ -315,3 +317,23 @@ class FileViewSet(CommonViewSet):
         raise ValidationError(
             {"detail": ["API has been moved to RPC API: /rpc/files/flush_project"]}
         )
+
+    @action(detail=False, methods=["post"], url_path="sync_from_v3")
+    def sync_from_v3(self, request):
+        """Endpoint for synchronizing file updates from V3.
+
+        Creates, updates or removes files. Also makes required directory changes
+        and deprecates datasets if needed. Accepts a subset of File fields
+        (see FileSyncFromV3Serializer) and uses them to compute the remaining field values.
+
+        Returns list of dicts containing id, identifier and file_storage values
+        of the updated files.
+        """
+        if self.request and not self.request.user.is_metax_v3:
+            raise Http400("Endpoint is supported only for metax_service user")
+
+        serializer = FileSyncFromV3Serializer(data=request.data, context={"request": request}, many=True)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+        files = FilesSyncFromV3Service.sync_from_v3(request, data)
+        return Response(data=files, status=status.HTTP_200_OK)
