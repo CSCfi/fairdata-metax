@@ -1224,10 +1224,14 @@ class CatalogRecordV2(CatalogRecord):
             included_dirs = set()
 
             for dr in current_dir_entries:
-
-                dir_has_files = self.files.filter(
-                    file_path__startswith="%s/" % dr["directory_path"]
-                ).exists()
+                path = dr["directory_path"]
+                dir_has_files: bool
+                if path == "/":
+                    dir_has_files = self.files.exists()
+                else:
+                    dir_has_files = self.files.filter(
+                        file_path__startswith="%s/" % path
+                    ).exists()
 
                 if dir_has_files:
                     # directory or one of its sub directories has at least one file. therefore

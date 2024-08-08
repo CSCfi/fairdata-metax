@@ -329,7 +329,7 @@ class FileViewSet(CommonViewSet):
         Returns list of dicts containing id, identifier and file_storage values
         of the updated files.
         """
-        if self.request and not self.request.user.is_metax_v3:
+        if not request.user.is_metax_v3:
             raise Http400("Endpoint is supported only for metax_service user")
 
         serializer = FileSyncFromV3Serializer(data=request.data, context={"request": request}, many=True)

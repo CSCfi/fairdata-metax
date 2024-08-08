@@ -22,6 +22,7 @@ api_permissions = Box(
     default_box=True,
 )
 
+
 # Associated datacatalog permissions are defined
 # in /src/metax_api/initialdata/datacatalogs.json
 # -----------------------------------------------

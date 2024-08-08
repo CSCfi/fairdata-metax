@@ -14,10 +14,13 @@ from django.conf import settings
 from django.utils import timezone
 from rest_framework.serializers import ValidationError
 
-from metax_api.models import File
+from metax_api.models import File, Directory
+from metax_api.models.common import Common
 from metax_api.models.file_storage import FileStorage
 from rest_framework.serializers import Serializer, ListSerializer, ModelSerializer
 from rest_framework import serializers
+
+from metax_api.utils.utils import get_tz_aware_now_without_micros
 
 
 DEBUG = settings.DEBUG
@@ -58,7 +61,7 @@ class FileStorageIdentifierField(serializers.RelatedField):
 
 class FileSyncFromV3Serializer(ModelSerializer):
     file_path = serializers.CharField(max_length=None, trim_whitespace=False)
-    file_storage = FileStorageIdentifierField() # E.g. urn:nbn:fi:att:file-storage-ida
+    file_storage = FileStorageIdentifierField()  # E.g. urn:nbn:fi:att:file-storage-ida
 
     def to_internal_value(self, data):
         from metax_api.api.rest.base.serializers.file_serializer import FileSerializer
@@ -88,13 +91,15 @@ class FileSyncFromV3Serializer(ModelSerializer):
 
         # Compute file name and format from path
         value["file_name"] = os.path.split(path)[1]
+        if not value["file_name"]:
+            raise ValidationError({"file_path": [f"Invalid file name in {path}"]})
         value["file_format"] = os.path.splitext(path)[1][1:]
 
         # Use file modification date for timestamps missing from v3
         modified = value["file_modified"]
         value["checksum_checked"] = modified
 
-        value["open_access"] = True # Always assume True, open_access is not used in V3
+        value["open_access"] = True  # Always assume True, open_access is not used in V3
         return value
 
     class Meta:
@@ -110,7 +115,7 @@ class FileSyncFromV3Serializer(ModelSerializer):
             "file_deleted",
             "file_frozen",
             "file_modified",
-            "file_path", # Used also for determining file_name and file_format
+            "file_path",  # Used also for determining file_name and file_format
             "file_storage",
             "file_uploaded",
             "identifier",
@@ -119,7 +124,7 @@ class FileSyncFromV3Serializer(ModelSerializer):
             "pas_compatible",
             "project_identifier",
             # Common fields
-            "user_modified", # Used also for user_created
+            "user_modified",  # Used also for user_created
             "date_modified",
             "date_created",
             "removed",
@@ -252,17 +257,17 @@ class FilesSyncFromV3Service:
             for file in File.objects.filter(identifier__in=identifiers_without_id)
         }
 
-        changed_fields = set() # Keep track of which fields need updating
+        changed_fields = set()  # Keep track of which fields need updating
         created_files = []
         updated_files = []
         unchanged_files = []
-        unique_check_files = [] # Files that need uniqueness checks (created non-removed files)
+        unique_check_files = []  # Files that need uniqueness checks (created non-removed files)
         for file_data in files_data:
             file_id = file_data["id"]
             file_identifier = file_data["identifier"]
-            file: Optional[File] = all_files_by_id.get(file_id) or nonremoved_files_by_identifier.get(
-                file_identifier
-            )
+            file: Optional[File] = all_files_by_id.get(
+                file_id
+            ) or nonremoved_files_by_identifier.get(file_identifier)
             if file:
                 # File with id found, update existing values
                 changed = False
@@ -342,3 +347,151 @@ class FilesSyncFromV3Service:
                 }
                 for file in files
             ]
+
+
+class StrictSyncSerializer(serializers.Serializer):
+    """Serializer that throws an error for unknown fields."""
+
+    def to_internal_value(self, data):
+        if unknown_fields := set(data).difference(self.fields) - {"api_meta"}:
+            raise serializers.ValidationError({field: "Unknown field" for field in unknown_fields})
+        return super().to_internal_value(data)
+
+
+class FileMetadataSerializer(StrictSyncSerializer):
+    identifier = serializers.CharField()
+    title = serializers.CharField(required=False)
+    description = serializers.CharField(required=False)
+    file_type = serializers.DictField(required=False)
+    use_category = serializers.DictField()
+
+
+class DirectoryMetadataSerializer(StrictSyncSerializer):
+    directory_path = serializers.CharField()  # converted to identifier in save
+    title = serializers.CharField(required=False)
+    description = serializers.CharField(required=False)
+    use_category = serializers.DictField()
+
+
+class CatalogUserMetadataSyncFromV3Serializer(StrictSyncSerializer):
+    files = FileMetadataSerializer(required=False, many=True)
+    directories = DirectoryMetadataSerializer(required=False, many=True)
+
+    def save(self, validated_data, catalog_record):
+        from metax_api.api.rest.v2.serializers import CatalogRecordSerializerV2
+
+        # Validate file metadata using schema, fill in missing titles
+        value = validated_data
+        any_file = catalog_record.files.first()
+        if not any_file:
+            return
+
+        # Find identifiers for directories
+        project = any_file.project_identifier
+        paths = [d["directory_path"] for d in value["directories"]]
+        path_identifiers = {
+            path: identifier
+            for path, identifier in Directory.objects_unfiltered.filter(
+                project_identifier=project, directory_path__in=paths
+            ).values_list("directory_path", "identifier")
+        }
+        # Remove directory_path, assign identifier for validation
+        for dir in value["directories"]:
+            dir["identifier"] = path_identifiers.get(dir.pop("directory_path"))
+        CatalogRecordSerializerV2().validate_research_dataset_files(value)
+
+        # Because CatalogRecord.save() reverts modifications to
+        # research_dataset.files and research_dataset.directories using
+        # _initial_data, we also set _initial_data to override the behavior
+        files = value.get("files") or []
+        catalog_record.research_dataset["files"] = files
+        catalog_record._initial_data["research_dataset"]["files"] = files
+
+        directories = value.get("directories") or []
+        catalog_record.research_dataset["directories"] = directories
+        catalog_record._initial_data["research_dataset"]["directories"] = directories
+
+        # Validate that the file and directory metadata entries point to entries in the dataset
+        catalog_record._clear_non_included_file_metadata_entries(raise_on_not_found=True)
+
+        catalog_record.api_meta["version"] = 3
+        catalog_record.date_modified = get_tz_aware_now_without_micros()
+        catalog_record.save()
+        return value
+
+
+class CatalogRecordFilesSyncFromV3Serializer(StrictSyncSerializer):
+    file_ids = serializers.ListField(child=serializers.IntegerField())
+    user_metadata = CatalogUserMetadataSyncFromV3Serializer()
+
+    def to_internal_value(self, data):
+        value = super().to_internal_value(data)
+
+        # Check files exist
+        file_ids = value["file_ids"]
+        existing_ids = set(File.objects.filter(id__in=file_ids).values_list("id", flat=True))
+        nonexisting_ids = [f for f in file_ids if f not in existing_ids]
+        if nonexisting_ids:
+            joined = ", ".join((str(f) for f in nonexisting_ids))
+            raise serializers.ValidationError({"file_ids": [f"Files not found: {joined}"]})
+
+        # Check files are in the same project
+        projects = (
+            File.objects.filter(id__in=file_ids)
+            .values_list("project_identifier", flat=True)
+            .distinct()
+        )
+        if len(projects) > 1:
+            raise serializers.ValidationError(
+                {
+                    "file_ids": [
+                        f"Files should be from the same project, multiple projects found: {', '.join(sorted(projects))}"
+                    ]
+                }
+            )
+
+        # Check files are in the same storage
+        storages = (
+            File.objects.filter(id__in=file_ids)
+            .values_list("file_storage_id", flat=True)
+            .distinct()
+        )
+        if len(storages) > 1:
+            joined = ", ".join((str(s) for s in sorted(storages)))
+            raise serializers.ValidationError(
+                {
+                    "file_ids": [
+                        f"Files should be from the same storage, multiple storages found: {joined}"
+                    ]
+                }
+            )
+
+        return value
+
+    def _set_files(self, catalog_record, file_ids) -> int:
+        """Update catalog record file associations and return number of changes."""
+        old_files = set(catalog_record.files.values_list("id", flat=True))
+        new_files = []
+        for file in file_ids:
+            if file in old_files:
+                old_files.remove(file)
+            else:
+                new_files.append(file)
+
+        catalog_record.files.remove(*old_files)
+        catalog_record.files.add(*new_files)
+        change_count = len(old_files) + len(new_files)
+        return change_count
+
+    def save(self, catalog_record):
+        """Apply files and metadata to catalog record."""
+        data = self.validated_data
+        file_ids = data["file_ids"]
+        change_count = self._set_files(catalog_record, file_ids)
+        if change_count > 0:
+            # Files changed, file statistics need to be updated
+            catalog_record._calculate_total_files_byte_size()
+            catalog_record.calculate_directory_byte_sizes_and_file_counts()
+
+        metadata = data["user_metadata"]
+        self.fields["user_metadata"].save(metadata, catalog_record)

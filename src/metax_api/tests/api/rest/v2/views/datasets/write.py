@@ -14,6 +14,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from metax_api.models import CatalogRecordV2, DataCatalog
+from metax_api.models.directory import Directory
 from metax_api.services import RabbitMQService
 from metax_api.tests.utils import TestClassUtils, test_data_file_path
 
@@ -675,7 +676,7 @@ class CatalogRecordExternalServicesAccess(CatalogRecordApiWriteCommon):
 
 class CatalogRecordRabbitMQPublish(CatalogRecordApiWriteCommon):
     """
-    Testing if RabbitMQ messages are published to correct exchanges with correct routing keys 
+    Testing if RabbitMQ messages are published to correct exchanges with correct routing keys
     when creating, updating, or deleting a catalog record.
     Uses a dummy RabbitMQService.
     """
@@ -707,7 +708,7 @@ class CatalogRecordRabbitMQPublish(CatalogRecordApiWriteCommon):
         for publish_to_etsin, publish_to_ttv in param_list:
             with self.subTest():
                 RabbitMQService.messages = []
-                
+
                 # Create the data catalog
                 self._use_http_authorization()
                 dc = self._get_object_from_test_data("datacatalog", 4)
@@ -787,7 +788,7 @@ class CatalogRecordMetaxServiceIntegration(CatalogRecordApiWriteCommon):
         self.cr_test_data["identifier"] = cr_id
         self.cr_test_data["api_meta"] = {"version": 3}
         response = self.client.post("/rest/v2/datasets?migration_override", self.cr_test_data, format="json")
-        
+
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual("research_dataset" in response.data.keys(), True)
         self.assertEqual(cr_id, response.json()["identifier"])
@@ -868,7 +869,7 @@ class CatalogRecordMetaxServiceIntegration(CatalogRecordApiWriteCommon):
         self.cr_test_data["identifier"] = cr_id
         self.cr_test_data["api_meta"] = {"version": 3}
         response = self.client.post("/rest/v2/datasets?migration_override", self.cr_test_data, format="json")
-        
+
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         self._use_http_authorization()
@@ -890,7 +891,7 @@ class CatalogRecordMetaxServiceIntegration(CatalogRecordApiWriteCommon):
         self.cr_test_data["identifier"] = cr_id
         self.cr_test_data["api_meta"] = {"version": 3}
         response = self.client.post("/rest/v2/datasets?migration_override", self.cr_test_data, format="json")
-        
+
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         self._use_http_authorization()
@@ -1151,4 +1152,139 @@ class CatalogRecordAPIWritewHardDeleteTests(CatalogRecordApiWriteCommon):
         self.assertEqual(
             "Hard-deleting datasets is allowed only for metax_service service user and in harvested catalogs",
             response.json()["detail"][0],
+        )
+
+
+class CatalogRecordApiWriteSyncV3FilesTests(CatalogRecordApiWriteCommon):
+
+    def test_sync_v3_files(self):
+        """
+        Test that files_from_v3 updates file associations, user metadata and dataset api_meta.
+        """
+
+        test_cr = self.cr_test_data
+        response = self.client.post("/rest/v2/datasets", test_cr, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual(2, response.json()["api_meta"]["version"])
+        cr_id = response.json()["id"]
+
+        metadata = {
+            "directories": [
+                {
+                    "directory_path": "/project_x_FROZEN",
+                    "title": "Project X directory title",
+                    "description": "Project X directory description",
+                    "use_category": {
+                        "in_scheme": "http://uri.suomi.fi/codelist/fairdata/use_category",
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/use_category/code/source",
+                        "pref_label": {
+                            "en": "Source material",
+                            "fi": "Lähdeaineisto",
+                            "und": "Lähdeaineisto",
+                        },
+                    },
+                }
+            ],
+            "files": [
+                {
+                    "title": "File metadata title 1",
+                    "description": "File metadata description 1",
+                    "file_type": {
+                        "in_scheme": "http://uri.suomi.fi/codelist/fairdata/file_type",
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/file_type/code/text",
+                        "pref_label": {"en": "Text", "fi": "Teksti", "und": "Teksti"},
+                    },
+                    "identifier": "pid:urn:1",
+                    "use_category": {
+                        "in_scheme": "http://uri.suomi.fi/codelist/fairdata/use_category",
+                        "identifier": "http://uri.suomi.fi/codelist/fairdata/use_category/code/source",
+                        "pref_label": {
+                            "en": "Source material",
+                            "fi": "Lähdeaineisto",
+                            "und": "Lähdeaineisto",
+                        },
+                    },
+                }
+            ]
+        }
+
+        data = {
+            "file_ids": [1, 2, 3],
+            "user_metadata": metadata
+        }
+
+        self._use_http_authorization(username="metax_service")
+        response = self.client.post("/rest/v2/datasets/%d/files_from_v3?include_user_metadata=true" % cr_id, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        response = self.client.get("/rest/v2/datasets/%d?include_user_metadata" % cr_id)
+        response_rd = response.json()["research_dataset"]
+        self.assertEqual(3, response.json()["api_meta"]["version"])
+
+        expected_directories_metadata = [{
+            "identifier": Directory.objects.get(directory_path="/project_x_FROZEN", project_identifier="project_x").identifier,
+            "title": metadata["directories"][0]["title"],
+            "description": metadata["directories"][0]["description"],
+            "use_category": metadata["directories"][0]["use_category"],
+        }]
+        self.assertEqual(response_rd["directories"],  expected_directories_metadata)
+        self.assertEqual(response_rd["files"],  metadata["files"])
+
+
+    def test_sync_v3_files_not_metax_service(self):
+        """The files_from_v3 endpoint is only supported for metax_service"""
+        self._use_http_authorization(username="metax")
+        response = self.client.post("/rest/v2/datasets/1/files_from_v3?include_user_metadata=true", {}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_sync_v3_files_unknown_file(self):
+        """
+        Test that unknown files return a bad request response.
+        """
+
+        test_cr = self.cr_test_data
+        response = self.client.post("/rest/v2/datasets", test_cr, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual(2, response.json()["api_meta"]["version"])
+        cr_id = response.json()["id"]
+
+        data = {
+            "file_ids": [1, 2, 3, 999999],
+            "user_metadata": {
+                "directories": [],
+                "files": []
+            }
+        }
+
+        self._use_http_authorization(username="metax_service")
+        response = self.client.post("/rest/v2/datasets/%d/files_from_v3?include_user_metadata=true" % cr_id, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.json()["file_ids"], ["Files not found: 999999"])
+
+
+    def test_sync_v3_files_multiple_projects(self):
+        """
+        Test that unknown files return a bad request response.
+        """
+
+        test_cr = self.cr_test_data
+        response = self.client.post("/rest/v2/datasets", test_cr, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual(2, response.json()["api_meta"]["version"])
+        cr_id = response.json()["id"]
+
+        data = {
+            # other files here are from project_x file 21 is from research_project_112,
+            "file_ids": [1, 2, 3, 21],
+            "user_metadata": {
+                "directories": [],
+                "files": []
+            }
+        }
+
+        self._use_http_authorization(username="metax_service")
+        response = self.client.post("/rest/v2/datasets/%d/files_from_v3?include_user_metadata=true" % cr_id, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.json()["file_ids"],
+                         ["Files should be from the same project, multiple projects found: project_x, research_project_112"]
         )

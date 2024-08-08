@@ -9,7 +9,7 @@
     ],
     "definitions":  {
         "FileChanges":  {
-            "title": "File chnages",
+            "title": "File changes",
             "type": "object",
             "description": "File and directory entries for changing files of a dataset or editing their metadata. Is essentially a subset of research_dataset object.",
             "minProperties": 1,

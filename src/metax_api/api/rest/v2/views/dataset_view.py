@@ -18,6 +18,7 @@ from metax_api.api.rest.v2.serializers import CatalogRecordSerializerV2
 from metax_api.exceptions import Http400, Http403
 from metax_api.models import CatalogRecordV2
 from metax_api.services import CatalogRecordServiceV2, CommonService as CS
+from metax_api.services.file_v3_sync_service import CatalogRecordFilesSyncFromV3Serializer
 
 _logger = logging.getLogger(__name__)
 
@@ -109,7 +110,9 @@ class DatasetViewSet(DatasetViewSet):
             raise Http403(UNAUTHORIZED_TO_SEE_FILES_MSG)
 
         if CS.get_boolean_query_param(request, "id_list"):
-            queryset = cr.files(manager="objects_unfiltered").order_by("id").values_list("id", flat=True)
+            queryset = (
+                cr.files(manager="objects_unfiltered").order_by("id").values_list("id", flat=True)
+            )
             return Response(data=list(queryset), status=status.HTTP_200_OK)
 
         if CS.get_boolean_query_param(request, "removed_files"):
@@ -142,6 +145,40 @@ class DatasetViewSet(DatasetViewSet):
         result = cr.change_files(request.data)
 
         return Response(data=result, status=status.HTTP_200_OK)
+
+    @action(
+        detail=True,
+        methods=["post"],
+    )
+    def files_from_v3(self, request, pk):
+        """
+        Assign dataset files and dataset-specific file metadata from Metax V3.
+
+        Input format:
+        {
+            "file_ids": [...], # List of all file id values in dataset
+            "user_metadata": {
+                # Files in same format as research_dataset["files"]
+                "files": [...],
+                # Like research_dataset["directories"] but directory_path instead of identifier
+                "directories": [...] #
+            }
+        }
+        """
+        if not request.user.is_metax_v3:
+            raise Http400("Endpoint is supported only for metax_service user")
+
+        # Dataset saving requires api_meta version 3 in request data
+        if isinstance(request.data, dict):
+            request.data["api_meta"] = {"version": 3}
+
+        cr = self.get_object()
+        serializer = CatalogRecordFilesSyncFromV3Serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(cr)
+
+        cr_serializer = self.serializer_class(instance=cr)
+        return Response(data=cr_serializer.data, status=status.HTTP_200_OK)
 
     # GET /rest/v2/datasets/{PID}/files/user_metadata
     def files_user_metadata_list(self, request, pk=None):
