@@ -49,6 +49,7 @@ env = environ.Env(
     METAX_V3_HOST=(str, "http://metax-v3:8002"),
     METAX_V3_INTEGRATION_ENABLED=(bool, False),
     METAX_V3_TOKEN=(str, "token"),
+    METAX_V3_PROTOCOL=(str, "https"),
     ORG_FILE_PATH=(
         str,
         join(REFDATA_INDEXER_PATH, "resources", "organizations", "organizations.csv"),

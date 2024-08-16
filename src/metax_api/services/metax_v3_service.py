@@ -5,6 +5,7 @@ from django.conf import settings
 
 _logger = logging.getLogger(__name__)
 
+
 class MetaxV3Service:
     def __init__(self):
         if not hasattr(settings, "METAX_V3"):
@@ -43,6 +44,30 @@ class MetaxV3Service:
             res = requests.put(
                 f"{self.metaxV3Url}/v3/migrated-datasets/{dataset_id}",
                 json=payload,
+                headers={"Authorization": f"Token {self.token}"},
+            )
+            res.raise_for_status()
+        except Exception as e:
+            _logger.error(f"Exception in Metax V3: {e}")
+            raise MetaxV3UnavailableError()
+
+    def sync_files(self, files_json):
+        try:
+            res = requests.post(
+                f"{self.metaxV3Url}/v3/files/from-legacy",
+                json=files_json,
+                headers={"Authorization": f"Token {self.token}"},
+            )
+            res.raise_for_status()
+        except Exception as e:
+            _logger.error(f"Exception in Metax V3: {e}")
+            raise MetaxV3UnavailableError()
+
+    def delete_project(self, project, flush=False):
+        q_flush = "flush=true" if flush else "flush=false"
+        try:
+            res = requests.delete(
+                f"{self.metaxV3Url}/v3/files?csc_project={project}&{q_flush}",
                 headers={"Authorization": f"Token {self.token}"},
             )
             res.raise_for_status()

@@ -57,6 +57,7 @@ class CommonViewSet(ModelViewSet):
     # assigning the create_bulk method here allows for other views to assing their other,
     # customized method to be called instead instead of the generic one.
     create_bulk_method = CS.create_bulk
+    update_bulk_method = CS.update_bulk
 
     def __init__(self, *args, **kwargs):
         super(CommonViewSet, self).__init__(*args, **kwargs)
@@ -291,7 +292,7 @@ class CommonViewSet(ModelViewSet):
     def update_bulk(self, request, *args, **kwargs):
         serializer_class = self.get_serializer_class()
         kwargs["context"] = self.get_serializer_context()
-        results, http_status = CS.update_bulk(request, self.object, serializer_class, **kwargs)
+        results, http_status = self.update_bulk_method(request, self.object, serializer_class, **kwargs)
         response = Response(results, status=http_status)
         self._check_and_store_bulk_error(request, response)
         return response
@@ -306,7 +307,7 @@ class CommonViewSet(ModelViewSet):
         serializer_class = self.get_serializer_class()
         kwargs["context"] = self.get_serializer_context()
         kwargs["partial"] = True
-        results, http_status = CS.update_bulk(request, self.object, serializer_class, **kwargs)
+        results, http_status = self.update_bulk_method(request, self.object, serializer_class, **kwargs)
         response = Response(results, status=http_status)
         self._check_and_store_bulk_error(request, response)
         return response

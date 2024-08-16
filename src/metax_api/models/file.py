@@ -9,6 +9,8 @@ from django.db import models
 from django.db.models import JSONField
 from rest_framework.serializers import ValidationError
 
+from metax_api.exceptions.http_exceptions import Http503
+
 from .common import Common, CommonManager
 
 

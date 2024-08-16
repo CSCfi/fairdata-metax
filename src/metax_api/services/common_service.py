@@ -115,7 +115,7 @@ class CommonService:
         return False
 
     @classmethod
-    def create_bulk(cls, request, serializer_class, **kwargs):
+    def create_bulk(cls, request, serializer_class, post_create_callback=None, **kwargs):
         """
         Note: BOTH single and list create
 
@@ -144,7 +144,7 @@ class CommonService:
             # failed inserts are added to 'failed', with a related error message.
             results = {"success": [], "failed": []}
 
-            cls._create_bulk(common_info, request.data, results, serializer_class, **kwargs)
+            instances = cls._create_bulk(common_info, request.data, results, serializer_class, **kwargs)
 
             if results["success"]:
                 # if even one insert was successful, general status of the request is success
@@ -153,6 +153,8 @@ class CommonService:
                 # only if all inserts have failed, return a general failure for the whole request
                 http_status = status.HTTP_400_BAD_REQUEST
 
+            if post_create_callback:
+                post_create_callback(instances)
         else:
             results, http_status = cls._create_single(
                 common_info, request.data, serializer_class, **kwargs
@@ -164,20 +166,25 @@ class CommonService:
         return results, http_status
 
     @classmethod
-    def _create_single(cls, common_info, initial_data, serializer_class, **kwargs):
+    def _create_single(cls, common_info, initial_data, serializer_class, post_create_callback=None, **kwargs):
         """
         Extracted into its own method so it may be inherited.
         """
         serializer = serializer_class(data=initial_data, **kwargs)
         serializer.is_valid(raise_exception=True)
         serializer.save(**common_info)
+        if post_create_callback:
+            post_create_callback([serializer.instance])
         return serializer.data, status.HTTP_201_CREATED
 
     @classmethod
-    def _create_bulk(cls, common_info, initial_data_list, results, serializer_class, **kwargs):
+    def _create_bulk(cls, common_info, initial_data_list, results, serializer_class, **kwargs) -> list:
         """
         The actual part where the list is iterated and objects validated, and created.
+
+        Updates results object in-place and returns list of created instances.
         """
+        instances = []
         for row in initial_data_list:
 
             serializer = serializer_class(data=row, **kwargs)
@@ -188,7 +195,9 @@ class CommonService:
                 cls._append_error(results, serializer, e)
             else:
                 serializer.save(**common_info)
+                instances.append(serializer.instance)
                 results["success"].append({"object": serializer.data})
+        return instances
 
     @staticmethod
     def get_json_schema(schema_folder_path, model_name, data_catalog_prefix=False):
@@ -223,7 +232,7 @@ class CommonService:
                 return json_load(f)
 
     @classmethod
-    def update_bulk(cls, request, model_obj, serializer_class, **kwargs):
+    def update_bulk(cls, request, model_obj, serializer_class, post_update_callback=None, **kwargs):
         """
         Note: ONLY list update (PUT and PATCH). Single update uses std rest_framework process.
 
@@ -251,6 +260,7 @@ class CommonService:
         common_info = cls.update_common_info(request, return_only=True)
         results = {"success": [], "failed": []}
 
+        instances = []
         for row in request.data:
 
             instance = cls._get_object_for_update(
@@ -273,6 +283,7 @@ class CommonService:
                 cls._append_error(results, serializer, e)
             else:
                 serializer.save(**common_info)
+                instances.append(serializer.instance)
                 results["success"].append({"object": serializer.data})
 
         # if even one operation was successful, general status of the request is success
@@ -283,6 +294,9 @@ class CommonService:
 
         if "failed" in results:
             cls._check_and_raise_atomic_error(request, results)
+
+        if post_update_callback:
+            post_update_callback(instances)
 
         return results, http_status
 

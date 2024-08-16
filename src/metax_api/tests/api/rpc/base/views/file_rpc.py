@@ -6,8 +6,10 @@
 # :license: MIT
 
 from django.core.management import call_command
+from django.test import override_settings
 from rest_framework import status
 from rest_framework.test import APITestCase
+import responses
 
 from metax_api.models import CatalogRecord, Directory, File
 from metax_api.tests.utils import TestClassUtils, test_data_file_path
@@ -24,7 +26,6 @@ class FileRPCTests(APITestCase, TestClassUtils):
 
 
 class DeleteProjectTests(FileRPCTests):
-
     """
     Tests cover user authentication, wrong type of requests and
     correct result for successful operations.
@@ -81,7 +82,6 @@ class DeleteProjectTests(FileRPCTests):
 
 
 class FlushProjectTests(FileRPCTests):
-
     """
     Checks that an entire project's files and directories can be deleted.
     """
@@ -137,13 +137,72 @@ class FlushProjectTests(FileRPCTests):
         self._use_http_authorization("metax")
 
         # make sure project has directories before deleting them
-        dirs_count_before = Directory.objects.filter(project_identifier="research_project_112").count()
+        dirs_count_before = Directory.objects.filter(
+            project_identifier="research_project_112"
+        ).count()
         self.assertNotEqual(dirs_count_before, 0)
 
         # delete all directories for project
-        response = self.client.post("/rpc/files/flush_project?project_identifier=research_project_112")
+        response = self.client.post(
+            "/rpc/files/flush_project?project_identifier=research_project_112"
+        )
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
         # make sure all directories are now deleted
-        dirs_count_after = Directory.objects.filter(project_identifier="research_project_112").count()
+        dirs_count_after = Directory.objects.filter(
+            project_identifier="research_project_112"
+        ).count()
         self.assertEqual(dirs_count_after, 0)
+
+
+@override_settings(
+    METAX_V3={
+        "HOST": "metax-test",
+        "TOKEN": "test-token",
+        "INTEGRATION_ENABLED": True,
+        "PROTOCOL": "https",
+    }
+)
+class FileRPCSyncToV3Tests(FileRPCTests):
+    """
+    Checks that deleting or flushing projects is synced to V3.
+    """
+
+    def setUp(self):
+        super().setUp()
+        self._use_http_authorization("metax")
+
+    def mock_responses(self):
+        responses.add(
+            responses.DELETE,
+            url="https://metax-test/v3/files",
+            body="",
+        )
+
+    @responses.activate
+    def test_delete_project(self):
+        self.mock_responses()
+        # delete all files for project
+        response = self.client.post(
+            "/rpc/files/delete_project?project_identifier=research_project_112"
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(responses.calls), 1)
+        self.assertEqual(
+            responses.calls[0].request.url,
+            "https://metax-test/v3/files?csc_project=research_project_112&flush=false",
+        )
+
+    @responses.activate
+    def test_flush_project(self):
+        self.mock_responses()
+        # delete all files for project
+        response = self.client.post(
+            "/rpc/files/flush_project?project_identifier=research_project_112"
+        )
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(len(responses.calls), 1)
+        self.assertEqual(
+            responses.calls[0].request.url,
+            "https://metax-test/v3/files?csc_project=research_project_112&flush=true",
+        )

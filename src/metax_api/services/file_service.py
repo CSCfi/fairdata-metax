@@ -9,6 +9,7 @@ from collections import defaultdict
 from os import getpid
 from os.path import basename, dirname
 from time import time
+from typing import List
 from uuid import NAMESPACE_DNS as UUID_NAMESPACE_DNS, uuid3
 
 from django.conf import settings
@@ -20,7 +21,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.serializers import ValidationError
 
-from metax_api.exceptions import Http400, Http403
+from metax_api.exceptions import Http400, Http403, Http503
 from metax_api.models import CatalogRecord, Directory, File, FileStorage
 from metax_api.services import AuthService
 from metax_api.services.pagination import DirectoryPagination
@@ -65,6 +66,40 @@ class MaxRecursionDepthExceeded(Exception):
 class FileService(CommonService, ReferenceDataMixin):
 
     dp = DirectoryPagination()
+
+    @classmethod
+    def post_create(cls, objects: List[File]):
+        cls.sync_to_v3(objects)
+
+    @classmethod
+    def post_update(cls, objects: List[File]):
+        cls.sync_to_v3(objects)
+
+    @classmethod
+    def sync_to_v3_from_identifier_list(cls, data: list):
+        if not settings.METAX_V3["INTEGRATION_ENABLED"]:
+            return
+        file_ids = cls.identifiers_to_ids(data, "noparams")
+        files = File.objects.prefetch_related("file_storage", "parent_directory").filter(
+            id__in=file_ids
+        )
+        cls.sync_to_v3(files)
+
+    @classmethod
+    def sync_to_v3(cls, files: List[File]):
+        if not settings.METAX_V3["INTEGRATION_ENABLED"] or not files:
+            return
+
+        from metax_api.services.metax_v3_service import MetaxV3Service, MetaxV3UnavailableError
+
+        v3_service = MetaxV3Service()
+        serializer = FileSerializer()
+        try:
+            _logger.info(f"Syncing {len(files)} files to V3")
+            files_json = [serializer.to_representation(file) for file in files]
+            v3_service.sync_files(files_json)
+        except MetaxV3UnavailableError:
+            raise Http503({"detail": ["Metax V3 temporarily unavailable, please try again later."]})
 
     @staticmethod
     def check_user_belongs_to_project(request, project_identifier):
@@ -1176,7 +1211,7 @@ class FileService(CommonService, ReferenceDataMixin):
         )
 
         res = super(FileService, cls)._create_single(
-            common_info, initial_data_with_dirs[0], serializer_class, **kwargs
+            common_info, initial_data_with_dirs[0], serializer_class, post_create_callback=cls.post_create, **kwargs
         )
 
         cls.calculate_project_directory_byte_sizes_and_file_counts(
@@ -1381,6 +1416,7 @@ class FileService(CommonService, ReferenceDataMixin):
                     # - the values returned to the requestor do not look identical to serializer.data. currently
                     #   low impact though, as no service is inspecting it anyway.
                     File.objects.bulk_create(entries)
+                    cls.post_create(entries)
                     entries = []
 
                     # for large amounts of data, the process slows down considerably as the process continues...
@@ -1405,6 +1441,7 @@ class FileService(CommonService, ReferenceDataMixin):
         if entries:
             _logger.debug("a final dose of %d records still left to bulk_create..." % len(entries))
             File.objects.bulk_create(entries)
+            cls.post_create(entries)
             _logger.debug("done!")
 
         if DEBUG:
@@ -1413,6 +1450,10 @@ class FileService(CommonService, ReferenceDataMixin):
                 "total time for inserting %d files: %d seconds"
                 % (len(initial_data_list), (end - start))
             )
+
+    @classmethod
+    def update_bulk(cls, request, model_obj, serializer_class, **kwargs):
+        return super().update_bulk(request, model_obj, serializer_class, post_update_callback=cls.post_update, **kwargs)
 
     @staticmethod
     def _error_is_already_exists(e):

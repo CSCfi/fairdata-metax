@@ -95,7 +95,7 @@ class CatalogRecordV2(CatalogRecord):
         ):
             super().delete(*args, **kwargs)
             return self.id
-            
+
         if CommonService.get_boolean_query_param(self.request, "hard"):
             raise ValidationError(
                 {
@@ -1211,7 +1211,6 @@ class CatalogRecordV2(CatalogRecord):
 
         # dirs
         dir_identifiers = [dr["identifier"] for dr in self.research_dataset.get("directories", [])]
-
         if dir_identifiers:
 
             current_dir_entries = [

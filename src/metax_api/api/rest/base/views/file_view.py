@@ -7,7 +7,9 @@
 
 import logging
 import re
+from typing import List
 
+from django.conf import settings
 from django.db import transaction
 from django.http import Http404
 from django.utils.decorators import method_decorator
@@ -17,9 +19,8 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 
-from metax_api.exceptions import Http400, Http403
+from metax_api.exceptions import Http400, Http403, Http503
 from metax_api.models import File, XmlMetadata
-from metax_api.models.file_storage import FileStorage
 from metax_api.renderers import XMLRenderer
 from metax_api.services import AuthService, CommonService, FileService
 from metax_api.services.file_v3_sync_service import FilesSyncFromV3Service, FileSyncFromV3Serializer
@@ -50,6 +51,7 @@ class FileViewSet(CommonViewSet):
     # customized create_bulk which handles both directories and files in the same
     # bulk_create request.
     create_bulk_method = FileService.create_bulk
+    update_bulk_method = FileService.update_bulk
 
     def __init__(self, *args, **kwargs):
         self.set_json_schema(__file__)
@@ -108,6 +110,11 @@ class FileViewSet(CommonViewSet):
 
         return super().partial_update(request, *args, **kwargs)
 
+    def perform_update(self, serializer):
+        # Called by update and partial_update, not by bulk updates
+        super().perform_update(serializer)
+        FileService.post_update([serializer.instance])
+
     def get_queryset(self):
         """
         Handle with fields parameter here, because checksum has different values in model
@@ -132,7 +139,7 @@ class FileViewSet(CommonViewSet):
 
         return super().get_queryset()
 
-    def get_object(self, search_params=None):
+    def get_object(self, search_params=None) -> File:
         """
         Deals with allowed_projects query parameter. This is done here to avoid multiple
         get_object calls in single request.
@@ -206,13 +213,23 @@ class FileViewSet(CommonViewSet):
         """
         Restore removed files.
         """
-        return FileService.restore_files(request, request.data)
+        resp = FileService.restore_files(request, request.data)
+        # All files listed in data have been restored if we get to this point,
+        # so we can use the identifier_to_ids logic for nonremoved files here
+        FileService.sync_to_v3_from_identifier_list(request.data)
+        return resp
 
     def destroy(self, request, pk, **kwargs):
-        return FileService.destroy_single(self.get_object())
+        file = self.get_object()
+        resp = FileService.destroy_single(file)
+        file.refresh_from_db()
+        FileService.sync_to_v3([file])
+        return resp
 
     def destroy_bulk(self, request, *args, **kwargs):
-        return FileService.destroy_bulk(request.data)
+        resp = FileService.destroy_bulk(request.data)
+        FileService.sync_to_v3_from_identifier_list(request.data)
+        return resp
 
     @action(detail=True, methods=["get", "post", "put", "delete"], url_path="xml")
     def xml_handler(self, request, pk=None):
@@ -332,7 +349,9 @@ class FileViewSet(CommonViewSet):
         if not request.user.is_metax_v3:
             raise Http400("Endpoint is supported only for metax_service user")
 
-        serializer = FileSyncFromV3Serializer(data=request.data, context={"request": request}, many=True)
+        serializer = FileSyncFromV3Serializer(
+            data=request.data, context={"request": request}, many=True
+        )
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
         files = FilesSyncFromV3Service.sync_from_v3(request, data)
