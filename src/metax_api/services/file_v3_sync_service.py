@@ -195,7 +195,7 @@ class FilesSyncFromV3Service:
             if conflicts:
                 raise ValidationError(
                     {
-                        "identifier": [
+                        "file_path": [
                             f"Values conflict with another file in project {project}: {sorted(conflicts)}"
                         ]
                     }

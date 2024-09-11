@@ -10,10 +10,11 @@ import logging
 from os import path
 
 from django.conf import settings as django_settings
-from rest_framework.serializers import ValidationError
+from rest_framework.serializers import ValidationError, CharField, ListField
 
 from metax_api.exceptions import Http400, Http403
 from metax_api.models import CatalogRecord, Common, Contract, DataCatalog, Directory, File
+from metax_api.models.catalog_record import DatasetVersionSet
 from metax_api.services import (
     CatalogRecordService as CRS,
     CommonService,
@@ -22,7 +23,9 @@ from metax_api.services import (
 )
 
 from metax_api.api.rest.base.serializers.editor_permissions_serializer import (
-    EditorPermissionsWithAllUsersSerializer, EditorPermissionsSerializer, EditorPermissionsUserSerializer,
+    EditorPermissionsWithAllUsersSerializer,
+    EditorPermissionsSerializer,
+    EditorPermissionsUserSerializer,
 )
 from .common_serializer import CommonSerializer
 from .contract_serializer import ContractSerializer
@@ -57,6 +60,14 @@ DFT_CATALOG = django_settings.DFT_DATA_CATALOG_IDENTIFIER
 
 
 class CatalogRecordSerializer(CommonSerializer):
+
+    version_identifiers = ListField(
+        child=CharField(),
+        required=False,
+        write_only=True,
+        help_text="Version synchronization from V3.",
+    )
+
     class Meta:
         fields = (
             "id",
@@ -90,6 +101,7 @@ class CatalogRecordSerializer(CommonSerializer):
             "rems_identifier",
             "access_granter",
             "api_meta",
+            "version_identifiers",
         ) + CommonSerializer.Meta.fields
 
         extra_kwargs = {
@@ -169,7 +181,42 @@ class CatalogRecordSerializer(CommonSerializer):
             # execute updates without creating new versions
             instance.preserve_version = True
 
-        return super(CatalogRecordSerializer, self).update(instance, validated_data)
+        version_identifiers = validated_data.pop("version_identifiers", None)
+
+        instance = super(CatalogRecordSerializer, self).update(instance, validated_data)
+
+        if version_identifiers:
+            self._sync_version_identifiers(
+                catalog_record=instance, version_identifiers=version_identifiers
+            )
+
+        return instance
+
+    def _sync_version_identifiers(self, catalog_record, version_identifiers):
+        """Add datasets to dataset_version_set if possible."""
+        if not self.context["request"].user.is_metax_v3:
+            raise Http400("The version_identifiers field is only supported for metax_service")
+
+        # Sanity check, ensure dataset itself is in version_identifiers
+        if catalog_record.identifier not in version_identifiers:
+            raise ValidationError(
+                {
+                    "version_identifiers": [
+                        "Dataset missing from its version_identifiers"
+                    ]
+                }
+            )
+
+        if len(version_identifiers) > 1:
+            dvs = catalog_record.dataset_version_set
+            if not dvs:
+                dvs = DatasetVersionSet.objects.create()
+                catalog_record.dataset_version_set = dvs
+            dvs.records.add(
+                *CatalogRecord.objects_unfiltered.filter(
+                    identifier__in=version_identifiers
+                ).exclude(dataset_version_set=dvs)
+            )
 
     def create(self, validated_data):
         if (
@@ -186,6 +233,8 @@ class CatalogRecordSerializer(CommonSerializer):
                 # store pid, since it will be overwritten during create otherwise
                 pid = validated_data["research_dataset"]["preferred_identifier"]
 
+        version_identifiers = validated_data.pop("version_identifiers", None)
+
         res = super().create(validated_data)
 
         if self._migration_override_requested():
@@ -197,6 +246,11 @@ class CatalogRecordSerializer(CommonSerializer):
 
                 # save, while bypassing normal save-related procedures in CatalogRecord model
                 super(Common, res).save()
+
+        if version_identifiers:
+            self._sync_version_identifiers(
+                catalog_record=res, version_identifiers=version_identifiers
+            )
 
         return res
 
@@ -332,9 +386,9 @@ class CatalogRecordSerializer(CommonSerializer):
             res["previous_dataset_version"] = instance.previous_dataset_version.identifiers_dict
 
         if "preservation_dataset_version" in res:
-            res[
-                "preservation_dataset_version"
-            ] = instance.preservation_dataset_version.identifiers_dict
+            res["preservation_dataset_version"] = (
+                instance.preservation_dataset_version.identifiers_dict
+            )
             res["preservation_dataset_version"][
                 "preservation_state"
             ] = instance.preservation_dataset_version.preservation_state
@@ -343,9 +397,9 @@ class CatalogRecordSerializer(CommonSerializer):
             ] = instance.preservation_dataset_version.preservation_state_modified
 
         elif "preservation_dataset_origin_version" in res:
-            res[
-                "preservation_dataset_origin_version"
-            ] = instance.preservation_dataset_origin_version.identifiers_dict
+            res["preservation_dataset_origin_version"] = (
+                instance.preservation_dataset_origin_version.identifiers_dict
+            )
             res["preservation_dataset_origin_version"][
                 "deprecated"
             ] = instance.preservation_dataset_origin_version.deprecated
@@ -369,7 +423,9 @@ class CatalogRecordSerializer(CommonSerializer):
             )
             and instance.user_is_privileged(instance.request or self.context.get("request"))
         ):
-            res["editor_permissions"] = EditorPermissionsWithAllUsersSerializer(instance.editor_permissions).data
+            res["editor_permissions"] = EditorPermissionsWithAllUsersSerializer(
+                instance.editor_permissions
+            ).data
 
         return res
 
@@ -530,7 +586,9 @@ class CatalogRecordSerializer(CommonSerializer):
             # Don't require source_organization when ?migration_override is set
             schema = copy.deepcopy(schema)
             if project_def := schema["definitions"].get("Project"):
-                project_def["required"] = [p for p in project_def["required"] if p != "source_organization"]
+                project_def["required"] = [
+                    p for p in project_def["required"] if p != "source_organization"
+                ]
                 project_def["properties"]["source_organization"]["minItems"] = 0
 
         validate_json(value, schema)

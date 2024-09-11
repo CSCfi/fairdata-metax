@@ -151,7 +151,7 @@ class DatasetVersionSet(models.Model):
     """
     A table which contains records, that are different dataset versions of each other.
 
-    Note! Does not inherit from model Common, so does not have timestmap fields,
+    Note! Does not inherit from model Common, so does not have timestamp fields,
     and a delete is an actual delete.
     """
 

@@ -15,8 +15,10 @@ import responses
 from django.conf import settings as django_settings
 from django.core.management import call_command
 from rest_framework import status
+from rest_framework.serializers import ValidationError
 from rest_framework.test import APITestCase
 
+from metax_api.exceptions.http_exceptions import Http400
 from metax_api.models import (
     AlternateRecordSet,
     CatalogRecord,
@@ -210,7 +212,7 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
     #
 
     def test_issued_date_is_generated(self):
-        """ Issued date is generated for all but harvested catalogs if it doesn't exists """
+        """Issued date is generated for all but harvested catalogs if it doesn't exist"""
         dc = DataCatalog.objects.get(pk=2)
         dc.catalog_json["identifier"] = IDA_CATALOG  # Test with IDA catalog
         dc.force_save()
@@ -520,14 +522,9 @@ class CatalogRecordApiWriteCreateTests(CatalogRecordApiWriteCommon):
         Projects should not require organization when ?migration_override is used.
         """
         self.cr_test_data["research_dataset"]["is_output_of"] = [
-            {
-                "name": {"en": "some project"},
-                "source_organization": []
-            }
+            {"name": {"en": "some project"}, "source_organization": []}
         ]
-        response = self.client.post(
-            "/rest/datasets", self.cr_test_data, format="json"
-        )
+        response = self.client.post("/rest/datasets", self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
         response = self.client.post(
             "/rest/datasets?migration_override", self.cr_test_data, format="json"
@@ -1269,8 +1266,8 @@ class CatalogRecordApiWritePartialUpdateTests(CatalogRecordApiWriteCommon):
                 "name": "Teppo Testaaja",
                 "member_of": {
                     "@type": "Organization",
-                    "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/asdf"
-                }
+                    "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/asdf",
+                },
             }
         ]
 
@@ -1460,7 +1457,6 @@ class CatalogRecordApiWriteDeleteTests(CatalogRecordApiWriteCommon):
 
 
 class CatalogRecordApiWritePreservationStateTests(CatalogRecordApiWriteCommon):
-
     """
     Field preservation_state related tests.
     """
@@ -1913,8 +1909,8 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
     def test_create_catalog_record_with_invalid_reference_data_metax_v3(self):
         self._use_http_authorization(username="metax_service")
         rd_ida = self.cr_full_ida_test_data["research_dataset"]
-        self.cr_full_ida_test_data['identifier'] = "0d7e4c09-1cb4-464f-949d-4ddbeae9ac3b"
-        self.cr_full_ida_test_data['api_meta'] = {"version": 3}
+        self.cr_full_ida_test_data["identifier"] = "0d7e4c09-1cb4-464f-949d-4ddbeae9ac3b"
+        self.cr_full_ida_test_data["api_meta"] = {"version": 3}
         rd_ida["theme"][0]["identifier"] = "nonexisting"
         rd_ida["field_of_science"][0]["identifier"] = "nonexisting"
         rd_ida["language"][0]["identifier"] = "nonexisting"
@@ -1939,14 +1935,17 @@ class CatalogRecordApiWriteReferenceDataTests(CatalogRecordApiWriteCommon):
         self.assertEqual(response.data["research_dataset"]["theme"][0]["identifier"], "nonexisting")
 
         rd_att = self.cr_full_att_test_data["research_dataset"]
-        self.cr_full_att_test_data['identifier'] = "0d7e4c09-1cb4-464f-949d-4ddbeae9ac3c"
-        self.cr_full_att_test_data['api_meta'] = {"version": 3}
+        self.cr_full_att_test_data["identifier"] = "0d7e4c09-1cb4-464f-949d-4ddbeae9ac3c"
+        self.cr_full_att_test_data["api_meta"] = {"version": 3}
         rd_att["remote_resources"][0]["license"][0]["identifier"] = "nonexisting"
         rd_att["remote_resources"][1]["resource_type"]["identifier"] = "nonexisting"
         rd_att["remote_resources"][0]["use_category"]["identifier"] = "nonexisting"
         response = self.client.post("/rest/datasets", self.cr_full_att_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data["research_dataset"]["remote_resources"][0]["use_category"]["identifier"], "nonexisting")
+        self.assertEqual(
+            response.data["research_dataset"]["remote_resources"][0]["use_category"]["identifier"],
+            "nonexisting",
+        )
 
     def test_create_catalog_record_populate_fields_from_reference_data(self):
         """
@@ -2737,7 +2736,6 @@ class CatalogRecordApiWriteAlternateRecords(CatalogRecordApiWriteCommon):
 
 
 class CatalogRecordApiWriteDatasetVersioning(CatalogRecordApiWriteCommon):
-
     """
     Test dataset versioning when updating datasets which belong to a data catalog that
     has dataset_versioning=True.
@@ -3383,7 +3381,6 @@ class CatalogRecordApiWriteAssignFilesCommon(CatalogRecordApiWriteCommon):
 
 
 class CatalogRecordApiWriteCumulativeDatasets(CatalogRecordApiWriteAssignFilesCommon):
-
     """
     Tests for different creation situations and adding files and directories to successfully
     created datasets. Makes sure that adding files or directories does not create new dataset version
@@ -3709,7 +3706,6 @@ class CatalogRecordApiWriteCumulativeDatasets(CatalogRecordApiWriteAssignFilesCo
 
 
 class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteAssignFilesCommon):
-
     """
     Test assigning files and directories to datasets and related functionality,
     except: Tests related to file updates/versioning are handled in the
@@ -4161,7 +4157,6 @@ class CatalogRecordApiWriteAssignFilesToDataset(CatalogRecordApiWriteAssignFiles
 
 
 class CatalogRecordApiWriteRemoteResources(CatalogRecordApiWriteCommon):
-
     """
     remote_resources related tests
     """
@@ -4184,7 +4179,6 @@ class CatalogRecordApiWriteRemoteResources(CatalogRecordApiWriteCommon):
 
 
 class CatalogRecordApiWriteLegacyDataCatalogs(CatalogRecordApiWriteCommon):
-
     """
     Tests related to legacy data catalogs.
     """
@@ -4268,7 +4262,6 @@ class CatalogRecordApiWriteLegacyDataCatalogs(CatalogRecordApiWriteCommon):
 
 
 class CatalogRecordApiWriteOwnerFields(CatalogRecordApiWriteCommon):
-
     """
     Owner-fields related tests:
     metadata_owner_org
@@ -4329,7 +4322,6 @@ class CatalogRecordApiWriteOwnerFields(CatalogRecordApiWriteCommon):
 
 
 class CatalogRecordApiEndUserAccess(CatalogRecordApiWriteCommon):
-
     """
     End User Access -related permission testing.
     """
@@ -4621,7 +4613,6 @@ class CatalogRecordApiEndUserAccess(CatalogRecordApiWriteCommon):
 
 
 class CatalogRecordExternalServicesAccess(CatalogRecordApiWriteCommon):
-
     """
     Testing access of services to external catalogs with harvested flag and vice versa.
     """
@@ -4881,28 +4872,24 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
 
     def _mock_rems_read_access_organization_succeeds(self):
         resp = {
-                    "archived": False,
-                    "organization/id": django_settings.REMS["ORGANIZATION"],
-                    "organization/short-name": {
-                        "fi": "Test org",
-                        "en": "Test org",
-                        "sv": "Test org"
-                    },
-                    "organization/review-emails": [],
-                    "enabled": True,
-                    "organization/owners": [],
-                    "organization/modifier": {
-                        "userid": "RDowner@funet.fi",
-                        "name": "RDowner REMSDEMO",
-                        "email": "RDowner.test@test_example.org"
-                    },
-                    "organization/last-modified": "2022-01-05T00:01:44.034Z",
-                    "organization/name": {
-                        "fi": "Test organization",
-                        "en": "Test organization",
-                        "sv": "Test organization"
-                    }
-                }
+            "archived": False,
+            "organization/id": django_settings.REMS["ORGANIZATION"],
+            "organization/short-name": {"fi": "Test org", "en": "Test org", "sv": "Test org"},
+            "organization/review-emails": [],
+            "enabled": True,
+            "organization/owners": [],
+            "organization/modifier": {
+                "userid": "RDowner@funet.fi",
+                "name": "RDowner REMSDEMO",
+                "email": "RDowner.test@test_example.org",
+            },
+            "organization/last-modified": "2022-01-05T00:01:44.034Z",
+            "organization/name": {
+                "fi": "Test organization",
+                "en": "Test organization",
+                "sv": "Test organization",
+            },
+        }
         responses.add(
             responses.GET,
             f"{django_settings.REMS['BASE_URL']}/organizations/{django_settings.REMS['ORGANIZATION']}",
@@ -4915,7 +4902,11 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         organization = {
             "organization/id": django_settings.REMS["ORGANIZATION"],
             "organization/short-name": {"fi": "Test org", "en": "Test org", "sv": "Test org"},
-            "organization/name": {"fi": "Test organization", "en": "Test organization", "sv": "Test organization"},
+            "organization/name": {
+                "fi": "Test organization",
+                "en": "Test organization",
+                "sv": "Test organization",
+            },
         }
         if entity == "license":
             resp = [
@@ -5036,9 +5027,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         req_type = (
             responses.POST
             if method == "POST"
-            else responses.PUT
-            if method == "PUT"
-            else responses.GET
+            else responses.PUT if method == "PUT" else responses.GET
         )
 
         responses.replace(
@@ -5054,9 +5043,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         req_type = (
             responses.POST
             if method == "POST"
-            else responses.PUT
-            if method == "PUT"
-            else responses.GET
+            else responses.PUT if method == "PUT" else responses.GET
         )
 
         errors = [
@@ -5080,9 +5067,7 @@ class CatalogRecordApiWriteREMS(CatalogRecordApiWriteCommon):
         req_type = (
             responses.POST
             if method == "POST"
-            else responses.PUT
-            if method == "PUT"
-            else responses.GET
+            else responses.PUT if method == "PUT" else responses.GET
         )
 
         responses.replace(
@@ -5511,8 +5496,10 @@ class CatalogRecordMetaxServiceIntegration(CatalogRecordApiWriteCommon):
         cr_id = str(uuid4())
         self.cr_test_data["identifier"] = cr_id
         self.cr_test_data["api_meta"] = {"version": 3}
-        response = self.client.post("/rest/datasets?migration_override", self.cr_test_data, format="json")
-        
+        response = self.client.post(
+            "/rest/datasets?migration_override", self.cr_test_data, format="json"
+        )
+
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         self.assertEqual("research_dataset" in response.data.keys(), True)
         self.assertEqual(cr_id, response.json()["identifier"])
@@ -5527,14 +5514,24 @@ class CatalogRecordMetaxServiceIntegration(CatalogRecordApiWriteCommon):
         """
         cr_id = str(uuid4())
         self.cr_test_data["identifier"] = cr_id
-        response = self.client.post("/rest/datasets?migration_override", self.cr_test_data, format="json")
+        response = self.client.post(
+            "/rest/datasets?migration_override", self.cr_test_data, format="json"
+        )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-        self.assertEqual("When using metax_service, api_meta['version'] needs to be 3", response.json()["detail"][0])
+        self.assertEqual(
+            "When using metax_service, api_meta['version'] needs to be 3",
+            response.json()["detail"][0],
+        )
 
         self.cr_test_data["api_meta"] = {"version": 1}
-        response = self.client.post("/rest/datasets?migration_override", self.cr_test_data, format="json")
+        response = self.client.post(
+            "/rest/datasets?migration_override", self.cr_test_data, format="json"
+        )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-        self.assertEqual("When using metax_service, api_meta['version'] needs to be 3", response.json()["detail"][0])
+        self.assertEqual(
+            "When using metax_service, api_meta['version'] needs to be 3",
+            response.json()["detail"][0],
+        )
 
     def test_v3_dataset_requires_metax_service(self):
         """
@@ -5547,7 +5544,9 @@ class CatalogRecordMetaxServiceIntegration(CatalogRecordApiWriteCommon):
         self.cr_test_data["api_meta"] = {"version": 3}
         response = self.client.post("/rest/datasets", self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-        self.assertEqual("Only metax_service user can set api version to 3", response.json()["detail"][0])
+        self.assertEqual(
+            "Only metax_service user can set api version to 3", response.json()["detail"][0]
+        )
 
     def test_v3_dataset_requires_identifier(self):
         """
@@ -5557,7 +5556,10 @@ class CatalogRecordMetaxServiceIntegration(CatalogRecordApiWriteCommon):
         self.cr_test_data["api_meta"] = {"version": 3}
         response = self.client.post("/rest/datasets", self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-        self.assertEqual("Incoming datasets from Metax V3 need to have an identifier", response.json()["detail"][0])
+        self.assertEqual(
+            "Incoming datasets from Metax V3 need to have an identifier",
+            response.json()["detail"][0],
+        )
 
     def test_update_v1_dataset_with_v3(self):
         """
@@ -5577,7 +5579,9 @@ class CatalogRecordMetaxServiceIntegration(CatalogRecordApiWriteCommon):
         self.cr_test_data["api_meta"] = {"version": 3}
         self.cr_test_data["research_dataset"]["preferred_identifier"] = cr_pid
 
-        response = self.client.put(f"/rest/datasets/{cr_id}?migration_override", self.cr_test_data, format="json")
+        response = self.client.put(
+            f"/rest/datasets/{cr_id}?migration_override", self.cr_test_data, format="json"
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(cr_id, response.json()["identifier"])
         self.assertEqual(3, response.json()["api_meta"]["version"])
@@ -5592,8 +5596,10 @@ class CatalogRecordMetaxServiceIntegration(CatalogRecordApiWriteCommon):
         cr_id = str(uuid4())
         self.cr_test_data["identifier"] = cr_id
         self.cr_test_data["api_meta"] = {"version": 3}
-        response = self.client.post("/rest/datasets?migration_override", self.cr_test_data, format="json")
-        
+        response = self.client.post(
+            "/rest/datasets?migration_override", self.cr_test_data, format="json"
+        )
+
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         self._use_http_authorization()
@@ -5602,8 +5608,9 @@ class CatalogRecordMetaxServiceIntegration(CatalogRecordApiWriteCommon):
 
         response = self.client.put(f"/rest/datasets/{cr_id}", self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-        self.assertEqual("Please use the correct api version to edit this dataset", response.json()["detail"][0])
-
+        self.assertEqual(
+            "Please use the correct api version to edit this dataset", response.json()["detail"][0]
+        )
 
     def test_update_v3_dataset_with_v1_with_api_meta(self):
         """
@@ -5614,8 +5621,10 @@ class CatalogRecordMetaxServiceIntegration(CatalogRecordApiWriteCommon):
         cr_id = str(uuid4())
         self.cr_test_data["identifier"] = cr_id
         self.cr_test_data["api_meta"] = {"version": 3}
-        response = self.client.post("/rest/datasets?migration_override", self.cr_test_data, format="json")
-        
+        response = self.client.post(
+            "/rest/datasets?migration_override", self.cr_test_data, format="json"
+        )
+
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
 
         self._use_http_authorization()
@@ -5624,8 +5633,9 @@ class CatalogRecordMetaxServiceIntegration(CatalogRecordApiWriteCommon):
 
         response = self.client.put(f"/rest/datasets/{cr_id}", self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-        self.assertEqual("Please use the correct api version to edit this dataset", response.json()["detail"][0])
-
+        self.assertEqual(
+            "Please use the correct api version to edit this dataset", response.json()["detail"][0]
+        )
 
     def test_update_v3_dataset_with_v3(self):
         """
@@ -5688,7 +5698,10 @@ class CatalogRecordMetaxServiceIntegration(CatalogRecordApiWriteCommon):
         self._use_http_authorization()
         response = self.client.delete(f"/rest/datasets/{cr_id}")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
-        self.assertEqual("Deleting datasets that have been created or updated with API version 3 is allowed only for metax_service", response.json()["detail"][0])
+        self.assertEqual(
+            "Deleting datasets that have been created or updated with API version 3 is allowed only for metax_service",
+            response.json()["detail"][0],
+        )
         catalog_record = CatalogRecord.objects_unfiltered.get(identifier=cr_id)
         self.assertEqual(catalog_record.removed, False)
 
@@ -5709,9 +5722,7 @@ class CatalogRecordAPIWritewHardDeleteTests(CatalogRecordApiWriteCommon):
         """
         self.cr_test_data["data_catalog"] = 3  # 3 is harvested catalog
         self.cr_test_data["research_dataset"]["preferred_identifier"] = "test_pid"
-        cr_response = self.client.post(
-            "/rest/datasets/", self.cr_test_data, format="json"
-        )
+        cr_response = self.client.post("/rest/datasets/", self.cr_test_data, format="json")
         cr_id = cr_response.json()["identifier"]
 
         self._use_http_authorization(username="metax_service")
@@ -5725,9 +5736,7 @@ class CatalogRecordAPIWritewHardDeleteTests(CatalogRecordApiWriteCommon):
         If query_param 'hard' is true, but the dataset is not in a harvested
         catalog, API should return a validation error.
         """
-        cr_response = self.client.post(
-            "/rest/datasets/", self.cr_test_data, format="json"
-        )
+        cr_response = self.client.post("/rest/datasets/", self.cr_test_data, format="json")
         cr_id = cr_response.json()["identifier"]
 
         self._use_http_authorization(username="metax_service")
@@ -5742,9 +5751,7 @@ class CatalogRecordAPIWritewHardDeleteTests(CatalogRecordApiWriteCommon):
         """
         self.cr_test_data["data_catalog"] = 3  # 3 is harvested catalog
         self.cr_test_data["research_dataset"]["preferred_identifier"] = "test_pid"
-        cr_response = self.client.post(
-            "/rest/datasets/", self.cr_test_data, format="json"
-        )
+        cr_response = self.client.post("/rest/datasets/", self.cr_test_data, format="json")
         cr_id = cr_response.json()["identifier"]
 
         response = self.client.delete(f"/rest/datasets/{cr_id}?hard=true")
@@ -5756,9 +5763,7 @@ class CatalogRecordAPIWritewHardDeleteTests(CatalogRecordApiWriteCommon):
         If query_param 'hard' is true, but the dataset is not in a harvested catalog
         and the request is not made by metax_service, API should return a validation error.
         """
-        cr_response = self.client.post(
-            "/rest/datasets/", self.cr_test_data, format="json"
-        )
+        cr_response = self.client.post("/rest/datasets/", self.cr_test_data, format="json")
         cr_id = cr_response.json()["identifier"]
 
         response = self.client.delete(f"/rest/datasets/{cr_id}?hard=true")
@@ -5772,9 +5777,7 @@ class CatalogRecordAPIWritewHardDeleteTests(CatalogRecordApiWriteCommon):
         """
         self.cr_test_data["data_catalog"] = 3  # 3 is harvested catalog
         self.cr_test_data["research_dataset"]["preferred_identifier"] = "test_pid"
-        cr_response = self.client.post(
-            "/rest/datasets/", self.cr_test_data, format="json"
-        )
+        cr_response = self.client.post("/rest/datasets/", self.cr_test_data, format="json")
         cr_id = cr_response.json()["identifier"]
 
         self._use_http_authorization(username="metax_service")
@@ -5818,9 +5821,7 @@ class CatalogRecordAPIWritewHardDeleteTests(CatalogRecordApiWriteCommon):
         self._assert_hard_delete(cr_id)
 
     def _assert_hard_delete(self, cr_id):
-        deleted_catalog_record = CatalogRecord.objects_unfiltered.filter(
-            identifier=cr_id
-        )
+        deleted_catalog_record = CatalogRecord.objects_unfiltered.filter(identifier=cr_id)
         self.assertEqual(
             len(deleted_catalog_record),
             0,
@@ -5829,9 +5830,7 @@ class CatalogRecordAPIWritewHardDeleteTests(CatalogRecordApiWriteCommon):
 
     def _assert_soft_delete(self, cr_id):
         try:
-            deleted_catalog_record = CatalogRecord.objects_unfiltered.get(
-                identifier=cr_id
-            )
+            deleted_catalog_record = CatalogRecord.objects_unfiltered.get(identifier=cr_id)
         except CatalogRecord.DoesNotExist:
             raise Exception(
                 "Deleted CatalogRecord should not be deleted from the db, but marked as removed"
@@ -5845,3 +5844,60 @@ class CatalogRecordAPIWritewHardDeleteTests(CatalogRecordApiWriteCommon):
             "Hard-deleting datasets is allowed only for metax_service service user and in harvested catalogs",
             response.json()["detail"][0],
         )
+
+
+class CatalogRecordMetaxServiceIntegrationVersionSync(CatalogRecordApiWriteCommon):
+    """
+    Test Metax Service integration dataset version sync.
+    """
+
+    def setUp(self):
+        super().setUp()
+        self._use_http_authorization(username="metax_service")
+
+    def test_create_v3_dataset_with_version_identifiers(self):
+        cr_id = str(uuid4())
+        self.cr_test_data["identifier"] = cr_id
+        self.cr_test_data["api_meta"] = {"version": 3}
+        self.cr_test_data["version_identifiers"] = [cr_id, self.identifier]
+        response = self.client.post(
+            "/rest/datasets?migration_override", self.cr_test_data, format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        cr = CatalogRecord.objects.get(identifier=cr_id)
+        self.assertEqual(cr.dataset_version_set.records.count(), 2)
+
+    def test_update_v3_dataset_with_version_identifiers(self):
+        cr_id = str(uuid4())
+        self.cr_test_data["identifier"] = cr_id
+        self.cr_test_data["api_meta"] = {"version": 3}
+        response = self.client.post(
+            "/rest/datasets?migration_override", self.cr_test_data, format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        cr = CatalogRecord.objects.get(identifier=cr_id)
+        self.assertEqual(cr.dataset_version_set.records.count(), 1)
+
+        patch_data = {"version_identifiers": [cr_id, self.identifier], "api_meta": {"version": 3}}
+        response = self.client.patch(f"/rest/datasets/{cr_id}", patch_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        cr = CatalogRecord.objects.get(identifier=cr_id)
+        self.assertEqual(cr.dataset_version_set.records.count(), 2)
+
+    def test_create_v3_dataset_with_version_identifiers_missing_identifier(self):
+        cr_id = str(uuid4())
+        self.cr_test_data["identifier"] = cr_id
+        self.cr_test_data["api_meta"] = {"version": 3}
+        self.cr_test_data["version_identifiers"] = [self.identifier]
+        response = self.client.post("/rest/datasets", self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("Dataset missing from its version_identifiers", str(response.data))
+
+    def test_create_v3_dataset_with_version_identifiers_wrong_user(self):
+        self._use_http_authorization(username="metax")
+        cr_id = str(uuid4())
+        self.cr_test_data["version_identifiers"] = [cr_id, self.identifier]
+        response = self.client.post("/rest/datasets", self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("only supported for metax_service", str(response.data))
