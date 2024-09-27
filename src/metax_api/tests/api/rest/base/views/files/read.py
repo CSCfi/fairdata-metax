@@ -367,6 +367,8 @@ class FileApiReadEndUserAccess(FileApiReadCommon):
 
         response = self.client.get("/rest/files/1")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
+        response = self.client.get("/rest/files/1?removed=true")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
         response = self.client.get("/rest/files?project_identifier=%s" % proj)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, response.data)
         response = self.client.get("/rest/files?no_pagination")

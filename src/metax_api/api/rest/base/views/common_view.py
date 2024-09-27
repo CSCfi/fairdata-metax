@@ -221,16 +221,9 @@ class CommonViewSet(ModelViewSet):
 
         return queryset
 
-    def get_object(self, search_params=None):
-        """
-        Overrided from rest_framework generics.py method to also allow searching by the field
-        lookup_field_other.
-
-        param search_params: pass a custom filter instead of using the default search mechanism
-        """
-        if CS.get_boolean_query_param(self.request, "removed"):
-            return self.get_removed_object(search_params=search_params)
-        elif search_params:
+    def _get_object(self, search_params=None):
+        """Get non-removed object."""
+        if search_params:
             filter_kwargs = search_params
         else:
             if CS.is_primary_key(self.kwargs.get(self.lookup_field, False)) or not hasattr(
@@ -250,9 +243,21 @@ class CommonViewSet(ModelViewSet):
         queryset = self.filter_queryset(self.get_queryset())
 
         try:
-            obj = get_object_or_404(queryset, **filter_kwargs)
+            return get_object_or_404(queryset, **filter_kwargs)
         except Exception:
             raise Http404
+
+    def get_object(self, search_params=None):
+        """
+        Overrided from rest_framework generics.py method to also allow searching by the field
+        lookup_field_other.
+
+        param search_params: pass a custom filter instead of using the default search mechanism
+        """
+        if CS.get_boolean_query_param(self.request, "removed"):
+            obj = self._get_removed_object(search_params=search_params)
+        else:
+            obj = self._get_object(search_params=search_params)
 
         CS.check_if_unmodified_since(self.request, obj)
 
@@ -261,14 +266,12 @@ class CommonViewSet(ModelViewSet):
 
         return obj
 
-    def get_removed_object(self, search_params=None):
+    def _get_removed_object(self, search_params=None):
         """
         Find object using object.objects_unfiltered to find objects that have removed=True.
 
         Looks using the identifier that was used in the original request, similar
         to how get_object() works, if no search_params are passed.
-
-        Does not check permissions, because currently only used for notification after delete.
         """
         if not search_params:
             lookup_value = self.kwargs.get(self.lookup_field)
