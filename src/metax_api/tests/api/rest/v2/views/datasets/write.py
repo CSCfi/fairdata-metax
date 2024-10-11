@@ -1155,6 +1155,74 @@ class CatalogRecordAPIWritewHardDeleteTests(CatalogRecordApiWriteCommon):
         )
 
 
+class CatalogRecordApiWriteV3EditorsTests(CatalogRecordApiWriteCommon):
+
+    def test_sync_v3_editors(self):
+        """Test updating editors as metax_service using the editor_usernames field."""
+        test_cr = self.cr_test_data
+        self._use_http_authorization(username="metax_service")
+        test_cr["api_meta"] = {"version": 3}
+        test_cr["identifier"] = uuid4()
+
+        # Create dataset with editors
+        test_cr["editor_usernames"] = ["matti", "teppo", "tauno"]
+        response = self.client.post("/rest/v2/datasets", test_cr, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        cr_id = response.json()["id"]
+
+        response = self.client.get(
+            f"/rest/v2/datasets/{cr_id}?include_editor_permissions=true", format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        editors = [
+            u["user_id"]
+            for u in response.json()["editor_permissions"]["users"]
+            if u["role"] == "editor"
+        ]
+        self.assertEqual(set(editors), {"matti", "teppo", "tauno"}, editors)
+
+        # Update dataset with changed editors
+        response = self.client.patch(
+            f"/rest/v2/datasets/{cr_id}",
+            {"api_meta": {"version": 3}, "editor_usernames": ["matti", "marie"]},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        response = self.client.get(
+            f"/rest/v2/datasets/{cr_id}?include_editor_permissions=true", format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        existing_editors = [
+            u["user_id"]
+            for u in response.json()["editor_permissions"]["users"]
+            if u["role"] == "editor" and not u["removed"]
+        ]
+        self.assertEqual(set(existing_editors), {"matti", "marie"})
+
+        removed_editors = [
+            u["user_id"]
+            for u in response.json()["editor_permissions"]["users"]
+            if u["role"] == "editor" and u["removed"]
+        ]
+        self.assertEqual(set(removed_editors), {"teppo", "tauno"})
+
+    def test_sync_v3_editors_wrong_user(self):
+        """Test updating editors as metax_service using the editor_usernames field."""
+        test_cr = self.cr_test_data
+        self._use_http_authorization(username="metax")
+        test_cr["identifier"] = uuid4()
+
+        # Create dataset with editors
+        test_cr["editor_usernames"] = ["matti", "teppo", "tauno"]
+        response = self.client.post("/rest/v2/datasets", test_cr, format="json")
+        self.assertContains(
+            response,
+            status_code=status.HTTP_400_BAD_REQUEST,
+            text="editor_usernames field is only supported for metax_service",
+        )
+
+
 class CatalogRecordApiWriteSyncV3FilesTests(CatalogRecordApiWriteCommon):
 
     def test_sync_v3_files(self):

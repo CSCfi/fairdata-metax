@@ -14,7 +14,7 @@ from rest_framework.serializers import ValidationError, CharField, ListField
 
 from metax_api.exceptions import Http400, Http403
 from metax_api.models import CatalogRecord, Common, Contract, DataCatalog, Directory, File
-from metax_api.models.catalog_record import DatasetVersionSet
+from metax_api.models.catalog_record import DatasetVersionSet, EditorUserPermission, PermissionRole
 from metax_api.services import (
     CatalogRecordService as CRS,
     CommonService,
@@ -67,6 +67,12 @@ class CatalogRecordSerializer(CommonSerializer):
         write_only=True,
         help_text="Version synchronization from V3.",
     )
+    editor_usernames = ListField(
+        child=CharField(),
+        required=False,
+        write_only=True,
+        help_text="Editor username synchronization from V3.",
+    )
 
     class Meta:
         fields = (
@@ -101,7 +107,8 @@ class CatalogRecordSerializer(CommonSerializer):
             "rems_identifier",
             "access_granter",
             "api_meta",
-            "version_identifiers",
+            "version_identifiers",  # Sync from V3
+            "editor_usernames",  # Sync from V3
         ) + CommonSerializer.Meta.fields
 
         extra_kwargs = {
@@ -182,6 +189,7 @@ class CatalogRecordSerializer(CommonSerializer):
             instance.preserve_version = True
 
         version_identifiers = validated_data.pop("version_identifiers", None)
+        editor_usernames = validated_data.pop("editor_usernames", None)
 
         instance = super(CatalogRecordSerializer, self).update(instance, validated_data)
 
@@ -189,6 +197,8 @@ class CatalogRecordSerializer(CommonSerializer):
             self._sync_version_identifiers(
                 catalog_record=instance, version_identifiers=version_identifiers
             )
+        if editor_usernames:
+            self._sync_editors(catalog_record=instance, editor_usernames=editor_usernames)
 
         return instance
 
@@ -200,11 +210,7 @@ class CatalogRecordSerializer(CommonSerializer):
         # Sanity check, ensure dataset itself is in version_identifiers
         if catalog_record.identifier not in version_identifiers:
             raise ValidationError(
-                {
-                    "version_identifiers": [
-                        "Dataset missing from its version_identifiers"
-                    ]
-                }
+                {"version_identifiers": ["Dataset missing from its version_identifiers"]}
             )
 
         if len(version_identifiers) > 1:
@@ -217,6 +223,44 @@ class CatalogRecordSerializer(CommonSerializer):
                     identifier__in=version_identifiers
                 ).exclude(dataset_version_set=dvs)
             )
+
+    def _sync_editors(self, catalog_record, editor_usernames):
+        """Sync dataset editors list from V3."""
+        if not self.context["request"].user.is_metax_v3:
+            raise Http400("The editor_usernames field is only supported for metax_service")
+
+        perms = catalog_record.editor_permissions
+        existing_editors = list(perms.users(manager="objects_unfiltered").all())  # includes creator
+        editors_by_uid = {user.user_id: user for user in existing_editors}
+
+        # Add missing editors
+        for user_id in editor_usernames:
+            user = editors_by_uid.get(user_id)
+            if user:
+                if user.removed:
+                    # Permission is no longer removed, restore it
+                    user.removed = False
+                    user.date_modified = catalog_record.date_modified
+                    user.user_modified = catalog_record.user_modified
+                    user.service_modified = catalog_record.request.user.username
+                    user.save()
+            else:
+                EditorUserPermission.objects.create(
+                    editor_permissions=perms,
+                    user_id=user_id,
+                    role=PermissionRole.EDITOR,
+                    date_created=catalog_record.date_modified,
+                    date_modified=catalog_record.date_modified,
+                    user_created=catalog_record.user_modified,
+                    user_modified=catalog_record.user_modified,
+                    service_created=catalog_record.request.user.username,
+                    service_modified=catalog_record.request.user.username,
+                )
+
+        # Mark removed editors as deleted
+        for user in existing_editors:
+            if user.user_id not in editor_usernames and user.role != PermissionRole.CREATOR:
+                user.delete()
 
     def create(self, validated_data):
         if (
@@ -234,6 +278,7 @@ class CatalogRecordSerializer(CommonSerializer):
                 pid = validated_data["research_dataset"]["preferred_identifier"]
 
         version_identifiers = validated_data.pop("version_identifiers", None)
+        editor_usernames = validated_data.pop("editor_usernames", None)
 
         res = super().create(validated_data)
 
@@ -251,6 +296,8 @@ class CatalogRecordSerializer(CommonSerializer):
             self._sync_version_identifiers(
                 catalog_record=res, version_identifiers=version_identifiers
             )
+        if editor_usernames:
+            self._sync_editors(catalog_record=res, editor_usernames=editor_usernames)
 
         return res
 
