@@ -296,6 +296,7 @@ class FileApiWriteCreateTests(FileApiWriteCommon):
         without letting the removed file conflict.
         """
         response = self.client.post("/rest/files", self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
         response = self.client.delete("/rest/files/%d" % response.data["id"], format="json")
 
         response = self.client.post("/rest/files", self.test_new_data, format="json")

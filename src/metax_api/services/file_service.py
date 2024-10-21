@@ -1196,7 +1196,7 @@ class FileService(CommonService, ReferenceDataMixin):
         return root_dir_json
 
     @classmethod
-    def _create_single(cls, common_info, initial_data, serializer_class, **kwargs):
+    def _create_single(cls, common_info, initial_data, serializer_class, post_create_callback=None, **kwargs):
         """
         Override the original _create_single from CommonService to also create directories,
         and setting them as parent_directory to approriate dirs and the file, before creating.
@@ -1211,7 +1211,11 @@ class FileService(CommonService, ReferenceDataMixin):
         )
 
         res = super(FileService, cls)._create_single(
-            common_info, initial_data_with_dirs[0], serializer_class, post_create_callback=cls.post_create, **kwargs
+            common_info,
+            initial_data_with_dirs[0],
+            serializer_class,
+            post_create_callback=post_create_callback,
+            **kwargs,
         )
 
         cls.calculate_project_directory_byte_sizes_and_file_counts(
@@ -1256,6 +1260,10 @@ class FileService(CommonService, ReferenceDataMixin):
 
             if not all(pid in allowed_projects for pid in project_ids):
                 raise Http403({"detail": ["You do not have permission to update this file"]})
+
+    @classmethod
+    def create_bulk(cls, request, serializer_class, **kwargs):
+        return super().create_bulk(request, serializer_class, post_create_callback=cls.post_create, **kwargs)
 
     @classmethod
     def _create_bulk(cls, common_info, initial_data_list, results, serializer_class, **kwargs):
@@ -1453,7 +1461,9 @@ class FileService(CommonService, ReferenceDataMixin):
 
     @classmethod
     def update_bulk(cls, request, model_obj, serializer_class, **kwargs):
-        return super().update_bulk(request, model_obj, serializer_class, post_update_callback=cls.post_update, **kwargs)
+        return super().update_bulk(
+            request, model_obj, serializer_class, post_update_callback=cls.post_update, **kwargs
+        )
 
     @staticmethod
     def _error_is_already_exists(e):

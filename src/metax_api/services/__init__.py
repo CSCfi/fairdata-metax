@@ -10,6 +10,7 @@ from .callable_service import CallableService
 from .catalog_record_service import CatalogRecordService
 from .catalog_record_service_v2 import CatalogRecordServiceV2
 from .common_service import CommonService
+from .contract_service import ContractService
 from .data_catalog_service import DataCatalogService
 from .datacite_service import DataciteService
 from .file_service import FileService

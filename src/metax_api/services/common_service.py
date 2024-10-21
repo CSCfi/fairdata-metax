@@ -157,7 +157,7 @@ class CommonService:
                 post_create_callback(instances)
         else:
             results, http_status = cls._create_single(
-                common_info, request.data, serializer_class, **kwargs
+                common_info, request.data, serializer_class, post_create_callback=post_create_callback, **kwargs
             )
 
         if "failed" in results:

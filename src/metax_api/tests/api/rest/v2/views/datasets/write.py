@@ -445,7 +445,6 @@ class CatalogRecordApiWriteUpdateTests(CatalogRecordApiWriteCommon):
 
 
 class CatalogRecordApiWriteAlternateRecords(CatalogRecordApiWriteCommon):
-
     """
     Tests related to handling alternate records: Records which have the same
     preferred_identifier, but are in different data catalogs.

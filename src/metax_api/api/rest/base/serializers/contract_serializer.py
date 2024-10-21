@@ -21,7 +21,10 @@ class ContractSerializer(CommonSerializer):
             "contract_json",
         ) + CommonSerializer.Meta.fields
 
-        extra_kwargs = CommonSerializer.Meta.extra_kwargs
+        extra_kwargs = {
+            **CommonSerializer.Meta.extra_kwargs,
+            "contract_json": {"required": True},
+        }
 
     def validate_contract_json(self, value):
         validate_json(value, self.context["view"].json_schema)

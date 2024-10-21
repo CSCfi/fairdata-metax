@@ -4,8 +4,11 @@
 #
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
+import json
+import responses
 
 from django.core.management import call_command
+from django.test import override_settings
 from rest_framework import status
 from rest_framework.test import APITestCase
 
@@ -421,3 +424,130 @@ class ContractApiSyncFromV3(APITestCase, TestClassUtils):
                 "date_removed": None,
             }
         ]
+
+
+@override_settings(
+    METAX_V3={
+        "HOST": "metax-test",
+        "TOKEN": "test-token",
+        "INTEGRATION_ENABLED": True,
+        "PROTOCOL": "https",
+    }
+)
+class ContractApiWriteV3IntegrationTests(APITestCase, TestClassUtils):
+    def setUp(self):
+        """
+        Reloaded for every test case
+        """
+        call_command("loaddata", test_data_file_path, verbosity=0)
+        self._use_http_authorization()
+        contract_from_test_data = self._get_object_from_test_data("contract")
+        self.pk = contract_from_test_data["id"]
+        self.test_data = contract_from_test_data
+        self.test_new_data = self._get_new_test_data()
+
+    def mock_responses(self):
+        responses.add(
+            responses.POST,
+            url="https://metax-test/v3/contracts/from-legacy",
+            json={},
+        )
+
+    def _get_new_test_data(self):
+        return {
+            "contract_json": {
+                "title": "Title of new contract",
+                "identifier": "optional-identifier-new",
+                "quota": 111204,
+                "created": "2014-01-17T08:19:58Z",
+                "modified": "2014-01-17T08:19:58Z",
+                "description": "Description of unknown length",
+                "contact": [
+                    {
+                        "name": "Contact Name",
+                        "phone": "+358501231234",
+                        "email": "contact.email@csc.fi",
+                    }
+                ],
+                "organization": {
+                    "organization_identifier": "1234567abc",
+                    "name": "Mysterious organization",
+                },
+                "related_service": [{"identifier": "local:service:id", "name": "Name of Service"}],
+                "validity": {"start_date": "2014-01-17"},
+            }
+        }
+
+    @responses.activate
+    def test_create_contract_v3_sync(self):
+        self.mock_responses()
+        response = self.client.post("/rest/contracts/", self.test_new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        self.assertEqual(len(responses.calls), 1)
+        self.assertEqual(
+            responses.calls[0].request.url, "https://metax-test/v3/contracts/from-legacy"
+        )
+        self.assertEqual(responses.calls[0].request.method, "POST")
+        data = json.loads(responses.calls[0].request.body)
+        self.assertEqual(data["contract_json"], self.test_new_data["contract_json"])
+        self.assertEqual(data["id"], response.data["id"])
+
+    @responses.activate
+    def test_bulk_create_contract_v3_sync(self):
+        self.mock_responses()
+        response = self.client.post("/rest/contracts/", [self.test_new_data], format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        self.assertEqual(len(responses.calls), 1)
+        self.assertEqual(
+            responses.calls[0].request.url, "https://metax-test/v3/contracts/from-legacy"
+        )
+        self.assertEqual(responses.calls[0].request.method, "POST")
+        data = json.loads(responses.calls[0].request.body)
+        self.assertEqual(data["contract_json"], self.test_new_data["contract_json"])
+        self.assertEqual(data["id"], response.data["success"][0]["object"]["id"])
+
+    @responses.activate
+    def test_update_contract_v3_sync(self):
+        self.mock_responses()
+        contract_json = self.test_new_data["contract_json"]
+        response = self.client.patch(
+            f"/rest/contracts/{self.pk}", {"contract_json": contract_json}, format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+        self.assertEqual(len(responses.calls), 1)
+        self.assertEqual(
+            responses.calls[0].request.url, "https://metax-test/v3/contracts/from-legacy"
+        )
+        self.assertEqual(responses.calls[0].request.method, "POST")
+        data = json.loads(responses.calls[0].request.body)
+        self.assertEqual(data["contract_json"], self.test_new_data["contract_json"])
+        self.assertEqual(data["id"], response.data["id"])
+
+    @responses.activate
+    def test_bulk_update_contract_v3_sync(self):
+        self.mock_responses()
+        contract_json = self.test_new_data["contract_json"]
+        response = self.client.patch(
+            "/rest/contracts", [{"id": self.pk, "contract_json": contract_json}], format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED, response.data)
+
+    @responses.activate
+    def test_delete_contract_v3_sync(self):
+        self.mock_responses()
+        response = self.client.delete(f"/rest/contracts/{self.pk}", format="json")
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
+
+        self.assertEqual(len(responses.calls), 1)
+        self.assertEqual(
+            responses.calls[0].request.url, "https://metax-test/v3/contracts/from-legacy"
+        )
+        self.assertEqual(responses.calls[0].request.method, "POST")
+        data = json.loads(responses.calls[0].request.body)
+        self.assertEqual(data["contract_json"], self.test_data["contract_json"])
+        self.assertEqual(data["id"], self.pk)
+        self.assertTrue(data["removed"])
+        self.assertIsNotNone(data["date_removed"])

@@ -12,7 +12,7 @@ from rest_framework.serializers import ValidationError
 
 from metax_api.exceptions import Http400
 from metax_api.models import Contract
-from metax_api.services import CommonService
+from metax_api.services import CommonService, ContractService
 
 from ..serializers import CatalogRecordSerializer, ContractSerializer
 from .common_view import CommonViewSet
@@ -24,6 +24,8 @@ class ContractViewSet(CommonViewSet):
     object = Contract
 
     lookup_field = "pk"
+
+    create_bulk_method = ContractService.create_bulk
 
     def __init__(self, *args, **kwargs):
         self.set_json_schema(__file__)
@@ -79,3 +81,20 @@ class ContractViewSet(CommonViewSet):
                 err.detail = next((v for v in err.detail if v), None)
             raise err
         return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+    def perform_update(self, serializer):
+        super().perform_update(serializer)
+        ContractService.sync_to_v3([serializer.instance])
+
+    def perform_destroy(self, instance):
+        instance.delete()
+        instance.refresh_from_db()
+        ContractService.sync_to_v3([instance])
+
+    def partial_update_bulk(self, request, *args, **kwargs):
+        # Not implemented for Contract
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def update_bulk(self, request, *args, **kwargs):
+        # Not implemented for Contract
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)

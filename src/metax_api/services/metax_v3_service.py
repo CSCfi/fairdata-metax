@@ -13,6 +13,13 @@ class MetaxV3Service:
         self.metaxV3Url = f"{settings.METAX_V3['PROTOCOL']}://{settings.METAX_V3['HOST']}"
         self.token = settings.METAX_V3["TOKEN"]
 
+
+    def handle_error(self, error):
+        _logger.error(f"Exception in Metax V3: {error}")
+        if (response := getattr(error, 'response', None)) is not None:
+            _logger.error(f"{response.text=}")
+        raise MetaxV3UnavailableError()
+
     def create_dataset(self, dataset_json, legacy_file_ids=None):
         payload = {"dataset_json": dataset_json, "legacy_file_ids": legacy_file_ids}
         try:
@@ -23,8 +30,7 @@ class MetaxV3Service:
             )
             res.raise_for_status()
         except Exception as e:
-            _logger.error(f"Exception in Metax V3: {e}")
-            raise MetaxV3UnavailableError()
+            self.handle_error(e)
 
     def delete_dataset(self, dataset_id):
         try:
@@ -35,8 +41,7 @@ class MetaxV3Service:
             if res.status_code != 404:
                 res.raise_for_status()
         except Exception as e:
-            _logger.error(f"Exception in Metax V3: {e}")
-            raise MetaxV3UnavailableError()
+            self.handle_error(e)
 
     def update_dataset(self, dataset_id, dataset_json, legacy_file_ids=None):
         payload = {"dataset_json": dataset_json, "legacy_file_ids": legacy_file_ids}
@@ -48,8 +53,7 @@ class MetaxV3Service:
             )
             res.raise_for_status()
         except Exception as e:
-            _logger.error(f"Exception in Metax V3: {e}")
-            raise MetaxV3UnavailableError()
+            self.handle_error(e)
 
     def sync_files(self, files_json):
         try:
@@ -60,8 +64,20 @@ class MetaxV3Service:
             )
             res.raise_for_status()
         except Exception as e:
-            _logger.error(f"Exception in Metax V3: {e}")
-            raise MetaxV3UnavailableError()
+            self.handle_error(e)
+
+    def sync_contracts(self, contracts_json):
+        for contract in contracts_json:
+            try:
+                res = requests.post(
+                    f"{self.metaxV3Url}/v3/contracts/from-legacy",
+                    json=contract,
+                    headers={"Authorization": f"Token {self.token}"},
+                )
+                res.raise_for_status()
+            except Exception as e:
+                self.handle_error(e)
+
 
     def delete_project(self, project, flush=False):
         q_flush = "flush=true" if flush else "flush=false"
@@ -72,8 +88,7 @@ class MetaxV3Service:
             )
             res.raise_for_status()
         except Exception as e:
-            _logger.error(f"Exception in Metax V3: {e}")
-            raise MetaxV3UnavailableError()
+            self.handle_error(e)
 
 
 class MetaxV3UnavailableError(Exception):
