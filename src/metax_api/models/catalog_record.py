@@ -2702,7 +2702,11 @@ class CatalogRecord(Common):
         """
         Check if change of value in preservation_state should lead to creating a new PAS version.
         """
+        if self.request and self.request.user.is_metax_v3:
+            return # Skip preservation state logic for datasets from Metax V3
+
         self.preservation_state_modified = self.date_modified
+
 
         old_value = self._initial_data["preservation_state"]
         new_value = self.preservation_state

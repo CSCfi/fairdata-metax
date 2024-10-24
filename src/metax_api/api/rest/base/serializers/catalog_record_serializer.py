@@ -156,9 +156,23 @@ class CatalogRecordSerializer(CommonSerializer):
         self.initial_data.pop("deprecated", None)
         self.initial_data.pop("date_deprecated", None)
         self.initial_data.pop("state", None)
-        self.initial_data.pop("preservation_identifier", None)
-        self.initial_data.pop("preservation_dataset_version", None)
-        self.initial_data.pop("preservation_dataset_origin_version", None)
+
+        # Allow Metax V3 set preservation fields directly
+        if self.context["request"].user.is_metax_v3:
+            if "preservation_dataset_version" in self.initial_data:
+                version_id = self._get_id_from_related_object(
+                    "preservation_dataset_version", self._get_catalog_record_relation
+                )
+                self.initial_data["preservation_dataset_version"] = version_id
+            if "preservation_dataset_origin_version" in self.initial_data:
+                version_id = self._get_id_from_related_object(
+                    "preservation_dataset_origin_version", self._get_catalog_record_relation
+                )
+                self.initial_data["preservation_dataset_origin_version"] = version_id
+        else:
+            self.initial_data.pop("preservation_identifier", None)
+            self.initial_data.pop("preservation_dataset_version", None)
+            self.initial_data.pop("preservation_dataset_origin_version", None)
         self.initial_data.pop("rems_identifier", None)
 
         if self._data_catalog_is_changed():
@@ -853,7 +867,7 @@ class CatalogRecordSerializer(CommonSerializer):
         if isinstance(identifier_value, dict):
             identifier_value = identifier_value["contract_json"]["identifier"]
         try:
-            return Contract.objects.get(contract_json__contains={"identifier": identifier_value}).id
+            return Contract.objects.get(contract_json__identifier=identifier_value).id
         except Contract.DoesNotExist:
             raise ValidationError(
                 {"contract": ["identifier %s not found." % str(identifier_value)]}
@@ -866,12 +880,23 @@ class CatalogRecordSerializer(CommonSerializer):
         if isinstance(identifier_value, dict):
             identifier_value = identifier_value["catalog_json"]["identifier"]
         try:
-            return DataCatalog.objects.get(
-                catalog_json__contains={"identifier": identifier_value}
-            ).id
+            return DataCatalog.objects.get(catalog_json__identifier=identifier_value).id
         except DataCatalog.DoesNotExist:
             raise ValidationError(
                 {"data_catalog": ["identifier %s not found" % str(identifier_value)]}
+            )
+
+    def _get_catalog_record_relation(self, identifier_value):
+        """
+        Passed to _get_id_from_related_object() to be used when relation was a string identifier
+        """
+        if isinstance(identifier_value, dict):
+            identifier_value = identifier_value.get("identifier")
+        try:
+            return CatalogRecord.objects.get(identifier=identifier_value).id
+        except CatalogRecord.DoesNotExist:
+            raise ValidationError(
+                {"catalog_record": ["identifier %s not found." % str(identifier_value)]}
             )
 
     def _migration_override_requested(self):

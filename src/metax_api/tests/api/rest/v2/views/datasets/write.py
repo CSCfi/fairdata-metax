@@ -10,6 +10,7 @@ from uuid import uuid4
 
 from django.conf import settings as django_settings
 from django.core.management import call_command
+from django.utils.dateparse import parse_datetime
 from rest_framework import status
 from rest_framework.test import APITestCase
 
@@ -1344,15 +1345,122 @@ class CatalogRecordApiWriteSyncV3FilesTests(CatalogRecordApiWriteCommon):
         data = {
             # other files here are from project_x file 21 is from research_project_112,
             "file_ids": [1, 2, 3, 21],
-            "user_metadata": {
-                "directories": [],
-                "files": []
-            }
+            "user_metadata": {"directories": [], "files": []},
         }
 
         self._use_http_authorization(username="metax_service")
-        response = self.client.post("/rest/v2/datasets/%d/files_from_v3?include_user_metadata=true" % cr_id, data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.json()["file_ids"],
-                         ["Files should be from the same project, multiple projects found: project_x, research_project_112"]
+        response = self.client.post(
+            "/rest/v2/datasets/%d/files_from_v3?include_user_metadata=true" % cr_id,
+            data,
+            format="json",
         )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            response.json()["file_ids"],
+            [
+                "Files should be from the same project, multiple projects found: project_x, research_project_112"
+            ],
+        )
+
+
+class CatalogRecordApiWriteSyncV3Preservation(CatalogRecordApiWriteCommon):
+
+    def test_create_dataset(self):
+        """
+        Test creating a preservation version from Metax V3.
+        """
+        self._use_http_authorization(username="metax_service")
+        test_cr = {
+            **self.cr_test_data,
+            "contract": {"id": 1},
+            "identifier": uuid4(),
+            "preservation_state": 20,
+            "preservation_state_modified": "2024-10-24T08:07:50Z",
+            "preservation_description": "Preservation description",
+            "preservation_reason_description": "Reason description",
+            "preservation_dataset_origin_version": self.identifier,
+            "api_meta": {"version": 3},
+        }
+        response = self.client.post("/rest/v2/datasets", test_cr, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertDictContainsSubset(
+            {
+                "preservation_state": 20,
+                "preservation_description": "Preservation description",
+                "preservation_reason_description": "Reason description",
+                "preservation_dataset_origin_version": {
+                    "id": self.pk,
+                    "identifier": self.identifier,
+                    "preferred_identifier": self.preferred_identifier,
+                    "deprecated": False,
+                },
+            },
+            response.data,
+        )
+        date_diff = parse_datetime("2024-10-24T08:07:50Z") - parse_datetime(
+            response.data["preservation_state_modified"]
+        )
+        self.assertTrue(abs(date_diff.total_seconds()) < 1)
+        self.assertEqual(response.data["contract"]["id"], 1)
+
+    def test_update_dataset(self):
+        """
+        Test updating origin version from Metax V3 to be a preservation version.
+        """
+        self._use_http_authorization(username="metax_service")
+        test_cr = {
+            **self.cr_test_data,
+            "identifier": uuid4(),
+            "api_meta": {"version": 3},
+        }
+        response = self.client.post("/rest/v2/datasets", test_cr, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        cr_id = response.data["id"]
+
+        # Patch preservation values
+        preservation_update = {
+            "preservation_state": 20,
+            "preservation_state_modified": "2024-10-24T08:07:50Z",
+            "preservation_description": "Preservation description",
+            "preservation_reason_description": "Reason description",
+            "preservation_dataset_version": self.identifier,
+            "api_meta": {"version": 3},
+        }
+        response = self.client.patch(
+            f"/rest/v2/datasets/{cr_id}", preservation_update, format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertDictContainsSubset(
+            {
+                "preservation_state": 20,
+                "preservation_description": "Preservation description",
+                "preservation_reason_description": "Reason description",
+                "preservation_dataset_version": {
+                    "id": self.pk,
+                    "identifier": self.identifier,
+                    "preferred_identifier": self.preferred_identifier,
+                    "preservation_state": 0,
+                    "preservation_state_modified": None,
+                },
+            },
+            response.data,
+        )
+        date_diff = parse_datetime("2024-10-24T08:07:50Z") - parse_datetime(
+            response.data["preservation_state_modified"]
+        )
+        self.assertTrue(abs(date_diff.total_seconds()) < 1)
+        self.assertEqual(response.data["contract"]["id"], 1)
+
+    def test_update_preservation_state(self):
+        """
+        Test that Metax V3 preservation_state value is accepted as-is without the usual checks.
+        """
+        self._use_http_authorization(username="metax_service")
+        data = {
+            "identifier": uuid4(),
+            "api_meta": {"version": 3},
+            "preservation_state": 140,  # 140 is normally allowed only for PAS copy
+        }
+        response = self.client.patch(f"/rest/v2/datasets/{self.pk}", data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(response.data["preservation_state"], 140)

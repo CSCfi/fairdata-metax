@@ -35,10 +35,10 @@ class Contract(Common):
             cr.execute(sql, [self.id])
 
     def __repr__(self):
-        return "<%s: %d, removed: %s, identifier: %d, record_count: %d >" % (
+        return "<%s: %d, removed: %s, identifier: %s, record_count: %d >" % (
             "Contract",
             self.id,
             str(self.removed),
-            self.contract_json["identifier"],
+            self.contract_json.get("identifier"),
             self.records.count(),
         )
