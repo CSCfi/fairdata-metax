@@ -8,7 +8,9 @@
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.serializers import ValidationError
 
+from metax_api.exceptions import Http400
 from metax_api.models import Contract
 from metax_api.services import CommonService
 
@@ -51,3 +53,29 @@ class ContractViewSet(CommonViewSet):
         contract = self.get_object()
         catalog_records = [CatalogRecordSerializer(f).data for f in contract.records.all()]
         return Response(data=catalog_records, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=["post"], url_path="sync_from_v3")
+    def sync_from_v3(self, request, pk=None):
+        """Endpoint for synchronizing contract updates from V3.
+
+        Creates, updates or removes contracts."""
+        from metax_api.api.rest.base.serializers.contract_sync_serializer import (
+            ContractSyncFromV3Serializer,
+        )
+
+        if not request.user.is_metax_v3:
+            raise Http400("Endpoint is supported only for metax_service user")
+
+        serializer = ContractSyncFromV3Serializer(
+            data=request.data, context={"request": request, "view": self}, many=True
+        )
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+        except ValidationError as err:
+            # Common error handling does not like lists, so take
+            # first non-empty error value from list
+            if isinstance(err.detail, list):
+                err.detail = next((v for v in err.detail if v), None)
+            raise err
+        return Response(data=serializer.data, status=status.HTTP_200_OK)

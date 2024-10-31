@@ -5,4 +5,4 @@
 # :author: CSC - IT Center for Science Ltd., Espoo Finland <servicedesk@csc.fi>
 # :license: MIT
 
-from .contracts import ContractApiReadTestV1, ContractApiWriteTestV1
+from .contracts import ContractApiReadTestV1, ContractApiWriteTestV1, ContractApiSyncFromV3

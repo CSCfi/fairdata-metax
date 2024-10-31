@@ -1731,6 +1731,27 @@ paths:
       tags:
         - Contract API
 
+  /rest/contracts/sync_from_v3:
+    post:
+      summary: Synchronize contracts from Metax V3
+      description: |
+        Endpoint for updating contracts from V3. Fairdata internal use.
+      produces:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          description: A list of contract objects.
+          required: true
+      responses:
+        "200":
+          description: |
+            List of contract objects.
+        "400":
+          description: Bad parameters, details in body
+      tags:
+      - Contract API
+
   # ApiErrors API
   /rest/apierrors:
     get:

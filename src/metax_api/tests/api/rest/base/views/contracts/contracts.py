@@ -283,3 +283,141 @@ class ContractApiWriteTestV1(APITestCase, TestClassUtils):
                 "files": catalog_record_from_test_data["research_dataset"]["files"],
             },
         }
+
+
+class ContractApiSyncFromV3(APITestCase, TestClassUtils):
+    def setUp(self):
+        """
+        Reloaded for every test case
+        """
+        call_command("loaddata", test_data_file_path, verbosity=0)
+        self._use_http_authorization()
+        contract_from_test_data = self._get_object_from_test_data("contract")
+        self.pk = contract_from_test_data["id"]
+        self.identifier = contract_from_test_data["contract_json"]["identifier"]
+
+        """
+        New data that is sent to the server for POST, PUT, PATCH requests. Modified
+        slightly as approriate for different purposes
+        """
+        self._use_http_authorization(username="metax_service")
+
+    def test_sync_v3_contracts_create(self):
+        old_count = Contract.objects.count()
+        data = self._get_v3_sync_payload()
+
+        # No id, and identifier does not match existing contract, so new contract is created
+        data[0]["id"] = None
+        res = self.client.post("/rest/v2/contracts/sync_from_v3", data, format="json")
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        identifier = data[0]["contract_json"]["identifier"]
+        res = self.client.get(f"/rest/v2/contracts/{identifier}", format="json")
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        expected_data = {**data[0]}
+        expected_data.pop("id")
+        expected_data.pop("date_created")
+        expected_data.pop("date_modified")
+        expected_data.pop("date_removed")
+        self.assertDictContainsSubset(expected_data, res.json())
+
+        new_count = Contract.objects.count()
+        self.assertEqual(new_count, old_count + 1)
+
+    def test_sync_v3_contracts_update_by_pk(self):
+        old_count = Contract.objects.count()
+        data = self._get_v3_sync_payload()
+
+        # Update existing contract based on id
+        data[0]["id"] = self.pk
+        res = self.client.post("/rest/v2/contracts/sync_from_v3", data, format="json")
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        identifier = data[0]["contract_json"]["identifier"]
+        res = self.client.get(f"/rest/v2/contracts/{identifier}", format="json")
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        expected_data = {**data[0]}
+        expected_data.pop("date_created")
+        expected_data.pop("date_modified")
+        expected_data.pop("date_removed")
+        self.assertDictContainsSubset(expected_data, res.json())
+
+        new_count = Contract.objects.count()
+        self.assertEqual(new_count, old_count)
+
+    def test_sync_v3_contracts_update_by_identifier(self):
+        old_count = Contract.objects.count()
+        data = self._get_v3_sync_payload()
+
+        # No id, but identifier matches existing contract
+        data[0]["id"] = None
+        data[0]["contract_json"]["identifier"] = self.identifier
+        res = self.client.post("/rest/v2/contracts/sync_from_v3", data, format="json")
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        identifier = data[0]["contract_json"]["identifier"]
+        res = self.client.get(f"/rest/v2/contracts/{identifier}", format="json")
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        expected_data = {**data[0], "id": self.pk}
+        expected_data.pop("date_created")
+        expected_data.pop("date_modified")
+        expected_data.pop("date_removed")
+        self.assertDictContainsSubset(expected_data, res.json())
+
+        new_count = Contract.objects.count()
+        self.assertEqual(new_count, old_count)
+
+    def test_sync_v3_contracts_deleted(self):
+        data = self._get_v3_sync_payload()
+        data[0]["removed"] = True
+        data[0]["date_removed"] = "2024-12-19T20:00:00Z"
+        res = self.client.post("/rest/v2/contracts/sync_from_v3", data, format="json")
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        identifier = data[0]["contract_json"]["identifier"]
+        res = self.client.get(f"/rest/v2/contracts/{identifier}?removed=true", format="json")
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        expected_data = {**data[0]}
+        expected_data.pop("date_created")
+        expected_data.pop("date_modified")
+        expected_data.pop("date_removed")
+        self.assertDictContainsSubset(expected_data, res.json())
+        self.assertIsNotNone(res.data["date_removed"])
+
+    def _get_v3_sync_payload(self):
+        return [
+            {
+                "id": 1001,
+                "date_created": "2022-09-19T11:42:58Z",
+                "date_modified": "2022-09-20T09:55:06Z",
+                "contract_json": {
+                    "title": "Testisopimus",
+                    "description": "Description of the contract",
+                    "quota": 1234567890,
+                    "created": "2022-09-19T00:00:00Z",
+                    "modified": "2022-09-20T09:55:05Z",
+                    "organization": {
+                        "name": "Testiopisto",
+                        "organization_identifier": "https://www.example.com/testi",
+                    },
+                    "validity": {"start_date": "2022-09-19"},
+                    "contact": [
+                        {
+                            "name": "Testiyhteys",
+                            "email": "testi@example.com",
+                            "phone": "+358-10-12345678",
+                        },
+                        {"name": "Toinen", "email": "toinen@example.com", "phone": ""},
+                    ],
+                    "related_service": [
+                        {"identifier": "urn:nbn:fi:att:file-storage-pas", "name": "Fairdata-PAS"}
+                    ],
+                    "identifier": "urn:uuid:0d32393b-1be2-454e-98ff-ffb1da56343c",
+                },
+                "date_removed": None,
+            }
+        ]
