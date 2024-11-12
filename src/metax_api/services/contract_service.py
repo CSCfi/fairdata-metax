@@ -23,14 +23,6 @@ _logger = logging.getLogger(__name__)
 class ContractService(CommonService, ReferenceDataMixin):
 
     @classmethod
-    def sync_to_v3_from_identifier_list(cls, data: list):
-        if not settings.METAX_V3["INTEGRATION_ENABLED"]:
-            return
-        ids = cls.identifiers_to_ids(data, "noparams")
-        files = Contract.objects.filter(id__in=ids)
-        cls.sync_to_v3(files)
-
-    @classmethod
     def sync_to_v3(cls, contracts: List[Contract]):
         if not settings.METAX_V3["INTEGRATION_ENABLED"] or not contracts:
             return
