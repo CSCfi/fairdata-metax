@@ -313,6 +313,7 @@ class ContractApiSyncFromV3(APITestCase, TestClassUtils):
         data[0]["id"] = None
         res = self.client.post("/rest/v2/contracts/sync_from_v3", data, format="json")
         self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertIsNotNone(res.json()[0]["id"])
 
         identifier = data[0]["contract_json"]["identifier"]
         res = self.client.get(f"/rest/v2/contracts/{identifier}", format="json")

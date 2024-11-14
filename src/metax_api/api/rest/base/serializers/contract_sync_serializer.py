@@ -27,6 +27,7 @@ class ContractSyncFromV3ListSerializer(serializers.ListSerializer):
             self.child._errors = None
             self.child._validated_data = item
             instances.append(self.child.save())
+        self.instance = instances
         return instances
 
 
