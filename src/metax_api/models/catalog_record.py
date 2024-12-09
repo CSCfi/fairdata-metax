@@ -510,6 +510,12 @@ class CatalogRecord(Common):
         EditorPermissions, related_name="catalog_records", null=False, on_delete=models.PROTECT
     )
 
+    pid_migrated = models.DateTimeField(
+        null=True,
+        default=None,
+        help_text="DateTimeField that saves the timestamp when the PID has been migrated to PID MS"
+    )
+
     # END OF MODEL FIELD DEFINITIONS #
 
     """

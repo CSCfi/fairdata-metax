@@ -15,6 +15,7 @@ from .data_catalog_service import DataCatalogService
 from .datacite_service import DataciteService
 from .file_service import FileService
 from .file_v3_sync_service import FilesSyncFromV3Service
+from .pid_ms_service import PIDMSService
 from .rabbitmq_service import RabbitMQService
 from .redis_cache_service import (
     RedisClient as RedisCacheService,

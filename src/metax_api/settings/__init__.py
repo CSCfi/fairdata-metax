@@ -57,6 +57,10 @@ env = environ.Env(
     OAI_BASE_URL=(str, "https://metax.fd-dev.csc.fi/oai/"),
     OAI_BATCH_SIZE=(int, 25),
     OAI_REPOSITORY_NAME=(str, "Metax"),
+    PID_MS_CATALOGS_TO_MIGRATE=(list, ["urn:nbn:fi:att:data-catalog-ida", "urn:nbn:fi:att:data-catalog-att"]),
+    PID_MS_HOST=(str, "pidms-test.2.rahtiapp.fi"),
+    PID_MS_TOKEN=(str, "token"),
+    PID_MS_PROTOCOL=(str, "https"),
     RABBIT_MQ_HOSTS=(list, ["localhost"]),
     RABBIT_MQ_PORT=(int, 5672),
     RABBIT_MQ_PASSWORD=(str, "guest"),
@@ -91,6 +95,7 @@ base_settings = [
     "components/rems.py",
     "components/metrics.py",
     "components/metax_v3.py",
+    "components/pid_ms.py",
     "environments/{0}.py".format(ENV),
     # Optionally override some settings:
     # optional('environments/legacy.py'),
