@@ -9,7 +9,7 @@ from collections import defaultdict
 from typing import List, Optional
 import os
 
-from django.db import transaction
+from django.db import transaction, connection
 from django.conf import settings
 from django.utils import timezone
 from rest_framework.serializers import ValidationError
@@ -480,7 +480,14 @@ class CatalogRecordFilesSyncFromV3Serializer(StrictSyncSerializer):
                 new_files.append(file)
 
         catalog_record.files.remove(*old_files)
-        catalog_record.files.add(*new_files)
+
+        # Use SQL insert for significant speedup over catalog_record.files.add(*new_files)
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "INSERT INTO metax_api_catalogrecord_files (catalogrecord_id, file_id)"
+                "  SELECT %s, * FROM unnest(%s)",  # unnest converts arrays into table columns
+                [catalog_record.id, list(new_files)],
+            )
         change_count = len(old_files) + len(new_files)
         return change_count
 

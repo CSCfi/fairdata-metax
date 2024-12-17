@@ -1,3 +1,4 @@
+import datetime
 import logging.config
 import time
 
@@ -16,14 +17,22 @@ LOGGING_JSON_FILE_HANDLER_FILE = f"{LOGGING_PATH}/metax_api.json.log"
 LOGGING_GENERAL_HANDLER_FILE = f"{LOGGING_PATH}/metax_api.log"
 LOGGING_LEVEL = env("LOGGING_LEVEL")
 
+
+class DateTimeZFormatter(logging.Formatter):
+    """Log formatter with datetime with milliseconds and Z timezone."""
+
+    default_time_format = "%Y-%m-%d %H:%M:%S"
+    default_msec_format = "%s,%03dZ"
+
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
     "formatters": {
         "standard": {
             # timestamp, process id, python module name, loglevel, msg content...
+            "class": "metax_api.settings.components.logging.DateTimeZFormatter",
             "format": "%(asctime)s p%(process)d %(name)s %(levelname)s: %(message)s",
-            "datefmt": "%Y-%m-%dT%H:%M:%S.%03dZ",
         },
     },
     "filters": {
