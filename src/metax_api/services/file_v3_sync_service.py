@@ -481,13 +481,14 @@ class CatalogRecordFilesSyncFromV3Serializer(StrictSyncSerializer):
 
         catalog_record.files.remove(*old_files)
 
-        # Use SQL insert for significant speedup over catalog_record.files.add(*new_files)
-        with connection.cursor() as cursor:
-            cursor.execute(
-                "INSERT INTO metax_api_catalogrecord_files (catalogrecord_id, file_id)"
-                "  SELECT %s, * FROM unnest(%s)",  # unnest converts arrays into table columns
-                [catalog_record.id, list(new_files)],
-            )
+        if new_files:
+            # Use SQL insert for significant speedup over catalog_record.files.add(*new_files)
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "INSERT INTO metax_api_catalogrecord_files (catalogrecord_id, file_id)"
+                    "  SELECT %s, * FROM unnest(%s)",  # unnest converts arrays into table columns
+                    [catalog_record.id, new_files],
+                )
         change_count = len(old_files) + len(new_files)
         return change_count
 

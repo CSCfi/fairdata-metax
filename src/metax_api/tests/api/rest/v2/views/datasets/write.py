@@ -1225,7 +1225,7 @@ class CatalogRecordApiWriteV3EditorsTests(CatalogRecordApiWriteCommon):
 
 class CatalogRecordApiWriteSyncV3FilesTests(CatalogRecordApiWriteCommon):
 
-    def test_sync_v3_files(self):
+    def test_files_from_v3(self):
         """
         Test that files_from_v3 updates file associations, user metadata and dataset api_meta.
         """
@@ -1298,6 +1298,29 @@ class CatalogRecordApiWriteSyncV3FilesTests(CatalogRecordApiWriteCommon):
         self.assertEqual(response_rd["directories"],  expected_directories_metadata)
         self.assertEqual(response_rd["files"],  metadata["files"])
 
+
+    def test_files_from_v3_twice(self):
+        """Test that running files_from_v3 multiple times with same files does not cause errors."""
+        test_cr = self.cr_test_data
+        response = self.client.post("/rest/v2/datasets", test_cr, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual(2, response.json()["api_meta"]["version"])
+        cr_id = response.json()["id"]
+
+        data = {
+            "file_ids": [1, 2, 3],
+            "user_metadata": {
+                "files": [],
+                "directories": []
+            }
+        }
+
+        self._use_http_authorization(username="metax_service")
+        response = self.client.post("/rest/v2/datasets/%d/files_from_v3?include_user_metadata=true" % cr_id, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self._use_http_authorization(username="metax_service")
+        response = self.client.post("/rest/v2/datasets/%d/files_from_v3?include_user_metadata=true" % cr_id, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_sync_v3_files_not_metax_service(self):
         """The files_from_v3 endpoint is only supported for metax_service"""
