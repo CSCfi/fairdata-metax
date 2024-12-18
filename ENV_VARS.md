@@ -14,7 +14,7 @@ copy .env.template to .env and fill the required values from below table. Requir
 | DATACITE_URL                            | yes      |                                                                                       |
 | DATACITE_USERNAME                       | yes      |                                                                                       |
 | DEBUG                                   | no       | False                                                                                 |
-| DEBUG_TOOLBAR_ENABLED                   | not      | True                                                                                  | Enable debug toolbar on local environment                                                                  |
+| DEBUG_TOOLBAR_ENABLED                   | no      | False                                                                                  | Enable debug toolbar on local environment                                                                  |
 | DJANGO_ENV                              | no       | local                                                                                 | Specifies the environment, corresponds with the environments found in src/metax_api/settings/environments/ |
 | DJANGO_SECRET_KEY                       | yes      |                                                                                       |
 | ELASTIC_SEARCH_HOSTS                    | no       | localhost                                                                             | Elastic Search instance IPs                                                                                |
