@@ -6,6 +6,8 @@
 # :license: MIT
 
 import responses
+from uuid import uuid4
+
 from django.conf import settings
 from django.core.management import call_command
 from rest_framework import status
@@ -755,3 +757,31 @@ class FlushUserDataTests(CatalogRecordApiWriteCommon):
             "/rpc/datasets/flush_user_data?metadata_provider_user=%s" % username
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_flush_datasets_from_v3(self):
+        # create new V3 dataset for user "abcde-12345"
+        self._use_http_authorization("metax_service")
+
+        username = "abcde-12345"
+        self.cr_test_data["metadata_provider_user"] = username
+        cr_identifier = str(uuid4())
+        self.cr_test_data["research_dataset"]["preferred_identifier"] = f"urn:nbn:fi:att:{str(uuid4())}"
+        self.cr_test_data["identifier"] = cr_identifier
+        self.cr_test_data["api_meta"] = {"version": 3}
+        response = self.client.post("/rest/v2/datasets?migration_override", self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        # make sure the dataset exists now
+        cr = response.data
+        response = self.client.get(f"/rest/datasets/{cr_identifier}", format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["metadata_provider_user"], username)
+
+
+        self._use_http_authorization("metax")
+        # flush user data for user "abcd-12345" and check that this succeeds
+        response = self.client.post(f"/rpc/datasets/flush_user_data?metadata_provider_user={username}")
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
+
+        response = self.client.get(f"/rest/datasets/{cr_identifier}", format="json")
+        self.assertEqual("not found" in response.json()["detail"].lower(), True)

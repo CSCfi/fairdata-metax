@@ -1229,6 +1229,7 @@ class CatalogRecord(Common):
         self.add_post_request_callable(V3Integration(self, "delete"))
 
         if (self.api_meta["version"] == 3
+            and self.request != None
             and not self.request.user.is_metax_v3
         ):
             raise ValidationError(
