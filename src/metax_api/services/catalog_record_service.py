@@ -34,13 +34,6 @@ from .reference_data_mixin import ReferenceDataMixin
 
 _logger = logging.getLogger(__name__)
 
-# simplexquery requires dependencies outside Python packages and is not that important
-# it also blocks debugging if not present
-try:
-    import simplexquery as sxq
-except ImportError as e:
-    _logger.error(e)
-
 
 class CatalogRecordService(CommonService, ReferenceDataMixin):
     @classmethod
@@ -522,28 +515,7 @@ class CatalogRecordService(CommonService, ReferenceDataMixin):
             # mostly for debugging purposes, the 'metax xml' can be returned as well
             return xml_str
 
-        target_xslt_file_path = join(
-            dirname(dirname(__file__)), "api/rest/base/xslt/%s.xslt" % target_format
-        )
-
-        try:
-            with open(target_xslt_file_path) as f:
-                xslt = f.read()
-        except OSError:
-            raise Http400("Requested format '%s' is not available" % target_format)
-
-        try:
-            transformed_xml = sxq.execute(xslt, xml_str)
-        except:
-            _logger.exception(
-                "Something is wrong with the xslt file at %s:" % target_xslt_file_path
-            )
-            raise Http503("Requested format '%s' is currently unavailable" % target_format)
-
-        if include_xml_declaration:
-            return '<?xml version="1.0" encoding="UTF-8" ?>%s' % transformed_xml
-        else:
-            return transformed_xml
+        raise Http400("Requested format '%s' is not available" % target_format)
 
     @classmethod
     def validate_reference_data(cls, research_dataset, cache, request=None):

@@ -19,7 +19,7 @@ The recommended way to run the development setup is to use [Docker-swarm setup](
 Install [Poetry](https://python-poetry.org/docs/) for your OS. Navigate to the repository root and run command `poetry install`. this will create and activate new Python virtualenv, installing all necessary Python packages to it.
 
 
-You can generate traditional requirements.txt file with `poetry export --dev -E simplexquery -E docs -E swagger --without-hashes -o requirements.txt`
+You can generate traditional requirements.txt file with `poetry export --dev -E docs -E swagger --without-hashes -o requirements.txt`
 
 ### Managing dependencies
 

@@ -1,12 +1,11 @@
-# Use Debian 11 (bullseye) because version 12 doesn't provide xqilla
-FROM python:3.8-bullseye
+FROM python:3.8
 
 ENV PYTHONUNBUFFERED 1
 ENV PYTHONDONTWRITEBYTECODE 1
 
 RUN mkdir -p /var/log/metax-api/errors && touch /var/log/metax-api/metax-api.json.log
 
-RUN apt-get update && apt install xqilla libxerces-c-dev build-essential libssl-dev libffi-dev python3-dev libxqilla-dev -y
+RUN apt-get update && apt install build-essential libssl-dev libffi-dev python3-dev -y
 
 RUN pip install --upgrade pip wheel
 COPY requirements.txt /code/

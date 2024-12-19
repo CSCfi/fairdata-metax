@@ -24,7 +24,6 @@ rdflib = "^5.0.0"
 python-dateutil = "^2.8.1"
 python-box = "^5.3.0"
 pyoai = {git = "https://github.com/infrae/pyoai", rev = "4800af5"}
-python-simplexquery = {version = "*", optional = true}
 # These are here because of: https://github.com/python-poetry/poetry/issues/1644
 Sphinx = {version = "^4.0.2", optional = true}
 sphinx-autobuild = {version = "^2021.3.14", optional = true}
@@ -44,7 +43,6 @@ isort = "^5.8.0"
 coverage = {version = "^5.5", extras = ["toml"]}
 
 [tool.poetry.extras]
-simplexquery = ["python-simplexquery"]
 docs = ["Sphinx", "sphinx-autobuild", "sphinx-rtd-theme"]
 swagger = ["PyYAML"]
 
