@@ -1241,7 +1241,8 @@ class CatalogRecord(Common):
             )
 
         if kwargs.get("hard") or (
-            self.catalog_is_harvested()
+            # If env is production or unittests, check if the catalog is harvested
+            (settings.ENV not in ["production", "unittests"] or self.catalog_is_harvested())
             and self.request.user.is_metax_v3
             and CommonService.get_boolean_query_param(self.request, "hard")
         ):
