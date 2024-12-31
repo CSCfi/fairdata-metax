@@ -5805,17 +5805,24 @@ class CatalogRecordAPIWritewHardDeleteTests(CatalogRecordApiWriteCommon):
     def test_v3_hard_deletes_v3_dataset(self):
         """
         Create a harvested dataset from V3
-        Hard-delete it using metax_service
+        Update it so that a ResearchDatasetVersion is created
+        Hard-delete the dataset (and its ResearchDatasetVersions) using metax_service
         Assert that dataset is hard-deleted
         """
         self._use_http_authorization("metax_service")
         cr_id = str(uuid4())
-        self.cr_test_data["data_catalog"] = 3  # 3 is harvested catalog
+        self.cr_test_data["data_catalog"] = 10  # 10 is harvested catalog, which has versioning enabled
         self.cr_test_data["research_dataset"]["preferred_identifier"] = "test_pid"
         self.cr_test_data["identifier"] = cr_id
         self.cr_test_data["api_meta"] = {"version": 3}
+
         response = self.client.post("/rest/datasets", self.cr_test_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        # Update dataset so that a ResearchDatasetVersion is created
+        self.cr_test_data["research_dataset"]["title"] = {"en": "New title"}
+        response = self.client.put(f"/rest/datasets/{cr_id}?migration_override", self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
         response = self.client.delete(f"/rest/datasets/{cr_id}?hard=true")
         self._assert_hard_delete(cr_id)

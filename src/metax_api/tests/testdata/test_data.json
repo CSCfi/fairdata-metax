@@ -5560,6 +5560,136 @@
     },
     {
         "fields": {
+            "catalog_json": {
+                "access_rights": {
+                    "access_type": [
+                        {
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/access_type/code/open",
+                            "pref_label": {
+                                "en": "Open",
+                                "fi": "Avoin",
+                                "und": "Avoin"
+                            }
+                        }
+                    ],
+                    "description": {
+                        "fi": "K\u00e4ytt\u00f6ehtojen kuvaus"
+                    },
+                    "has_rights_related_agent": [
+                        {
+                            "identifier": "org_id",
+                            "name": {
+                                "en": "A rights related organization",
+                                "fi": "Oikeuksiin liittyv\u00e4 organisaatio"
+                            }
+                        },
+                        {
+                            "email": "wahatever@madeupdomain.com",
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/organization/code/10076",
+                            "name": {
+                                "en": "Org in ref data",
+                                "fi": "Org referenssidatassa"
+                            },
+                            "telephone": [
+                                "+12353495823424"
+                            ]
+                        }
+                    ],
+                    "license": [
+                        {
+                            "identifier": "http://uri.suomi.fi/codelist/fairdata/license/code/CC-BY-4.0",
+                            "title": {
+                                "en": "Creative Commons Attribution 4.0 International (CC BY 4.0)",
+                                "fi": "Creative Commons Nime\u00e4 4.0 Kansainv\u00e4linen (CC BY 4.0)",
+                                "und": "Creative Commons Nime\u00e4 4.0 Kansainv\u00e4linen (CC BY 4.0)"
+                            }
+                        }
+                    ]
+                },
+                "dataset_versioning": true,
+                "field_of_science": [
+                    {
+                        "identifier": "http://www.yso.fi/onto/okm-tieteenala/ta1172",
+                        "pref_label": {
+                            "en": "Environmental sciences",
+                            "fi": "Ymp\u00e4rist\u00f6tiede"
+                        }
+                    }
+                ],
+                "harvested": true,
+                "homepage": [
+                    {
+                        "identifier": "http://testing.com",
+                        "title": {
+                            "en": "Test website",
+                            "fi": "Testi-verkkopalvelu"
+                        }
+                    },
+                    {
+                        "identifier": "http://www.testing.fi",
+                        "title": {
+                            "en": "Another website",
+                            "fi": "Toinen verkkopalvelu"
+                        }
+                    }
+                ],
+                "identifier": "urn:nbn:fi:att:2955e904-e3dd-4d7e-99f1-3fed446f9610",
+                "issued": "2014-02-27",
+                "language": [
+                    {
+                        "identifier": "http://lexvo.org/id/iso639-3/fin",
+                        "title": {
+                            "en": "Finnish",
+                            "fi": "suomi",
+                            "sv": "finska",
+                            "und": "suomi"
+                        }
+                    },
+                    {
+                        "identifier": "http://lexvo.org/id/iso639-3/eng",
+                        "title": {
+                            "en": "English",
+                            "fi": "englanti",
+                            "sv": "engelska",
+                            "und": "englanti"
+                        }
+                    }
+                ],
+                "modified": "2014-01-17T08:19:58Z",
+                "publisher": {
+                    "homepage": [
+                        {
+                            "identifier": "http://www.publisher.fi/",
+                            "title": {
+                                "en": "Publisher organization website",
+                                "fi": "Julkaisijaorganisaation kotisivu"
+                            }
+                        }
+                    ],
+                    "identifier": "http://isni.org/isni/0000000405129137",
+                    "name": {
+                        "en": "Data catalog publisher organization",
+                        "fi": "Datakatalogin julkaisijaorganisaatio"
+                    }
+                },
+                "research_dataset_schema": "ida",
+                "title": {
+                    "en": "Test data catalog name",
+                    "fi": "Testidatakatalogin nimi"
+                }
+            },
+            "catalog_record_services_create": "testuser,api_auth_user,metax,tpas,metax_service",
+            "catalog_record_services_edit": "testuser,api_auth_user,metax,tpas,metax_service",
+            "catalog_record_services_read": "testuser,api_auth_user,metax,tpas,metax_service",
+            "date_created": "2017-05-15T10:07:22Z",
+            "date_modified": "2017-06-15T10:07:22Z",
+            "service_created": "metax"
+        },
+        "model": "metax_api.datacatalog",
+        "pk": 10
+    },
+    {
+        "fields": {
             "contract_json": {
                 "contact": [
                     {

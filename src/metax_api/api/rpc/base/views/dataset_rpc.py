@@ -235,11 +235,6 @@ class DatasetRPC(CommonRPC):
 
         crs = CatalogRecord.objects_unfiltered.filter(metadata_provider_user=user)
 
-        rdvs = ResearchDatasetVersion.objects.filter(catalog_record_id__in=crs.values_list("id"))
-
-        for rdv in rdvs:
-            rdv.delete()
-        
         for cr in crs:
             cr.delete(hard=True)
             cr.add_post_request_callable(RabbitMQPublishRecord(cr, "delete"))

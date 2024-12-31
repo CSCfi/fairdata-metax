@@ -687,6 +687,12 @@ class FlushUserDataTests(CatalogRecordApiWriteCommon):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["metadata_provider_user"], username)
 
+        # Update the dataset so that a ResearchDatasetVersion is created
+        self.cr_test_data["research_dataset"]["title"] = {"en": "New title"}
+        self.cr_test_data["research_dataset"]["preferred_identifier"] = cr["research_dataset"]["preferred_identifier"]
+        response = self.client.put("/rest/v2/datasets/{}".format(cr["identifier"]), self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
         # flush user data for user "abcd-1234" and check that this succeeds
         response = self.client.post("/rpc/datasets/flush_user_data?metadata_provider_user=%s" % username)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
