@@ -136,6 +136,9 @@ class FileService(CommonService, ReferenceDataMixin):
                 )
             queryset_search_params["file_path__contains"] = request.query_params["file_path"]
 
+        if "id__gt" in request.query_params:
+            queryset_search_params["id__gt"] = CommonService.get_integer_query_param(request, "id__gt")
+
         return queryset_search_params
 
     @classmethod

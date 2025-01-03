@@ -100,6 +100,17 @@ class CommonService:
         return set()
 
     @staticmethod
+    def get_integer_query_param(request, param_name):
+        """
+        Retrieve value for integer query parameter.
+        """
+        value = request.query_params.get(param_name, None)
+        try:
+            return int(value)
+        except ValueError:
+            raise ValidationError({param_name: ["expected integer value"]})
+
+    @staticmethod
     def has_research_agent_query_params(request):
         """
         Defines if request has query parameters for creator, curator, publisher or rights_holder.

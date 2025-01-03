@@ -165,6 +165,11 @@ paths:
             with colon. Example: ?fields=checksum:value.
           required: false
           type: string
+        - name: id__gt
+          in: query
+          description: Return only files with id greater than specified value.
+          required: false
+          type: string
       responses:
         "200":
           description: Successful operation, return list of files
