@@ -3533,14 +3533,13 @@ class V3Integration:
         http_request.method = "GET"
         http_request.GET["include_user_metadata"] = "true"
         http_request.GET["file_details"] = "true"
-        http_request.GET["file_fields"] = "file_path"
-        http_request.GET["directory_path"] = "directory_path"
+        http_request.GET["file_fields"] = "id,identifier,file_path"
+        http_request.GET["directory_fields"] = "id,identifier,directory_path"
         http_request.GET["include_editor_permissions"] = "true"
         request = Request(http_request)
         request.user = AnonymousUser()
         request.user.is_service = True
         request.user.username = "metax"
-
         return serializer_class(self.cr, context={"request": request}).data
 
     def _get_file_ids(self):
