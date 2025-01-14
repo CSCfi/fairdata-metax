@@ -546,7 +546,8 @@ class CatalogRecordV2(CatalogRecord):
         if settings.REMS["ENABLED"]:
             self._pre_update_handle_rems()
 
-        if self.field_changed("cumulative_state"):
+        is_metax_v3 = self.request and self.request.user.is_metax_v3
+        if self.field_changed("cumulative_state") and not is_metax_v3:
             if draft_publish:
                 # let cumulative state be updated if it is being changed when
                 # draft record is being merged into a published record.
