@@ -17,6 +17,7 @@ from metax_api.api.rest.v2.serializers import CatalogRecordSerializerV2
 from metax_api.api.rpc.base.views import DatasetRPC
 from metax_api.exceptions import Http400, Http501
 from metax_api.models import CatalogRecordV2
+from metax_api.models.catalog_record import V3Integration
 
 _logger = logging.getLogger(__name__)
 
@@ -112,6 +113,7 @@ class DatasetRPC(DatasetRPC):
                 cr = self.get_object()
 
                 cr.publish_dataset()
+                cr.add_post_request_callable(V3Integration(cr, "update"))
 
                 return Response(
                     data={"preferred_identifier": cr.preferred_identifier},
