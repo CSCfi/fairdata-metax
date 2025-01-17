@@ -485,7 +485,16 @@ class CatalogRecordV2(CatalogRecord):
                 "research_dataset"
             ]["metadata_version_identifier"]
 
-        if self.field_changed("research_dataset.preferred_identifier"):
+        # Allow Metax V3 set pid for draft dataset when publishing
+        is_metax_v3 = self.request and self.request.user.is_metax_v3
+        publishing_in_v3 = (
+            is_metax_v3 and self._initial_data["state"] == "draft" and self.state == "published"
+        )
+        if publishing_in_v3:
+            # Ensure V3 actually provides a PID
+            if not self.research_dataset.get("preferred_identifier"):
+                raise Http400("Cannot remove preferred_identifier")
+        elif self.field_changed("research_dataset.preferred_identifier"):
             if not (self.catalog_is_harvested() or self.catalog_is_legacy()):
                 raise Http400(
                     "Cannot change preferred_identifier in datasets in non-harvested catalogs"

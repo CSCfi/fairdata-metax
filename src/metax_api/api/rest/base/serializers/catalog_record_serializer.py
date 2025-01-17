@@ -155,10 +155,17 @@ class CatalogRecordSerializer(CommonSerializer):
         self.initial_data.pop("previous_dataset_version", None)
         self.initial_data.pop("deprecated", None)
         self.initial_data.pop("date_deprecated", None)
-        self.initial_data.pop("state", None)
 
-        # Allow Metax V3 set preservation fields directly
+        # Allow Metax V3 set state and preservation fields directly
         if self.context["request"].user.is_metax_v3:
+            state = self.initial_data.get("state")
+            if state and state != "published":
+                raise Http400("Only published datasets are supported from Metax V3")
+
+            # Created datasets should be initialized with state=draft so publish logic works
+            if self._operation_is_create:
+                self.initial_data.pop("state", None)
+
             if "preservation_dataset_version" in self.initial_data:
                 version_id = self._get_id_from_related_object(
                     "preservation_dataset_version", self._get_catalog_record_relation
@@ -170,6 +177,7 @@ class CatalogRecordSerializer(CommonSerializer):
                 )
                 self.initial_data["preservation_dataset_origin_version"] = version_id
         else:
+            self.initial_data.pop("state", None)
             self.initial_data.pop("preservation_identifier", None)
             self.initial_data.pop("preservation_dataset_version", None)
             self.initial_data.pop("preservation_dataset_origin_version", None)

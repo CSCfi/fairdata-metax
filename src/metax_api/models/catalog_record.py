@@ -576,6 +576,7 @@ class CatalogRecord(Common):
             "research_dataset.total_remote_resources_byte_size",
             "research_dataset.metadata_version_identifier",
             "research_dataset.preferred_identifier",
+            "state",
         )
         from metax_api.api.rest.base.serializers import CatalogRecordSerializer
 

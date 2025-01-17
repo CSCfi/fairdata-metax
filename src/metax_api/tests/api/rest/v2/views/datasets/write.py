@@ -948,6 +948,47 @@ class CatalogRecordMetaxServiceIntegration(CatalogRecordApiWriteCommon):
         self.assertEqual(cr_id, response.json()["identifier"])
         self.assertEqual(3, response.json()["api_meta"]["version"])
 
+    def test_publish_v2_draft_in_v3(self):
+        """
+        Create draft in V2, update and publish it in V3.
+        """
+        self._use_http_authorization(username="metax")
+        response = self.client.post("/rest/v2/datasets?draft=true", self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual(response.data["state"], "draft", response.data)
+        cr_id = response.data["identifier"]
+
+        # V3 sends published dataset to V2
+        self._use_http_authorization(username="metax_service")
+        self.cr_test_data["identifier"] = cr_id
+        self.cr_test_data["api_meta"] = {"version": 3}
+        self.cr_test_data["research_dataset"]["title"] = {"en": "new title"}
+        self.cr_test_data["research_dataset"]["preferred_identifier"] = "pid_coming_from_v3"
+        response = self.client.put(f"/rest/v2/datasets/{cr_id}", self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(response.data["state"], "published", response.data)
+        self.assertEqual(response.data["research_dataset"]["title"], {"en": "new title"}, response.data)
+        self.assertEqual(response.data["research_dataset"]["preferred_identifier"], "pid_coming_from_v3")
+
+    def test_publish_v2_draft_in_v3_without_pid(self):
+        """
+        Make sure V3 provides a pid when publishing V2 draft.
+        """
+        self._use_http_authorization(username="metax")
+        response = self.client.post("/rest/v2/datasets?draft=true", self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual(response.data["state"], "draft", response.data)
+        cr_id = response.data["identifier"]
+
+        # V3 sends published dataset without PID, which should be an error
+        self._use_http_authorization(username="metax_service")
+        self.cr_test_data["identifier"] = cr_id
+        self.cr_test_data["api_meta"] = {"version": 3}
+        self.cr_test_data["research_dataset"]["title"] = {"en": "new title"}
+        response = self.client.put(f"/rest/v2/datasets/{cr_id}", self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+        self.assertEqual(response.json()["detail"], ["Cannot remove preferred_identifier"])
+
     def test_v2_cant_create_draft_of_v3_dataset(self):
         """
         Try to create a draft of a dataset that has been created by Metax V3
@@ -980,7 +1021,6 @@ class CatalogRecordMetaxServiceIntegration(CatalogRecordApiWriteCommon):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
         self.assertEqual("RPC endpoints are disabled for datasets that have been created or updated with API version 3", response.json()["detail"][0])
 
-
     def test_v2_cant_delete_v3_dataset(self):
         """
         Create a dataset from V3
@@ -999,6 +1039,27 @@ class CatalogRecordMetaxServiceIntegration(CatalogRecordApiWriteCommon):
         self.assertEqual("Deleting datasets that have been created or updated with API version 3 is allowed only for metax_service", response.json()["detail"][0])
         catalog_record = CatalogRecordV2.objects_unfiltered.get(identifier=cr_id)
         self.assertEqual(catalog_record.removed, False)
+
+    def test_v3_cant_sync_draft_to_v2(self):
+        """
+        V3 is not allowed to sync drafts to V2.
+        """
+        self._use_http_authorization(username="metax")
+        response = self.client.post("/rest/v2/datasets?draft=true", self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual(response.data["state"], "draft", response.data)
+        cr_id = response.data["identifier"]
+
+        # V3 sends draft dataset to V2, should fail
+        self._use_http_authorization(username="metax_service")
+        self.cr_test_data["state"] = "draft"
+        self.cr_test_data["identifier"] = cr_id
+        self.cr_test_data["api_meta"] = {"version": 3}
+        self.cr_test_data["research_dataset"]["title"] = {"en": "new title"}
+        self.cr_test_data["research_dataset"]["preferred_identifier"] = "pid_coming_from_v3"
+        response = self.client.put(f"/rest/v2/datasets/{cr_id}", self.cr_test_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+        self.assertEqual(response.json()["detail"], ['Only published datasets are supported from Metax V3'])
 
 
 class CatalogRecordAPIWritewHardDeleteTests(CatalogRecordApiWriteCommon):
