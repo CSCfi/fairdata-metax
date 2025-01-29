@@ -370,6 +370,27 @@ class CatalogRecordApiWriteDatasetSchemaSelection(CatalogRecordApiWriteCommon):
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
 
+    def test_catalog_record_published_update_is_validated_with_published_schema(self):
+        """
+        Ensure that updating published dataset directly validates
+        the dataset with non-draft schema.
+        """
+        cr = deepcopy(self.cr_test_data)
+        cr["data_catalog"] = 2  # ida catalog
+        response = self.client.post("/rest/v2/datasets", cr, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+
+        cr = response.data
+        patch_data = {
+            "research_dataset": {
+                "title": {"en": "should not work, missing required fields"},
+                "preferred_identifier": cr["research_dataset"]["preferred_identifier"]
+            }
+        }
+
+        response = self.client.patch(f'/rest/v2/datasets/{cr["id"]}', patch_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
+
 
 class CatalogRecordApiWriteUpdateTests(CatalogRecordApiWriteCommon):
     #

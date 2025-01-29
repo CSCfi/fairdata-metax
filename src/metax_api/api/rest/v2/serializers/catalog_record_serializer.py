@@ -155,4 +155,4 @@ class CatalogRecordSerializerV2(CatalogRecordSerializer):
         if CS.request_is_create_operation(self.instance.request):
             return self.instance._save_as_draft()
 
-        return True
+        return self.instance.state == CatalogRecordV2.STATE_DRAFT
