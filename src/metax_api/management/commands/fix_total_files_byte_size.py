@@ -8,6 +8,8 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
+    """Update research_dataset.total_files_byte_size for nonremoved datasets."""
+
     def handle(self, *args, **options):
         CRS = CatalogRecord.objects.all()
         crs_sum = CRS.count()

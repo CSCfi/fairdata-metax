@@ -629,13 +629,6 @@ class CatalogRecordV2(CatalogRecord):
         else:
             self.update_datacite = False
 
-    def _calculate_total_files_byte_size(self):
-        rd = self.research_dataset
-        rd["total_files_byte_size"] = 0
-        if self.files.count() > 0:
-            rd["total_files_byte_size"] = (
-                self.files.aggregate(Sum("byte_size"))["byte_size__sum"] or 0
-            )
 
     def _update_dataset_specific_metadata(self, file_changes, operation_is_create=False):
         """
