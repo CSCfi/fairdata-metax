@@ -2159,7 +2159,7 @@ class CatalogRecord(Common):
         rd = self.research_dataset
         # Avoid adding total_files_byte_size if there are no files
         # and the field does not already exist
-        if ("total_files_byte_size" in rd) or self.files.exists():
+        if ("total_files_byte_size" in rd) or self.files(manager="objects_unfiltered").exists():
             old_size = rd.get("total_files_byte_size")
             new_size = self.files.aggregate(Sum("byte_size"))["byte_size__sum"] or 0
             rd["total_files_byte_size"] = new_size
