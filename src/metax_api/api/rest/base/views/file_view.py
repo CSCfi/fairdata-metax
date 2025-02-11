@@ -13,6 +13,7 @@ from django.conf import settings
 from django.db import transaction
 from django.http import Http404
 from django.utils.decorators import method_decorator
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
@@ -227,8 +228,20 @@ class FileViewSet(CommonViewSet):
         return resp
 
     def destroy_bulk(self, request, *args, **kwargs):
+        file_ids = FileService.identifiers_to_ids(request.data, "noparams")
+        files = list(
+            File.objects
+            .prefetch_related("file_storage", "parent_directory")
+            .filter(id__in=file_ids)
+        )
+
         resp = FileService.destroy_bulk(request.data)
-        FileService.sync_to_v3_from_identifier_list(request.data)
+
+        now = timezone.now()
+        for f in files:
+            f.removed = True
+            f.date_removed = now
+        FileService.sync_to_v3(files)
         return resp
 
     @action(detail=True, methods=["get", "post", "put", "delete"], url_path="xml")

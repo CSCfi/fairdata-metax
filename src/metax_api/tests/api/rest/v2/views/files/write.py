@@ -325,7 +325,7 @@ class FileApiWriteSyncToV3Tests(FileApiWriteCommon):
         self.mock_responses()
         data = [self.identifier]
         response = self.process_response(
-            self.client.delete(f"/rest/v2/files/{self.identifier}", data, format="json")
+            self.client.delete("/rest/v2/files", data, format="json")
         )
         expected_body = [self._get_expected_removed_file_data()]
         self.assertEqual(response, expected_body)
