@@ -40,6 +40,7 @@ class PIDMigrationTest(APITestCase, TestClassUtils):
         super(PIDMigrationTest, cls).setUpClass()
 
     def setUp(self):
+        self.pid_get_status = 404 # Return 404 not found for /get/v1/pid/<pid>
         self._use_http_authorization()
 
         # Init catalog record
@@ -72,6 +73,10 @@ class PIDMigrationTest(APITestCase, TestClassUtils):
         response = self.client.post("/rest/v2/datacatalogs", data_catalog, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
+    def get_pid_callback(self, request):
+        """Callback to handle /get/v1/pid/<pid>."""
+        return (self.pid_get_status, {}, "")
+
     def mock_responses(self):
         responses.add(
             responses.POST,
@@ -84,9 +89,11 @@ class PIDMigrationTest(APITestCase, TestClassUtils):
             body=Exception("PID exists already"),
             status=400,
         )
-        responses.add(
+
+        responses.add_callback(
             responses.GET,
             url=re.compile("https://pidms-test/get/v1/pid/.*"),
+            callback=self.get_pid_callback
         )
 
     def mock_responses_already_exists(self):
@@ -104,9 +111,11 @@ class PIDMigrationTest(APITestCase, TestClassUtils):
             body=Exception("Random Error"),
             status=503,
         )
-        responses.add(
+
+        responses.add_callback(
             responses.GET,
             url=re.compile("https://pidms-test/get/v1/pid/.*"),
+            callback=self.get_pid_callback
         )
 
     @responses.activate
@@ -129,7 +138,9 @@ class PIDMigrationTest(APITestCase, TestClassUtils):
         # Assert PID has been migrated
         catalog_record = CatalogRecord.objects.get(id=cr_id)
         self.assertTrue(catalog_record.pid_migrated)
-        self.assertEqual(len(responses.calls), 1)
+        self.assertEqual(len(responses.calls), 2)
+        self.assertEqual(responses.calls[0].request.method, "GET")
+        self.assertEqual(responses.calls[1].request.method, "POST")
 
     @responses.activate
     def testMigrateDOISuccessfully(self):
@@ -151,7 +162,9 @@ class PIDMigrationTest(APITestCase, TestClassUtils):
         # Assert PID has been migrated
         catalog_record = CatalogRecord.objects.get(id=cr_id)
         self.assertTrue(catalog_record.pid_migrated)
-        self.assertEqual(len(responses.calls), 1)
+        self.assertEqual(len(responses.calls), 2)
+        self.assertEqual(responses.calls[0].request.method, "GET")
+        self.assertEqual(responses.calls[1].request.method, "POST")
 
     @responses.activate
     def testMigrateAlreadyMigratedPID(self):
@@ -166,6 +179,7 @@ class PIDMigrationTest(APITestCase, TestClassUtils):
 
         catalog_record = CatalogRecord.objects.get(id=cr_id)
         self.assertFalse(catalog_record.pid_migrated)
+        self.pid_get_status = 404
 
         # Migrate PIDs
         call_command("migrate_pids")
@@ -173,13 +187,14 @@ class PIDMigrationTest(APITestCase, TestClassUtils):
         # Assert PID has been migrated
         catalog_record = CatalogRecord.objects.get(id=cr_id)
         self.assertTrue(catalog_record.pid_migrated)
-        self.assertEqual(len(responses.calls), 1)
+        self.assertEqual(len(responses.calls), 2) # GET, POST
 
-        # Try to migrate PID again
-        with self.assertRaises(Exception) as cm:
-            PIDMSService().insert_pid(catalog_record)
+        # Try to migrate PID again. PID should not be migrated
+        # when it already exists in PIDMS.
+        self.pid_get_status = 200
+        PIDMSService().insert_pid(catalog_record)
+        self.assertEqual(len(responses.calls), 3) # GET, POST, GET
 
-        self.assertIn("PID exists already", str(cm.exception))
 
     @responses.activate
     def testMigratePIDErrorInPIDMS(self):
@@ -202,7 +217,10 @@ class PIDMigrationTest(APITestCase, TestClassUtils):
         # Assert PID has not been migrated
         catalog_record = CatalogRecord.objects.get(id=cr_id)
         self.assertFalse(catalog_record.pid_migrated)
-        self.assertEqual(len(responses.calls), 1)
+        self.assertEqual(len(responses.calls), 2)
+        self.assertEqual(responses.calls[0].request.method, "GET")
+        self.assertEqual(responses.calls[1].request.method, "POST")
+
 
         # Try to migrate the PID again
         with self.assertRaises(Exception) as cm:

@@ -57,7 +57,14 @@ env = environ.Env(
     OAI_BASE_URL=(str, "https://metax.fd-dev.csc.fi/oai/"),
     OAI_BATCH_SIZE=(int, 25),
     OAI_REPOSITORY_NAME=(str, "Metax"),
-    PID_MS_CATALOGS_TO_MIGRATE=(list, ["urn:nbn:fi:att:data-catalog-ida", "urn:nbn:fi:att:data-catalog-att"]),
+    PID_MS_CATALOGS_TO_MIGRATE=(
+        list,
+        [
+            "urn:nbn:fi:att:data-catalog-ida",
+            "urn:nbn:fi:att:data-catalog-att",
+            "urn:nbn:fi:att:data-catalog-pas",
+        ],
+    ),
     PID_MS_HOST=(str, "pidms-test.2.rahtiapp.fi"),
     PID_MS_TOKEN=(str, "token"),
     PID_MS_PROTOCOL=(str, "https"),

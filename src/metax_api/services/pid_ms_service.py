@@ -54,6 +54,14 @@ class PIDMSService:
             _logger.error(error_msg)
             raise ServiceUnavailableError(error_msg)
 
+    def pid_exists(self, pid):
+        response = requests.get(f"{self.PIDMSUrl}/get/v1/pid/{pid}", headers=self.headers)
+        if response.status_code == 404:
+            return False
+
+        response.raise_for_status()
+        return True
+
     def insert_pid(self, cr):
         dataset_id = cr.identifier
         dataset_pid = cr.research_dataset["preferred_identifier"]
@@ -96,13 +104,15 @@ class PIDMSService:
 
         try:
             _logger.info(f"Inserting PID {dataset_pid} to PID-MS")
-            response = requests.post(
-                f"{self.PIDMSUrl}/v1/pid/{dataset_pid}", json=payload, headers=self.headers
-            )
-            response.raise_for_status()
+            if self.pid_exists(dataset_pid):
+                _logger.info(f"PID {dataset_pid} already exists, not inserting")
+            else:
+                response = requests.post(
+                    f"{self.PIDMSUrl}/v1/pid/{dataset_pid}", json=payload, headers=self.headers
+                )
+                response.raise_for_status()
             cr.pid_migrated = get_tz_aware_now_without_micros()
             super(Common, cr).save(update_fields=["pid_migrated"])
-            return response.text
         except Exception as e:
             error_msg = f"Exception in PIDMSClient: {e}"
             _logger.error(error_msg)

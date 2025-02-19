@@ -22,7 +22,7 @@ class DateTimeZFormatter(logging.Formatter):
     """Log formatter with datetime with milliseconds and Z timezone."""
 
     default_time_format = "%Y-%m-%d %H:%M:%S"
-    default_msec_format = "%s,%03dZ"
+    default_msec_format = "%s.%03dZ"
 
 
 LOGGING = {

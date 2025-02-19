@@ -8,3 +8,4 @@
 from .create_missing_rems_items import *
 from .mark_files_removed import *
 from .loadinitialdata import *
+from .migrate_pids import *
