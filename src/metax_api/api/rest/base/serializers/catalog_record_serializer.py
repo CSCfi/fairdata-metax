@@ -255,6 +255,9 @@ class CatalogRecordSerializer(CommonSerializer):
         existing_editors = list(perms.users(manager="objects_unfiltered").all())  # includes creator
         editors_by_uid = {user.user_id: user for user in existing_editors}
 
+        date_modified = catalog_record.date_modified or catalog_record.date_created
+        user_modified = catalog_record.user_modified or catalog_record.user_created
+
         # Add missing editors
         for user_id in editor_usernames:
             user = editors_by_uid.get(user_id)
@@ -262,8 +265,8 @@ class CatalogRecordSerializer(CommonSerializer):
                 if user.removed:
                     # Permission is no longer removed, restore it
                     user.removed = False
-                    user.date_modified = catalog_record.date_modified
-                    user.user_modified = catalog_record.user_modified
+                    user.date_modified = date_modified
+                    user.user_modified = user_modified
                     user.service_modified = catalog_record.request.user.username
                     user.save()
             else:
@@ -271,10 +274,10 @@ class CatalogRecordSerializer(CommonSerializer):
                     editor_permissions=perms,
                     user_id=user_id,
                     role=PermissionRole.EDITOR,
-                    date_created=catalog_record.date_modified,
-                    date_modified=catalog_record.date_modified,
-                    user_created=catalog_record.user_modified,
-                    user_modified=catalog_record.user_modified,
+                    date_created=date_modified,
+                    date_modified=date_modified,
+                    user_created=user_modified,
+                    user_modified=user_modified,
                     service_created=catalog_record.request.user.username,
                     service_modified=catalog_record.request.user.username,
                 )
