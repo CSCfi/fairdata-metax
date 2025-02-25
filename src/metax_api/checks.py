@@ -24,7 +24,7 @@ def elasticsearch_check():
             ]
         }
     except Exception as e:
-        logger.error(e)
+        logger.error(f"error in elasticsearch_check: {e}")
         return {
             "elasticsearch": {
                 "ok": False,
@@ -42,7 +42,7 @@ def redis_check():
         if len(refdata) > 0:
             return {"redis": [{"key: reference_data": {"ok": True}}]}
     except Exception as e:
-        logger.error(e)
+        logger.error(f"error in redis_check: {e}")
         return {"redis": {"ok": False, "error": str(e), "traceback": str(e.__traceback__)}}
 
 @check
@@ -61,7 +61,7 @@ def finto_check():
             status_dict["finto"].append({key: {"ok": res.ok, "status_code": res.status_code}})
 
         except Exception as e:
-            logger.error(e)
+            logger.error(f"error in finto_check: {e}")
             status_dict["finto"].append({key: {"ok": False, "error": str(e), "traceback": str(e.__traceback__)}})
     return status_dict
 
@@ -70,13 +70,13 @@ def check_metax_availability(v2_url, v3_url):
     try:
         requests.head(v2_url, timeout=10)
     except Exception as e:
-        logger.error(e)
+        logger.error(f"error in check_metax_availability V2: {e}")
         return False, "Metax V2 is not available"
 
     try:
         requests.head(v3_url, timeout=10)
     except Exception as e:
-        logger.error(e)
+        logger.error(f"error in check_metax_availability V3: {e}")
         return False, "Metax V3 is not available"
 
     return True, "OK"
@@ -166,7 +166,7 @@ def v3_sync_check():
         return status_dict
 
     except Exception as e:
-        logger.error(e)
+        logger.error(f"error in v3_sync_check: {e}")
         return {
             "v3 synchronization": {
                 "ok": False,

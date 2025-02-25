@@ -133,6 +133,10 @@ class MetricsTracking:
                 )
                 return
 
+            if request.path.startswith("/watchman/"):
+                _logger.info(f"request.path is {request.path}. Not publishing the event to Metrics")
+                return
+
             request_params = request.GET
 
             title = self.construct_event_title(
