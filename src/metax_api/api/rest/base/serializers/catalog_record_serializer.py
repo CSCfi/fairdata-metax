@@ -529,6 +529,9 @@ class CatalogRecordSerializer(CommonSerializer):
 
                 res.pop("rems_identifier", None)
                 res.pop("access_granter", None)
+                res.pop("user_created", None)
+                res.pop("user_modified", None)
+                res.pop("metadata_provider_user", None)
 
         return res
 

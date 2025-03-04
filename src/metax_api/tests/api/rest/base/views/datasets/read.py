@@ -246,10 +246,14 @@ class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
         """
 
         def _check_fields(obj):
+            for sensitive_field in ["metadata_provider_user", "user_created", "user_modified"]:
+                self.assertFalse(
+                    sensitive_field in obj,
+                    "field %s should have been stripped" % sensitive_field,
+                )
             for sensitive_field in ["email", "telephone", "phone"]:
-                self.assertEqual(
-                    sensitive_field not in obj["research_dataset"]["curator"][0],
-                    True,
+                self.assertFalse(
+                    sensitive_field in obj["research_dataset"]["curator"][0],
                     "field %s should have been stripped" % sensitive_field,
                 )
 
@@ -262,6 +266,11 @@ class CatalogRecordApiReadBasicTests(CatalogRecordApiReadCommon):
                 }
             )
             cr.force_save()
+
+        # Add usernames to test CR
+        CatalogRecord.objects.filter(id=1).update(
+            metadata_provider_user="someuser", user_created="someuser", user_modified="someuser"
+        )
 
         self.client._credentials = {}
 

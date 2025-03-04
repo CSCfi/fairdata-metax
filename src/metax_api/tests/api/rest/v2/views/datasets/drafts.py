@@ -138,12 +138,18 @@ class CatalogRecordDraftTests(CatalogRecordApiWriteCommon):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, response.status_code)
         # Test for multiple datasets
         response = self.client.get("/rest/v2/datasets", format="json")
-        # Returned list of datasets should not have owner "#### Some owner who is not you ####"
-        owners = [cr["metadata_provider_user"] for cr in response.data["results"]]
-        self.assertEqual("#### Some owner who is not you ####" not in owners, True, response.data)
+        # Returned list of datasets should include owned drafts but not drafts by other users
+        results = response.data["results"]
+        self.assertTrue(any(cr["state"] == "draft" for cr in results))
+        for cr in results:
+            owner = cr.get("metadata_provider_user")
+            if cr["state"] == "draft":
+                self.assertEqual(owner, "testuser")
+            else:
+                self.assertIn(owner, {"testuser", None})
 
     def test_service_users_access_to_draft_datasets(self):
-        """ Service users should get all data """
+        """Service users should get all data"""
         # test access as a service-user
         self._use_http_authorization(method="basic", username="metax")
 

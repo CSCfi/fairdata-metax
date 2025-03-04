@@ -303,11 +303,11 @@ class FilesSyncFromV3Service:
             # specify only fields that actually need to be updated
             _logger.info(f"Sync from V3: Updating {len(updated_files)} existing files...")
             File.objects_unfiltered.bulk_update(
-                updated_files, fields=changed_fields, batch_size=1000
+                updated_files, fields=changed_fields, batch_size=2000
             )
         if created_files:
-            _logger.info(f"Sync from V3: Creating {len(updated_files)} new files...")
-            created_files = File.objects_unfiltered.bulk_create(created_files, batch_size=1000)
+            _logger.info(f"Sync from V3: Creating {len(created_files)} new files...")
+            created_files = File.objects_unfiltered.bulk_create(created_files, batch_size=2000)
 
         # Raise error and rollback transaction if the changes caused uniqueness conflicts.
         cls._check_unique_files(unique_check_files)

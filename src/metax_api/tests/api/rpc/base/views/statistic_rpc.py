@@ -118,6 +118,7 @@ class StatisticRPCCommon(APITestCase, TestClassUtils):
         dc_json = {
             "catalog_record_services_create": "testuser,api_auth_user,metax",
             "catalog_record_services_edit": "testuser,api_auth_user,metax",
+            "catalog_record_services_read": "testuser,api_auth_user,metax",
             "catalog_json": dc.catalog_json,
         }
         response = self.client.post("/rest/datacatalogs", dc_json, format="json")
