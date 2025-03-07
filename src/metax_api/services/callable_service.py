@@ -6,11 +6,12 @@
 # :license: MIT
 
 import logging
+import threading
 
 _logger = logging.getLogger(__name__)
 
-
-class _CallableService:
+# Callableservice is thread local to prevent callables leaking to concurrent requests
+class _CallableService(threading.local):
 
     """
     Methods to handle adding and executing callable objects, which will be executed
@@ -26,7 +27,9 @@ class _CallableService:
     django.db.transaction.on_commit(callable).
     """
 
-    post_request_callables = []
+    def __init__(self):
+        super().__init__()
+        self.post_request_callables = []
 
     def add_post_request_callable(self, callable):
         if not self.post_request_callables:
